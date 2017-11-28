@@ -6,8 +6,9 @@ Moves data from UMN to Pure (Experts@Minnesota), and vice versa.
 
 * Create "all jobs new", by subtracting the "all jobs previous" snapshot from "all jobs current".
   * Create "all jobs deferred", by subtracting from "all jobs new" any jobs where "dept id" exists in "pure internal orgs", i.e., the org already exists in Pure. (The org must exist before we can add the job to Pure.)
-    * For "all jobs deferred", set "defer" to "Y", and "defer reason" to "Org with $deptid does not yet exist in Pure" in each corresponding "all jobs new" record.
+    * Set "defer" to "Y", and "defer reason" to "Org with $deptid does not yet exist in Pure" in each corresponding "all jobs new" record.
     * Add all emplids to "person changes deferred".
+    * Add all deptids to "orgs to be added to Pure".
   * For all other "all jobs new", set "defer" to "N".
 * Create "emplids new", by subtracting the distinct emplids in the "all jobs previous" snapshot from the distinct emplids in "all jobs current".
   * For "all jobs new" where emplid is in "emplids new", set "person change description" to "add".
