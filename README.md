@@ -4,6 +4,8 @@ Moves data from UMN to Pure (Experts@Minnesota), and vice versa.
 
 ## High-level Data Flow
 
+**TODO**: How to handle organisations, like centers and institutes, that have no UMN deptid, and exist only in Pure? Related: how to handle people who have jobs with those organisations, which also exist only in Pure? (Meaning neither of these exist in PS.) Will any of the syncing options for Pure uploads overwrite that data that we created in Pure, if we're not careful? Also, how do we handle cases where a person leaves UMN, but had a job at one of these organisations? Can we automatically alert center/insitute administrators about the situation?
+
 * Create "all jobs new", by subtracting the "all jobs previous" snapshot from "all jobs current".
   * Create "all jobs deferred", by subtracting from "all jobs new" any jobs where "dept id" exists in "pure internal orgs", i.e., the org already exists in Pure. (The org must exist before we can add the job to Pure.)
     * Set "defer" to "Y", and "defer reason" to "Org with $deptid does not yet exist in Pure" in each corresponding "all jobs new" record.
