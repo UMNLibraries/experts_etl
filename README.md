@@ -17,6 +17,7 @@ Moves data from UMN to Pure (Experts@Minnesota), and vice versa.
   * For all other "all jobs new", set "person change description" to "update".
 * Create "emplids removed", by subtracting the distinct emplids from "all jobs new" from the distinct emplids in the "all jobs previous" snapshot.
   * For "all jobs previous" where emplid is in "emplids removed", add a record to "all jobs new", with a "person change description" of "remove".
+  * Not sure "remove" is the best language here, because we should never remove persons from Pure. The most we will do is discontinue refining their profiles.
 * Add "all jobs new" to the "all jobs history" table, along with a timestamp.
 * Add "all jobs new" emplids to "persons needing new Pure records", _except_ for those emplids in "person changes deferred".
 * Add "emplids new" to a list of "all emplids", along with a timestamp.
