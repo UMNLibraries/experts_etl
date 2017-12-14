@@ -8,17 +8,19 @@ name = "pypi"
 [packages]
 
 alembic = "*"
-cx_Oracle = "*"
+cx-oracle = "*"
 python-dotenv = "*"
-SQLAlchemy = "*"
-sqlalchemy_mptt = "*"
-experts_dw = {git = "git://github.com/UMNLibraries/experts_dw.git", editable = true}
+sqlalchemy = "*"
+sqlalchemy-mptt = "*"
+experts-dw = {git = "git://github.com/UMNLibraries/experts_dw.git", editable = true}
 addict = "*"
 requests = "*"
 pureapi = {git = "git://github.com/UMNLibraries/pureapi.git", editable = true}
 
 
 [dev-packages]
+
+pytest = "*"
 
 
 [requires]
