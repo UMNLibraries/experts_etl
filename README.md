@@ -30,6 +30,7 @@ Moves data from UMN to Pure (Experts@Minnesota), and vice versa.
 
 Quotations below from section "4.3.2: Configuration area fields and buttons", in [Populating Pure in Bulk](https://experts.umn.edu/admin/services/import/documentation.pdf).
  
+* Rather than try to update "VISBILITY" according to any changes people may have made manually in Pure, set it to "Sync once". That way, we'll use the new staff defaults for their organisations for the first automated upload, but won't overwrite any changes people may have made in Pure after that. There is a different Pure option we can set to control visibility (or maybe just display?) and Profile Refinement Service (PRS) for people who have left UMN. So it's safe to ignore visibility in those cases, too.
 * How to handle organisations, like centers and institutes, that have no UMN deptid, and exist only in Pure?
   * This is one reason we decided to maintain organisations in Pure, manually. Affiliations of persons to such organisations must also be maintained manually in Pure. 
 * Related: how to handle people who have jobs with those organisations, which also exist only in Pure? (Meaning neither of these exist in PS.)
