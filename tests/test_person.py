@@ -3,7 +3,7 @@ load_dotenv(find_dotenv())
 from experts_dw import db
 from experts_dw import db
 #from experts_dw.models import PureEligibleAffJob, PureEligibleAffJobNew, PureEligibleAffJobChngHst, PureEligibleEmpJob, PureEligibleEmpJobNew, PureEligibleEmpJobChngHst
-from experts_dw.models import PureEligibleDemog
+from experts_dw.models import Person, PureEligibleDemog
 
 from jinja2 import Environment, PackageLoader, Template, select_autoescape
 env = Environment(
@@ -24,7 +24,14 @@ def test_template():
   )
   assert isinstance(demog, PureEligibleDemog)
 
-  expected_person_xml = """<person id="5150075">
+  person = (
+    session.query(Person)
+    .filter(Person.emplid == demog.emplid)
+    .one_or_none()
+  )
+  assert isinstance(person, Person)
+
+  expected_person_xml = """<person id="8185">
   <name>
     <v3:firstname>Maximiliano</v3:firstname>
     <v3:lastname>Bezada</v3:lastname>
@@ -50,6 +57,10 @@ def test_template():
 </person>"""
 
   person_dict = {}
+  if person.pure_id:
+    person_dict['person_id'] = person.pure_id
+  else:
+    person_dict['person_id'] = demog.emplid
   for item in ['emplid','first_name','last_name','internet_id','instl_email_addr']:
     person_dict[item] = getattr(demog, item)
   person_xml = template.render(person_dict)
