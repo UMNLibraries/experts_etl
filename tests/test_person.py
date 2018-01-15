@@ -30,6 +30,10 @@ def test_template():
     <v3:lastname>Bezada</v3:lastname>
   </name>
   <gender>unknown</gender>
+  <user>
+    <userName>mbezada@umn.edu</userName>
+    <email>mbezada@umn.edu</email>
+  </user>
   <personIds>
     <v3:id type="employee">5150075</v3:id>
     <v3:id type="umn">mbezada</v3:id>
@@ -41,5 +45,6 @@ def test_template():
     'first_name': demog.first_name, 
     'last_name': demog.last_name, 
     'internet_id': demog.internet_id, 
+    'instl_email_addr': demog.instl_email_addr, 
   })
   assert person_xml == expected_person_xml
