@@ -49,11 +49,8 @@ def test_template():
   </personIds>
 </person>"""
 
-  person_xml = template.render({
-    'emplid': demog.emplid, 
-    'first_name': demog.first_name, 
-    'last_name': demog.last_name, 
-    'internet_id': demog.internet_id, 
-    'instl_email_addr': demog.instl_email_addr, 
-  })
+  person_dict = {}
+  for item in ['emplid','first_name','last_name','internet_id','instl_email_addr']:
+    person_dict[item] = getattr(demog, item)
+  person_xml = template.render(person_dict)
   assert person_xml == expected_person_xml
