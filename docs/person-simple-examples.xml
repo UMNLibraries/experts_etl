@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persons xmlns="v1.unified-person-sync.pure.atira.dk" xmlns:v3="v3.commons.pure.atira.dk">
+
+    <!--1 or more repetitions:-->
+    <person id="person1">
+        <name>
+            <v3:firstname>John</v3:firstname>
+            <v3:lastname>Doe</v3:lastname>
+        </name>
+        <gender>male</gender>
+        <organisationAssociations>
+            <!-- association can be either staffOrganisationAssociation, studentOrganisationAssociation, honoraryOrganisationAssociation, or visitingOrganisationAssociation -->
+            <staffOrganisationAssociation id="organisationAssoc1">
+                <organisation>
+                    <!-- organisation can be found in organisation-simple-examples.xml -->
+                    <v3:source_id>organisation1</v3:source_id>
+                </organisation>
+                <period>
+                    <v3:startDate>02-02-2002</v3:startDate>
+                </period>
+                <staffType>academic</staffType>
+            </staffOrganisationAssociation>
+        </organisationAssociations>
+    </person>
+
+</persons>

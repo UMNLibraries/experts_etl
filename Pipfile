@@ -12,10 +12,11 @@ cx-oracle = "*"
 python-dotenv = "*"
 sqlalchemy = "*"
 sqlalchemy-mptt = "*"
-experts_dw = {git = "git://github.com/UMNLibraries/experts_dw.git", editable = true}
+experts-dw = {git = "git://github.com/UMNLibraries/experts_dw.git", editable = true}
 addict = "*"
 requests = "*"
 pureapi = {git = "git://github.com/UMNLibraries/pureapi.git", editable = true}
+"jinja2" = "*"
 
 
 [dev-packages]

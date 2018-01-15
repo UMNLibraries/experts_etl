@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<organisations xmlns="v1.organisation-sync.pure.atira.dk" xmlns:v3="v3.commons.pure.atira.dk">
+    <organisation managedInPure="false">
+        <organisationId>organisation1</organisationId>
+        <type>university</type>
+        <name>
+            <v3:text lang="en" country="GB">Tesla University</v3:text>
+        </name>
+        <startDate>2007-10-26</startDate>
+        <endDate>2050-01-01</endDate>
+        <visibility>Restricted</visibility>
+        <nameVariants>
+            <nameVariant>
+                <type>shortname</type>
+                <name>
+                    <v3:text lang="en" country="GB">TeU</v3:text>
+                </name>
+            </nameVariant>
+        </nameVariants>
+        <profileInfos>
+            <profileInfo>
+                <type>organisation_profile</type>
+                <profileInfo>
+                    <v3:text lang="en" country="GB">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                        Mauris faucibus sem vitae nisl dapibus semper. Praesent iaculis lorem turpis, id dapibus mi tincidunt id.
+                        Suspendisse aliquet magna turpis, quis dignissim elit mollis ut. Donec ut imperdiet ligula. Donec luctus malesuada laoreet.
+                        Maecenas interdum dui ornare pharetra tempor. Vestibulum consectetur mollis magna. Vivamus tristique sem in sem imperdiet, laoreet vestibulum turpis commodo.
+                        Duis nulla quam, bibendum eu turpis ut, venenatis imperdiet urna. Praesent sed ante purus.
+                    </v3:text>
+                </profileInfo>
+            </profileInfo>
+        </profileInfos>
+        <photos>
+            <photo>
+                <type>organisation_photo</type>
+                <photoValue>https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/N.Tesla.JPG/800px-N.Tesla.JPG</photoValue>
+                <photoProtocol>http</photoProtocol>
+            </photo>
+        </photos>
+        <phoneNumbers>
+            <phoneNumber>
+                <type>phone</type>
+                <phoneNumber>568425658</phoneNumber>
+            </phoneNumber>
+        </phoneNumbers>
+        <emails>
+            <email>
+                <type>email</type>
+                <email>noreply@elsevier.com</email>
+            </email>
+        </emails>
+        <webAddresses>
+            <webAddress>
+                <type>official_website</type>
+                <webAddress>
+                    <v3:text lang="en" country="GB">http://elsevier.com</v3:text>
+                </webAddress>
+            </webAddress>
+        </webAddresses>
+        <addresses>
+            <address>
+                <type>visiting_adress</type>
+                <city>London</city>
+                <postalCode>SW1V 4NP</postalCode>
+                <street>Wayne Street</street>
+                <building>44</building>
+                <country>us</country>
+                <subdivision>us/ak</subdivision>
+                <geospatialPoint>40.64209354784047, -73.78486633300781</geospatialPoint>
+                <geospatialPolygon>40.64209354784047, -73.78486633300781, 35.64209354784047, 40.64209354784047</geospatialPolygon>
+                <displayFormat>
+                    Tesla University
+                    44 Wayne Street
+                    London AK, SW1V 4NP
+                    UNITED STATES
+                </displayFormat>
+            </address>
+        </addresses>
+        <keywords>
+            <v3:logicalGroup logicalName="keywordContainers">
+                <v3:structuredKeywords>
+                    <v3:structuredKeyword classification="A" />
+                    <v3:structuredKeyword classification="T/TA" />
+                    <v3:structuredKeyword classification="T/TP">
+                        <v3:freeKeywords>
+                            <v3:freeKeyword>
+                                    <v3:text lang="en" country="GB">Inorganic chemistry</v3:text>
+                                    <v3:text lang="da" country="DK">Uorganisk kemi</v3:text>
+                                </v3:freeKeyword>
+                                <v3:freeKeyword>
+                                    <v3:text lang="da" country="DK">Applied biochemistry</v3:text>
+                            </v3:freeKeyword>
+                        </v3:freeKeywords>
+                    </v3:structuredKeyword>
+                </v3:structuredKeywords>
+            </v3:logicalGroup>
+        </keywords>
+        <ids>
+            <id>
+                <idSource>organisationid</idSource>
+                <id>organisation1</id>
+            </id>
+        </ids>
+        <costCenters>
+            <costCenter>costcenter1</costCenter>
+            <costCenter>costcenter2</costCenter>
+        </costCenters>
+    </organisation>
+
+    <organisation managedInPure="false">
+        <organisationId>organisation2</organisationId>
+        <type>faculty</type>
+        <name>
+            <v3:text lang="en" country="GB">Faculty of Science</v3:text>
+        </name>
+        <startDate>2007-01-01</startDate>
+        <visibility>Public</visibility>
+        <parentOrganisationId>organisation1</parentOrganisationId>
+    </organisation>
+
+    <organisation managedInPure="false">
+        <organisationId>organisation3</organisationId>
+        <type>faculty</type>
+        <name>
+            <v3:text lang="en" country="GB">Old Faculty of Science</v3:text>
+        </name>
+        <startDate>1907-10-26</startDate>
+        <endDate>2006-12-31</endDate>
+        <takenOverBy>organisation2</takenOverBy>
+        <visibility>Public</visibility>
+        <parentOrganisationId>organisation1</parentOrganisationId>
+    </organisation>
+
+</organisations>

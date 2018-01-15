@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		   xmlns:commons="v3.commons.pure.atira.dk"
+		   xmlns="v1.unified-person-sync.pure.atira.dk"
+		   attributeFormDefault="unqualified" elementFormDefault="qualified"
+		   targetNamespace="v1.unified-person-sync.pure.atira.dk">
+
+	<xs:import schemaLocation="commons.xsd" namespace="v3.commons.pure.atira.dk" />
+
+	<xs:element name="persons">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="person" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="person" type="personType"/>
+
+	<xs:complexType name="personType">
+		<xs:sequence>
+			<xs:element name="name" type="commons:name" minOccurs="1"/>
+			<xs:element name="names" type="names" minOccurs="0"/>
+			<xs:element name="titles" type="titles" minOccurs="0"/>
+			<xs:element name="gender" type="commons:classification" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						The gender of the person. Should be a classification token from the scheme /dk/atira/pure/person/gender
+						Examples could be 'male', 'female', or 'unknown'
+					</xs:documentation>
+
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="dateOfBirth" type="commons:date" minOccurs="0"/>
+			<xs:element name="nationality" type="commons:classification" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						The nationality of the person. Should be a classification token from the scheme /dk/atira/pure/core/countries
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="employeeStartDate" type="commons:date" minOccurs="0"/>
+			<xs:element name="systemLeavingDate" type="commons:date" minOccurs="0"/>
+			<xs:element name="academicProfessionEntry" type="commons:date" minOccurs="0"/>
+			<xs:element name="retiralDate" type="commons:date" minOccurs="0"/>
+			<xs:element name="privateAddress" type="commons:address" minOccurs="0"/>
+			<xs:element name="expert" type="xs:boolean" minOccurs="0" />
+			<xs:element name="leavesOfAbsence" type="leavesOfAbsence" minOccurs="0"/>
+			<xs:element name="willingnessToPhd" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="photos" type="personPhotos" minOccurs="0" />
+			<xs:element name="phdResearchProjects" type="xs:string" minOccurs="0"/>
+			<xs:element name="organisationAssociations" type="organisationAssociations"/>
+			<xs:element name="affiliationNote" type="xs:string" minOccurs="0"/>
+			<xs:element name="personEducations" type="personEducations" minOccurs="0"/>
+			<xs:element name="externalPositions" type="externalPositions" minOccurs="0" />
+			<xs:element name="profileInformation" type="personCustomFields" minOccurs="0"/>
+			<xs:element name="professionalQualifications" type="professionalQualifications" minOccurs="0" />
+			<xs:element name="keywords" type="commons:keywords" minOccurs="0" />
+			<xs:element name="links" type="commons:links" minOccurs="0" />
+			<xs:element name="user" type="user" minOccurs="0" />
+			<xs:element name="personIds" type="commons:ids" minOccurs="0" />
+			<xs:element name="orcId" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="20"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="visibility" type="commons:visibility" minOccurs="0"/>
+			<xs:element name="profiled" type="xs:boolean"  minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						<!--Profiled is only available for customers who has the author profile module enabled. Please note, that this element will be set to false automatically when a persons retired.-->
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute type="commons:string_400" name="id" use="required"/>
+		<xs:attribute type="xs:boolean" name="managedInPure" use="optional"/>
+	</xs:complexType>
+
+	<xs:complexType name="user">
+		<xs:sequence>
+			<xs:element name="userName" type="commons:string_256" minOccurs="0" />
+			<xs:element name="email" type="commons:string_256" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute type="commons:string_400" name="id" use="optional">
+			<xs:annotation><xs:documentation>Id of the user. This would be the id from an external source i.e. an HR system.</xs:documentation></xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="titles">
+		<xs:sequence>
+			<xs:element name="title" type="title" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="title">
+		<xs:all>
+			<xs:element name="typeClassification" type="commons:classification" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						The type of title. Must be a valid classification from the /dk/atira/pure/person/titles classification scheme
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="value" type="commons:localized_string" minOccurs="1" />
+		</xs:all>
+		<xs:attribute type="commons:string_400" name="id" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="leavesOfAbsence">
+		<xs:sequence>
+			<xs:element name="leaveOfAbsence" type="leaveOfAbsence" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="leaveOfAbsence">
+		<xs:all>
+			<xs:element name="classification" type="commons:classification" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						The type of leave. Must be a valid classification from the /dk/atira/pure/person/loa classification scheme
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="startDate" type="commons:date" minOccurs="1">
+			</xs:element>
+			<xs:element name="endDate" type="commons:date" minOccurs="0">
+			</xs:element>
+		</xs:all>
+		<xs:attribute type="commons:string_400" name="id" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="personPhotos">
+		<xs:sequence>
+			<xs:element name="personPhoto" type="personPhoto" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="personPhoto">
+		<xs:all>
+			<xs:element name="classification" type="commons:classification" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						The type of photo. Must be a valid classification from the /dk/atira/pure/person/personfiles classificationscheme
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="data" type="dataType" minOccurs="1"/>
+		</xs:all>
+		<xs:attribute type="commons:string_400" name="id" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="dataType">
+		<xs:choice>
+			<xs:element name="http">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="url" type="xs:string" minOccurs="1" />
+						<xs:element name="mimeType" type="commons:string_256" minOccurs="0"/>
+						<xs:element name="fileName" type="commons:string_256" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="file" >
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="path" type="xs:string" minOccurs="1" />
+						<xs:element name="mimeType" type="commons:string_256" minOccurs="0"/>
+						<xs:element name="fileName" type="commons:string_256" minOccurs="0"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="byte">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="base64EncodedString" type="commons:base64Binary" minOccurs="1" />
+						<xs:element name="mimeType" type="commons:string_256" minOccurs="1"/>
+						<xs:element name="fileName" type="commons:string_256" minOccurs="1"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+
+	<xs:complexType name="personCustomFields">
+		<xs:sequence>
+			<xs:element name="personCustomField" type="personCustomField" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="personCustomField">
+		<xs:all>
+			<xs:element name="typeClassification" type="commons:classification" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						The type of the custom field. Must be a valid classification from the /dk/atira/pure/person/customfields classification scheme
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="value" type="commons:localized_string" minOccurs="1">
+			</xs:element>
+		</xs:all>
+		<xs:attribute type="commons:string_400" name="id" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="names">
+		<xs:sequence>
+			<xs:element name="classifiedName" type="classifiedName" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="classifiedName">
+		<xs:all>
+			<xs:element name="name" type="commons:name" minOccurs="1" />
+			<xs:element name="typeClassification" type="commons:classification" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation>
+						The type of name. Must be a valid classification from the /dk/atira/pure/person/names classification scheme
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+		<xs:attribute type="commons:string_400" name="id" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="personEducations">
+		<xs:sequence>
+			<xs:element name="personEducation" type="personEducation" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="personEducation">
+		<xs:all>
+			<xs:element name="startDate" type="commons:compoundDate" minOccurs="0" />
+			<xs:element name="endDate" type="commons:compoundDate" minOccurs="0" />
+			<xs:element name="fieldOfStudyString" type="commons:localized_string_1024" minOccurs="0" />
+			<xs:element name="fieldOfStudy" type="commons:classification" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The field of study. Must be a valid classification from the /dk/atira/pure/personeducation/fieldofstudy classification scheme</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="qualificationString" type="commons:localized_string_1024" minOccurs="0" />
+			<xs:element name="qualification" type="commons:classification" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The qualification. Must be a valid classification from the /dk/atira/pure/personeducation/qualification classification scheme</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="organisations" type="internalExternalOrganisationAssociation" minOccurs="0"/>
+			<xs:element name="projectTitle" type="commons:localized_string_1024" minOccurs="0" />
+			<xs:element name="awardDate" type="commons:date" minOccurs="0" />
+		</xs:all>
+		<xs:attribute type="commons:string_400" name="id" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="professionalQualifications">
+		<xs:sequence>
+			<xs:element name="professionalQualification" type="professionalQualification" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="professionalQualification">
+		<xs:all>
+			<xs:element name="startDate" type="commons:compoundDate" minOccurs="0" />
+			<xs:element name="endDate" type="commons:compoundDate" minOccurs="0" />
+			<xs:element name="qualification" type="commons:localized_string_1024" />
+			<xs:element name="abbreviatedQualification" type="commons:localized_string_1024" />
+		</xs:all>
+		<xs:attribute type="commons:string_400" name="id" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="externalPositions">
+		<xs:sequence>
+			<xs:element name="externalPosition" type="externalPosition" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="externalPosition">
+		<xs:all>
+			<xs:element name="startDate" type="commons:compoundDate" />
+			<xs:element name="endDate" type="commons:compoundDate" minOccurs="0" />
+			<xs:element name="appointment" type="commons:classification" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation>The type of appointment. Must be a valid classification from the ? classification scheme</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="appointmentString" type="commons:string_512" minOccurs="0" />
+			<xs:element name="externalOrganisationAssociation" type="externalOrganisationAssociation" minOccurs="0" />
+		</xs:all>
+		<xs:attribute type="commons:string_400" name="id" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="organisationAssociations">
+		<xs:sequence>
+			<xs:element ref="organisationAssociation" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="organisationAssociation" type="organisationAssociationType" />
+	<xs:element name="staffOrganisationAssociation" type="staffOrganisationAssociationType" substitutionGroup="organisationAssociation" />
+	<xs:element name="studentOrganisationAssociation" type="studentOrganisationAssociationType" substitutionGroup="organisationAssociation" />
+	<xs:element name="honoraryOrganisationAssociation" type="honoraryOrganisationAssociationType" substitutionGroup="organisationAssociation" />
+	<xs:element name="visitingOrganisationAssociation" type="visitingOrganisationAssociationType" substitutionGroup="organisationAssociation" />
+
+	<xs:complexType name="organisationAssociationType" abstract="true">
+		<xs:sequence>
+			<xs:element name="affiliationId" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="30"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="addresses" type="commons:classifiedAddresses" minOccurs="0"/>
+			<xs:element name="phoneNumbers" type="commons:classifiedPhoneNumbers" minOccurs="0" />
+			<xs:element name="emails" type="commons:classifiedEmails" minOccurs="0" />
+			<xs:element name="webAddresses" type="commons:classifiedWebAddresses" minOccurs="0" />
+			<xs:element name="employmentType" type="commons:classification" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						The type of employment. Must be a valid classification from the /dk/atira/pure/person/employmenttypes classification scheme for staff, visiting and honorary organisation associations
+						The type of student. Must be a valid classification from the /dk/atira/pure/person/studenttype classification scheme for student organisation associations
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="primaryAssociation" type="xs:boolean" default="false" minOccurs="0" />
+			<xs:element name="organisation" type="commons:classifiedIdentification" minOccurs="1"/>
+			<xs:element name="period" type="commons:dateRange" />
+			<xs:element name="keywords" type="commons:keywords" minOccurs="0" />
+			<xs:element name="supervisedByRelations" type="supervisorRelations" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute type="commons:string_400" name="id" use="required"/>
+        <xs:attribute type="xs:boolean" name="managedInPure" use="optional"/>
+	</xs:complexType>
+
+	<xs:complexType name="supervisorRelations">
+		<xs:sequence>
+			<xs:element name="supervisorRelation" type="supervisorRelation" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="supervisorRelation">
+		<xs:sequence>
+			<xs:choice minOccurs="1">
+				<xs:element name="supervisor" type="commons:classifiedIdentification">
+					<xs:annotation>
+						<xs:documentation>ID of Internal person</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="externalSupervisor" type="externalPerson">
+					<xs:annotation>
+						<xs:documentation>External person defined by id or name</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+			<xs:element name="supervisorOrganisationRelationId" type="commons:string_400" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Deprecated. Is replaced by supervisorRole, for legacy support this field still exists, but it will be removed in future.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="supervisionPercentage" type="commons:percent" minOccurs="0" />
+			<xs:element name="period" type="commons:dateRange" />
+			<xs:choice minOccurs="0">
+				<xs:element name="leadSupervisor" type="xs:boolean" >
+					<xs:annotation>
+						<xs:documentation>Deprecated. Is replaced by supervisorRole, for legacy support this field still exists, but it will be removed in future.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="supervisorRole" type="commons:classification" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The supervisor role. Must be a valid classification from the /dk/atira/pure/person/roles/supervisor classification scheme</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute type="commons:string_400" name="id" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="staffOrganisationAssociationType">
+		<xs:complexContent>
+			<xs:extension base="organisationAssociationType">
+				<xs:sequence>
+					<xs:element name="staffType" type="commons:classification" minOccurs="1" />
+					<xs:element name="contractType" type="commons:classification" minOccurs="0" />
+					<xs:element name="jobTitle" type="commons:classification" minOccurs="0" />
+					<xs:element name="jobDescription" type="commons:localized_string_1024" minOccurs="0" />
+					<xs:element name="fte" type="xs:double" minOccurs="0" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="studentOrganisationAssociationType">
+		<xs:complexContent>
+			<xs:extension base="organisationAssociationType">
+				<xs:sequence>
+					<xs:element name="status" type="commons:classification" minOccurs="0" />
+					<xs:element name="startYear" minOccurs="0">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="30"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="programme" type="commons:string_512" minOccurs="0" />
+					<xs:element name="studentTypeDescription" type="commons:classification" minOccurs="0" />
+					<xs:element name="expectedStudyDuration" type="xs:integer" minOccurs="0" />
+					<xs:element name="minStudyDuration" type="xs:integer" minOccurs="0" />
+					<xs:element name="maxStudyDuration" type="xs:integer" minOccurs="0" />
+					<xs:element name="programmeYear" minOccurs="0">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="65"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="initialSubmissionDate" type="commons:date" minOccurs="0"/>
+					<xs:element name="expectedEndDate" type="commons:date" minOccurs="0"/>
+					<xs:element name="studentNationality" type="commons:classification" minOccurs="0"/>
+					<xs:element name="studentResidencyFlag" type="residencyFlag" minOccurs="0"/>
+					<xs:element name="studentCountryOfDomicile" type="commons:classification" minOccurs="0" />
+					<xs:element name="awardGained" type="commons:string_256" minOccurs="0" />
+					<xs:element name="projectTitle" type="commons:localized_string_1024" minOccurs="0" />
+					<xs:element name="awardDate" type="commons:date" minOccurs="0"/>
+					<xs:element name="fte" type="xs:double" minOccurs="0" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="honoraryOrganisationAssociationType">
+		<xs:complexContent>
+			<xs:extension base="organisationAssociationType">
+				<xs:sequence>
+					<xs:element name="jobTitle" type="commons:classification" minOccurs="0" />
+					<xs:element name="jobDescription" type="commons:localized_string_1024" minOccurs="0" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="visitingOrganisationAssociationType">
+		<xs:complexContent>
+			<xs:extension base="organisationAssociationType">
+				<xs:sequence>
+					<xs:element name="jobTitle" type="commons:classification" minOccurs="0" />
+					<xs:element name="jobDescription" type="commons:localized_string_1024" minOccurs="0" />
+					<xs:element name="purposeOfStay" type="commons:string_512" minOccurs="0" />
+					<xs:element name="visitorFrom" type="externalOrganisationAssociation" minOccurs="0" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="internalExternalOrganisationAssociation">
+		<xs:choice>
+			<xs:element name="organisation" type="commons:classifiedIdentification"/>
+			<xs:element name="externalOrganisationAssociation" type="externalOrganisationAssociation"/>
+		</xs:choice>
+	</xs:complexType>
+
+	<xs:complexType name="externalOrganisationAssociation">
+		<xs:choice>
+			<xs:element name="identification" type="commons:identification"/>
+			<xs:element name="externalOrganisation" type="externalOrganisation"/>
+		</xs:choice>
+	</xs:complexType>
+
+	<xs:complexType name="externalOrganisation">
+		<xs:sequence>
+			<xs:element name="name" type="commons:string_1024" minOccurs="1" />
+			<xs:element name="type" type="commons:classification" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Classification scheme /dk/atira/pure/ueoexternalorganisation/ueoexternalorganisationtypes</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="country" type="commons:classification" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Classification scheme /dk/atira/pure/core/countries</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="externalPerson">
+		<xs:sequence>
+			<xs:choice minOccurs="1">
+				<xs:element name="id" type="commons:identification" minOccurs="1">
+					<xs:annotation>
+						<xs:documentation>ID of external Person will be used for matching against external Persons in Pure.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:sequence>
+					<xs:element name="firstName" type="commons:string_1024" minOccurs="0"/>
+					<xs:element name="lastName" type="commons:string_1024" minOccurs="1">
+						<xs:annotation>
+							<xs:documentation>Name of external Person, will be matched against external Persons in Pure, if not found an external Person with the Name will be created.</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:choice>
+			<xs:element name="country" type="commons:classification" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Country of external Person. Must be a valid classification from the /dk/atira/pure/core/countries
+										If specified it will be used when matching external person by name and when creating an external person
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="residencyFlag">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="unknown"/>
+			<xs:enumeration value="home"/>
+			<xs:enumeration value="overseas"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+
+</xs:schema>

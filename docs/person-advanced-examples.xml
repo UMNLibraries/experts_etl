@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persons xmlns="v1.unified-person-sync.pure.atira.dk" xmlns:v3="v3.commons.pure.atira.dk">
+
+    <person id="person1" managedInPure="false">
+        <name>
+            <v3:firstname>John</v3:firstname>
+            <v3:lastname>Doe</v3:lastname>
+        </name>
+        <names>
+            <classifiedName id="classifiedAssoc1">
+                <name>
+                    <v3:firstname>Johnny</v3:firstname>
+                    <v3:lastname>Doe</v3:lastname>
+                </name>
+                <typeClassification>knownas</typeClassification>
+            </classifiedName>
+        </names>
+        <titles>
+            <title id="titleAssoc1">
+                <typeClassification>honorary</typeClassification>
+                <value>
+                    <v3:text lang="en" country="GB">Professor</v3:text>
+                </value>
+            </title>
+        </titles>
+        <gender>male</gender>
+        <dateOfBirth>17-04-1971</dateOfBirth>
+        <nationality>GB</nationality>
+        <employeeStartDate>06-12-2001</employeeStartDate>
+        <systemLeavingDate>21-08-2007</systemLeavingDate>
+        <academicProfessionEntry>06-02-2006</academicProfessionEntry>
+        <retiralDate>05-05-2009</retiralDate>
+        <privateAddress>
+            <v3:country>GB</v3:country>
+            <v3:road>Brewery Street 21</v3:road>
+            <v3:room>5B</v3:room>
+            <v3:city>Glastonbury</v3:city>
+            <v3:building>The old brewery</v3:building>
+            <v3:postalCode>SW1V 4NP</v3:postalCode>
+        </privateAddress>
+        <expert>true</expert>
+        <leavesOfAbsence>
+            <leaveOfAbsence id="leaveAssoc1">
+                <classification>other</classification>
+                <startDate>02-04-2003</startDate>
+                <endDate>02-10-2003</endDate>
+            </leaveOfAbsence>
+        </leavesOfAbsence>
+        <willingnessToPhd>true</willingnessToPhd>
+        <photos>
+            <personPhoto id="personPhotoAssoc1">
+                <classification>portrait</classification>
+                <data>
+                    <!--You have a CHOICE of the next 3 items at this level-->
+                    <http>
+                        <url>https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/N.Tesla.JPG/800px-N.Tesla.JPG</url>
+                        <!--Optional:-->
+                        <mimeType>image/png</mimeType>
+                        <!--Optional:-->
+                        <fileName>portrait.png</fileName>
+                    </http>
+                    <!--<file>-->
+                        <!--<path>https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/N.Tesla.JPG/800px-N.Tesla.JPG</path>-->
+                        <!--Optional:-->
+                        <!--<mimeType>image/png</mimeType>-->
+                        <!--Optional:-->
+                        <!--<fileName>portrait.png</fileName>-->
+                    <!--</file>-->
+                    <!--<byte>-->
+                        <!--<base64EncodedString>base64EncodedString</base64EncodedString>-->
+                        <!--<mimeType>image/png</mimeType>-->
+                        <!--<fileName>portrait.png</fileName>-->
+                    <!--</byte>-->
+                </data>
+            </personPhoto>
+        </photos>
+        <phdResearchProjects>Tesla Coil</phdResearchProjects>
+        <organisationAssociations>
+            <staffOrganisationAssociation id="staffAssoc1" managedInPure="false">
+                <affiliationId>affilID1</affiliationId>
+                <addresses>
+                    <v3:classifiedAddress id="staffAssoc1ClassifiedAddressAssoc1">
+                        <v3:addressType>visiting</v3:addressType>
+                        <v3:city>London</v3:city>
+                        <v3:postalCode>SW1V 4NP</v3:postalCode>
+                        <v3:street>Wayne Street</v3:street>
+                        <v3:country>GB</v3:country>
+                        <v3:building>21</v3:building>
+                        <v3:displayFormat>
+                            London
+                            Wayne Street
+                            England
+                            SW1V 4NP
+                        </v3:displayFormat>
+                        <v3:subDivision>us/ak</v3:subDivision>
+                        <v3:geoLocation>
+                            <v3:point>57.021218,9.976927</v3:point>
+                            <v3:polygon>
+                                57.100452089370705, 9.525146484375
+                                56.935984453472, 9.832763671875
+                                57.01083265740579, 10.2008056640625
+                                57.1779474000072, 10.1019287109375
+                                57.20771009775018, 9.7833251953125
+                                57.097468259301586, 9.5196533203125
+                            </v3:polygon>
+                        </v3:geoLocation>
+                    </v3:classifiedAddress>
+                </addresses>
+                <phoneNumbers>
+                    <v3:classifiedPhoneNumber id="personStaffAssoc1PhoneNumber1">
+                        <v3:classification>phone</v3:classification>
+                        <v3:value>07700900005</v3:value>
+                    </v3:classifiedPhoneNumber>
+                </phoneNumbers>
+                <emails>
+                    <v3:classifiedEmail id="personStaffAssocEmail1">
+                        <v3:classification>email</v3:classification>
+                        <v3:value>london@london.uk</v3:value>
+                    </v3:classifiedEmail>
+                </emails>
+                <webAddresses>
+                    <v3:classifiedWebAddress id="personStaffAssoc1WebAdress1">
+                        <v3:classification>web</v3:classification>
+                        <v3:value>
+                            <v3:text lang="en" country="GB">http:\\www.london.uk</v3:text>
+                        </v3:value>
+                    </v3:classifiedWebAddress>
+                </webAddresses>
+                <employmentType>academic</employmentType>
+                <primaryAssociation>true</primaryAssociation>
+                <organisation>
+                    <v3:source_id>organisation1</v3:source_id>
+                </organisation>
+                <period>
+                    <v3:startDate>02-02-1988</v3:startDate>
+                    <v3:endDate>04-04-2011</v3:endDate>
+                </period>
+                <keywords>
+                    <v3:logicalGroup logicalName="keywordContainers">
+                        <v3:structuredKeywords>
+                            <v3:structuredKeyword classification="T/TK">
+                                <v3:freeKeywords>
+                                    <v3:freeKeyword>
+                                        <v3:text lang="en" country="GB">Electromagnetism</v3:text>
+                                    </v3:freeKeyword>
+                                </v3:freeKeywords>
+                            </v3:structuredKeyword>
+                        </v3:structuredKeywords>
+                    </v3:logicalGroup>
+                    <v3:logicalGroup logicalName="exofficio">
+                        <v3:structuredKeywords>
+                            <v3:structuredKeyword classification="headofdepartment" />
+                        </v3:structuredKeywords>
+                    </v3:logicalGroup>
+                </keywords>
+                <supervisedByRelations>
+                    <supervisorRelation id="supervisorRelation1">
+                        <supervisor>
+                            <v3:source_id>supervisor1</v3:source_id>
+                        </supervisor>
+                        <supervisorOrganisationRelationId>organisation1</supervisorOrganisationRelationId>
+                        <supervisionPercentage>0.5</supervisionPercentage>
+                        <period>
+                            <v3:startDate>07-18-2004</v3:startDate>
+                            <v3:endDate>08-17-2005</v3:endDate>
+                        </period>
+                        <supervisorRole>lead</supervisorRole>
+                    </supervisorRelation>
+                </supervisedByRelations>
+                <staffType>academic</staffType>
+                <contractType>fixedterm</contractType>
+                <jobTitle>juniorprofessor</jobTitle>
+                <jobDescription>
+                    <v3:text lang="en">Science research</v3:text>
+                </jobDescription>
+                <fte>1</fte>
+            </staffOrganisationAssociation>
+            <visitingOrganisationAssociation id="visitingAssoc2">
+                <organisation>
+                    <v3:non_explicit_id>organisation2</v3:non_explicit_id>
+                </organisation>
+                <period>
+                    <v3:startDate>01-01-2000</v3:startDate>
+                </period>
+            </visitingOrganisationAssociation>
+        </organisationAssociations>
+        <affiliationNote>Exchange Student</affiliationNote>
+        <personEducations>
+            <personEducation id="person1EducationAssoc1">
+                <startDate>
+                    <v3:year>2002</v3:year>
+                    <v3:month>12</v3:month>
+                    <v3:day>31</v3:day>
+                </startDate>
+                <endDate>
+                    <v3:year>2006</v3:year>
+                    <v3:month>12</v3:month>
+                    <v3:day>31</v3:day>
+                </endDate>
+                <fieldOfStudyString>
+                    <v3:text lang="en" country="GB">Electronics</v3:text>
+                </fieldOfStudyString>
+                <fieldOfStudy>unknown</fieldOfStudy>
+                <qualificationString>
+                    <v3:text lang="en" country="GB">Child genius</v3:text>
+                </qualificationString>
+                <qualification>doctorate</qualification>
+                <organisations>
+                    <organisation>
+                        <v3:source_id>organisation1</v3:source_id>
+                    </organisation>
+                </organisations>
+                <projectTitle>
+                    <v3:text lang="en" country="GB">Tesla Coils influence on the earths core</v3:text>
+                </projectTitle>
+                <awardDate>05-04-2009</awardDate>
+            </personEducation>
+        </personEducations>
+        <externalPositions>
+            <externalPosition id="person1ExternalPosAssoc1">
+                <startDate>
+                    <v3:year>2005</v3:year>
+                    <v3:month>04</v3:month>
+                    <v3:day>13</v3:day>
+                </startDate>
+                <endDate>
+                    <v3:year>2007</v3:year>
+                    <v3:month>02</v3:month>
+                    <v3:day>13</v3:day>
+                </endDate>
+                <appointment>professor</appointment>
+                <appointmentString>professor</appointmentString>
+                <externalOrganisationAssociation>
+                    <identification>
+                        <v3:source_id>organisation1</v3:source_id>
+                    </identification>
+                </externalOrganisationAssociation>
+            </externalPosition>
+        </externalPositions>
+        <profileInformation>
+            <personCustomField id="person1ProfileInfo1">
+                <typeClassification>researchinterests</typeClassification>
+                <value>
+                    <v3:text lang="en" country="GB">
+                        Elsevier is a world-leading provider of information solutions that help you make better decisions, deliver better care, and sometimes make groundbreaking discoveries in science, health, and technology.
+                        Elsevier’s cross-discipline platforms support your research journey, enable research and career management, and empower you to make an even greater impact in your field.
+                    </v3:text>
+                </value>
+            </personCustomField>
+        </profileInformation>
+        <professionalQualifications>
+            <professionalQualification id="person1Qualification1">
+                <startDate>
+                    <v3:year>2001</v3:year>
+                    <v3:month>12</v3:month>
+                    <v3:day>31</v3:day>
+                </startDate>
+                <endDate>
+                    <v3:year>2003</v3:year>
+                    <v3:month>12</v3:month>
+                    <v3:day>31</v3:day>
+                </endDate>
+                <qualification>
+                    <v3:text lang="en" country="GB">Genius</v3:text>
+                </qualification>
+                <abbreviatedQualification>
+                    <v3:text lang="en" country="GB">Genius</v3:text>
+                </abbreviatedQualification>
+            </professionalQualification>
+        </professionalQualifications>
+        <keywords>
+            <v3:logicalGroup logicalName="keywordContainers">
+                <v3:structuredKeywords>
+                    <v3:structuredKeyword classification="A" />
+                    <v3:structuredKeyword classification="B/BV" />
+                </v3:structuredKeywords>
+            </v3:logicalGroup>
+        </keywords>
+        <links>
+            <v3:link id="person1LinkAssoc1">
+                <v3:url>https://www.mendeley.com/</v3:url>
+                <v3:type>mendeley</v3:type>
+                <v3:description>
+                    <v3:text lang="en" country="GB">Website for his proposed solution</v3:text>
+                </v3:description>
+            </v3:link>
+        </links>
+        <user id="user1">
+            <userName>JohnDoe</userName>
+            <email>atira@noreply.dk</email>
+        </user>
+        <personIds>
+            <v3:id type="employee" id="person1">person1</v3:id>
+        </personIds>
+        <orcId>0000-0002-1825-0097</orcId>
+        <visibility>Restricted</visibility>
+        <profiled>false</profiled>
+    </person>
+
+</persons>

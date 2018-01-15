@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<organisations xmlns="v1.organisation-sync.pure.atira.dk" xmlns:v3="v3.commons.pure.atira.dk">
+    <organisation managedInPure="false">
+        <organisationId>organisation1</organisationId>
+        <type>university</type>
+        <name>
+            <v3:text lang="en" country="GB">Tesla University</v3:text>
+        </name>
+        <startDate>2007-10-26</startDate>
+        <visibility>Restricted</visibility>
+    </organisation>
+</organisations>
