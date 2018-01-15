@@ -30,6 +30,15 @@ def test_template():
     <v3:lastname>Bezada</v3:lastname>
   </name>
   <gender>unknown</gender>
+  <links>
+    <v3:link id="https://http://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada">
+      <v3:url>https://http://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada</v3:url>
+      <v3:type>contact_information</v3:type>
+      <v3:description>
+        <v3:text lang="en" country="US">Contact Information</v3:text>
+      </v3:description>
+    </v3:link>
+  </links>
   <user>
     <userName>mbezada@umn.edu</userName>
     <email>mbezada@umn.edu</email>
