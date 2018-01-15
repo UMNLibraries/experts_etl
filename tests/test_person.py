@@ -30,11 +30,16 @@ def test_template():
     <v3:lastname>Bezada</v3:lastname>
   </name>
   <gender>unknown</gender>
+  <personIds>
+    <v3:id type="employee">5150075</v3:id>
+    <v3:id type="umn">mbezada</v3:id>
+  </personIds>
 </person>"""
 
   person_xml = template.render({
     'emplid': demog.emplid, 
     'first_name': demog.first_name, 
     'last_name': demog.last_name, 
+    'internet_id': demog.internet_id, 
   })
   assert person_xml == expected_person_xml
