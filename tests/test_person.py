@@ -1,36 +1,26 @@
-import re
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
-from experts_dw import db
-from experts_dw import db
-#from experts_dw.models import PureEligibleAffJob, PureEligibleAffJobNew, PureEligibleAffJobChngHst, PureEligibleEmpJob, PureEligibleEmpJobNew, PureEligibleEmpJobChngHst
-from experts_dw.models import Person, PureEligibleDemog
+from experts_etl import person
 
-from jinja2 import Environment, PackageLoader, Template, select_autoescape
-env = Environment(
-    loader=PackageLoader('experts_etl', 'templates'),
-    autoescape=select_autoescape(['html', 'xml'])
-)
+def test_extract():
+  person_dict = person.extract('5150075')
 
-session = db.session('hotel')
+  expected_person_dict = {
+    'scival_id': '8185',
+    'emplid': '5150075',
+    'first_name': 'Maximiliano',
+    'middle_initial': ' ',
+    'last_name': 'Bezada',
+    'name_suffix': None,
+    'internet_id': 'mbezada',
+    'instl_email_addr': 'mbezada@umn.edu',
+  }
 
-def test_template():
-  template = env.get_template('person.xml.j2')
-  assert isinstance(template, Template)
+  assert person_dict == expected_person_dict
 
-  demog = (
-    session.query(PureEligibleDemog)
-    .filter(PureEligibleDemog.emplid == '5150075')
-    .one_or_none()
-  )
-  assert isinstance(demog, PureEligibleDemog)
-
-  person = (
-    session.query(Person)
-    .filter(Person.emplid == demog.emplid)
-    .one_or_none()
-  )
-  assert isinstance(person, Person)
+def test_transform():
+  person_dict = person.extract('5150075')
+  person_xml = person.transform(person_dict)
 
   expected_person_xml = """<person id="8185">
   <name>
@@ -57,17 +47,4 @@ def test_template():
   </personIds>
 </person>"""
 
-  person_dict = {}
-  if person.pure_id:
-    person_dict['person_id'] = person.pure_id
-  else:
-    person_dict['person_id'] = demog.emplid
-  first_name = demog.first_name
-  if (demog.middle_initial and re.search(r'\S+', demog.middle_initial)):
-    first_name += ' ' + demog.middle_initial
-  person_dict['first_name'] = first_name
-  for item in ['emplid','last_name','name_suffix','internet_id','instl_email_addr']:
-    person_dict[item] = getattr(demog, item)
-
-  person_xml = template.render(person_dict)
   assert person_xml == expected_person_xml
