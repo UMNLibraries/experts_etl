@@ -23,7 +23,17 @@ def test_transform_person_id():
   emplid = '5150075'
 
   assert person.transform_person_id(emplid, scival_id) == scival_id
+  # Case where scival_id == emplid:
+  assert person.transform_person_id(emplid, emplid) == emplid
   assert person.transform_person_id(emplid, None) == emplid
+
+def test_transform_first_name():
+  first_name = 'Alex'
+  middle_initial = 'J'
+
+  assert person.transform_first_name(first_name, middle_initial) == 'Alex J'
+  assert person.transform_first_name(first_name, ' ') == 'Alex'
+  assert person.transform_first_name(first_name, None) == 'Alex'
 
 def test_transform():
   person_dict = person.extract('5150075')
