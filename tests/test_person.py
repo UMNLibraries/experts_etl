@@ -46,7 +46,7 @@ def test_transform():
   </name>
   <gender>unknown</gender>
   <links>
-    <v3:link id="https://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada">
+    <v3:link id="contactInfoLink8185">
       <v3:url>https://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada</v3:url>
       <v3:type>contact_information</v3:type>
       <v3:description>
