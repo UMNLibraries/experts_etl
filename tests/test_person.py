@@ -1,3 +1,4 @@
+import re
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 from experts_dw import db
@@ -61,7 +62,12 @@ def test_template():
     person_dict['person_id'] = person.pure_id
   else:
     person_dict['person_id'] = demog.emplid
-  for item in ['emplid','first_name','last_name','internet_id','instl_email_addr']:
+  first_name = demog.first_name
+  if (demog.middle_initial and re.search(r'\S+', demog.middle_initial)):
+    first_name += ' ' + demog.middle_initial
+  person_dict['first_name'] = first_name
+  for item in ['emplid','last_name','name_suffix','internet_id','instl_email_addr']:
     person_dict[item] = getattr(demog, item)
+
   person_xml = template.render(person_dict)
   assert person_xml == expected_person_xml

@@ -3,6 +3,16 @@
     <v3:firstname>{{ first_name }}</v3:firstname>
     <v3:lastname>{{ last_name }}</v3:lastname>
   </name>
+  {%- if name_suffix %}
+  <titles>
+    <title id="{{ person_id }}">
+      <typeClassification>postnominal</typeClassification>
+      <value>
+        <v3:text lang="en" country="US">i{{ name_suffix }}</v3:text>
+      </value>
+    </title>
+  </titles>
+  {% endif %}
   <gender>unknown</gender>
   <links>
     <v3:link id="https://http://myaccount.umn.edu/lookup?type=Internet+ID&CN={{ internet_id }}">
