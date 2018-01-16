@@ -39,8 +39,8 @@ def test_template():
   </name>
   <gender>unknown</gender>
   <links>
-    <v3:link id="https://http://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada">
-      <v3:url>https://http://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada</v3:url>
+    <v3:link id="https://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada">
+      <v3:url>https://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada</v3:url>
       <v3:type>contact_information</v3:type>
       <v3:description>
         <v3:text lang="en" country="US">Contact Information</v3:text>
