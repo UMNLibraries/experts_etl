@@ -18,6 +18,13 @@ def test_extract():
 
   assert person_dict == expected_person_dict
 
+def test_transform_person_id():
+  scival_id = '8185'
+  emplid = '5150075'
+
+  assert person.transform_person_id(emplid, scival_id) == scival_id
+  assert person.transform_person_id(emplid, None) == emplid
+
 def test_transform():
   person_dict = person.extract('5150075')
   person_xml = person.transform(person_dict)
