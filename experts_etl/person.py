@@ -17,17 +17,13 @@ def extract(emplid):
     .filter(PureEligibleDemog.emplid == emplid)
     .one_or_none()
   )
+  person_dict = {c.name: getattr(demog, c.name) for c in demog.__table__.columns}
 
   person = (
     session.query(Person)
     .filter(Person.emplid == demog.emplid)
     .one_or_none()
   )
-
-  person_dict = {}
-  for item in ['emplid','first_name','middle_initial','last_name','name_suffix','internet_id','instl_email_addr']:
-    person_dict[item] = getattr(demog, item)
-
   person_dict['scival_id'] = person.pure_id
 
   return person_dict

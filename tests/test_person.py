@@ -8,12 +8,16 @@ def test_extract():
   expected_person_dict = {
     'scival_id': '8185',
     'emplid': '5150075',
+    'internet_id': 'mbezada',
+    'name': 'Bezada Vierma,Maximiliano J',
     'first_name': 'Maximiliano',
     'middle_initial': ' ',
     'last_name': 'Bezada',
     'name_suffix': None,
-    'internet_id': 'mbezada',
     'instl_email_addr': 'mbezada@umn.edu',
+    'tenure_flag': 'N',
+    'tenure_track_flag': 'Y',
+    'primary_empl_rcdno': 0,
   }
 
   assert person_dict == expected_person_dict
