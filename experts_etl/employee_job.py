@@ -4,6 +4,9 @@ from experts_dw.models import PureEligibleEmpJobChngHst, PureNewStaffDeptDefault
 
 session = db.session('hotel')
 
+def extract_transform(emplid):
+  return transform(extract(emplid))
+
 def extract(emplid):
   jobs = []
   for job in session.query(PureEligibleEmpJobChngHst).filter(PureEligibleEmpJobChngHst.emplid == emplid).order_by(PureEligibleEmpJobChngHst.effdt, PureEligibleEmpJobChngHst.effseq):
