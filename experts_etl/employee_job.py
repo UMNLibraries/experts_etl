@@ -1,6 +1,6 @@
 import re
 from experts_dw import db
-from experts_dw.models import PureEligibleEmpJobChngHst, UmnDeptPureOrg
+from experts_dw.models import PureEligibleEmpJobChngHst, PureNewStaffDeptDefaults, PureNewStaffPosDefaults, UmnDeptPureOrg
 
 session = db.session('hotel')
 
@@ -50,34 +50,41 @@ def transform(jobs):
 
 def transform_job_stint(job_stint):
   transformed_job = {}
-  first_entry, last_entry = job_stint[0, -1]
+  first_entry, last_entry = job_stint[0], job_stint[-1]
   transformed_job['job_title'] = last_entry['jobcode_descr']
   transformed_job['deptid'] = last_entry['deptid']
   transformed_job['empl_rcdno'] = last_entry['empl_rcdno']
 
-  transformed_job['start_date'] = min(
-    first_entry['effdt'],
-    first_entry['job_entry_dt'],
-    position['entry_dt']
-  )
+  potential_start_dates = [dt for dt in (first_entry['effdt'],first_entry['job_entry_dt'],first_entry['position_entry_dt']) if dt]
+  transformed_job['start_date'] = min(potential_start_dates)
 
   if last_entry['empl_status'] not in active_states or last_entry['job_terminated'] == 'Y':
-    transformed_job['end_date'] = max(
-      last_entry['effdt'],
-      last_entry['last_date_worked']
-    )
+    potential_end_dates = [dt for dt in (last_entry['effdt'],last_entry['last_date_worked']) if dt]
+    transformed_job['end_date'] = max(potential_end_dates)
   else:
-    transformed_job['last_date_worked'] = None
+    transformed_job['end_date'] = None
 
   umn_dept_pure_org = (
     session.query(UmnDeptPureOrg)
-    .filter(UmnDeptPureOrg.umn_dept_id == first_entry['deptid'])
+    .filter(UmnDeptPureOrg.umn_dept_id == last_entry['deptid'])
     .one_or_none()
   )
   if umn_dept_pure_org:
     transformed_job['org_id'] = umn_dept_pure_org.pure_org_id
   else:
     transformed_job['org_id'] = None
+
+  pure_new_staff_pos_defaults = (
+    session.query(PureNewStaffPosDefaults)
+    .filter(PureNewStaffPosDefaults.jobcode == last_entry['jobcode'])
+    .one_or_none()
+  )
+  if pure_new_staff_pos_defaults:
+    transformed_job['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
+    transformed_job['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
+  else:
+    transformed_job['employment_type'] = None
+    transformed_job['staff_type'] = None
 
   return transformed_job
 
