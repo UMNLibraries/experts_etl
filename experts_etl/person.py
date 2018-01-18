@@ -2,6 +2,7 @@ import re
 from experts_dw import db
 #from experts_dw.models import PureEligibleAffJob, PureEligibleAffJobNew, PureEligibleAffJobChngHst, PureEligibleEmpJob, PureEligibleEmpJobNew, PureEligibleEmpJobChngHst
 from experts_dw.models import Person, PureEligibleDemog
+from . import employee_job
 
 session = db.session('hotel')
 
@@ -40,6 +41,10 @@ def transform(person_dict):
     person_dict['first_name'],
     person_dict['middle_initial']
   )
+
+  jobs = []
+  jobs.extend(employee_job.extract_transform(person_dict['emplid']))
+  person_dict['jobs'] = jobs
 
   return person_dict
 

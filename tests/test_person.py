@@ -1,5 +1,6 @@
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
+import datetime
 from experts_etl import person
 
 def test_extract():
@@ -70,6 +71,18 @@ def test_transform():
     'scival_id': '8185',
     'tenure_flag': 'N',
     'tenure_track_flag': 'Y',
+    'jobs': [
+      {
+        'deptid': '11130',
+        'empl_rcdno': '0',
+        'employment_type': 'faculty',
+        'end_date': None,
+        'job_title': 'Assistant Professor',
+        'org_id': 'IHRBIHRB',
+        'staff_type': 'academic',
+        'start_date': datetime.datetime(2014, 8, 29, 0, 0)
+      },
+    ],
   }
   assert transformed_person_dict == expected_transformed_person_dict
 
