@@ -16,7 +16,7 @@ def extract(emplid):
 """
 status_flag values:
 C Current 
-F Future 
+F Future (We exclude these entries in the SQL views.)
 H Historical
 
 empl_status values:
@@ -35,9 +35,43 @@ X Retired-Pension Administration
 """
 def transform(jobs):
   jobs_by_position_nbr = group_by_position_nbr(jobs)
+  transformed_jobs = []
 
-  t_jobs = []
-  return t_jobs
+  for position_nbr, entries in jobs_by_position_nbr.items():
+    job_stints = transform_job_entries(entries)
+
+    for job_stint in job_stints:
+      transformed_job = transform_job_stint(job_stint)
+      transformed_jobs.append(transormed_job)
+      
+  return transformed_jobs
+
+def transform_job_entries(entries):
+  job_stints = []
+  current_stint = []
+  active_states = ['A', 'L', 'S', 'W']
+  current_stint_ending = False
+
+  for entry in entries:
+    if current_stint_ending:
+      if entry['empl_status'] in active_states:
+        # We've passed the end of the current stint, and this is a new stint in the same position.
+        job_stints.append(current_stint)
+        current_stint = []
+        current_stint_ending = False
+      current_stint.append(entry)
+      continue
+
+    if entry['empl_status'] not in active_states:
+      # This is the first entry with an inactive state for this stint, so it's ending.
+      # Other entries with inactive states may follow.
+      current_stint_ending = True
+    current_stint.append(entry)
+
+  if len(current_stint) > 0:
+    job_stints.append(current_stint)
+
+  return job_stints
 
 def group_by_position_nbr(jobs):
   jobs_by_position_nbr = {}
