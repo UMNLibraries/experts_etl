@@ -40,7 +40,20 @@ def test_transform_first_name():
   assert person.transform_first_name(first_name, None) == 'Alex'
 
 def test_transform():
-  person_dict = person.extract('5150075')
+  person_dict = {
+    'scival_id': '8185',
+    'emplid': '5150075',
+    'internet_id': 'mbezada',
+    'name': 'Bezada Vierma,Maximiliano J',
+    'first_name': 'Maximiliano',
+    'middle_initial': ' ',
+    'last_name': 'Bezada',
+    'name_suffix': None,
+    'instl_email_addr': 'mbezada@umn.edu',
+    'tenure_flag': 'N',
+    'tenure_track_flag': 'Y',
+    'primary_empl_rcdno': 0,
+  }
   transformed_person_dict = person.transform(person_dict)
   expected_transformed_person_dict = {
     'contact_info_url': 'https://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada',
