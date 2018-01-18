@@ -1,6 +1,6 @@
 import re
 from experts_dw import db
-from experts_dw.models import PureEligibleEmpJobChngHst
+from experts_dw.models import PureEligibleEmpJobChngHst, UmnDeptPureOrg
 
 session = db.session('hotel')
 
@@ -33,6 +33,8 @@ V Terminated Pension Pay Out
 W Short Work Break 
 X Retired-Pension Administration
 """
+active_states = ['A', 'L', 'S', 'W']
+
 def transform(jobs):
   jobs_by_position_nbr = group_by_position_nbr(jobs)
   transformed_jobs = []
@@ -46,10 +48,42 @@ def transform(jobs):
       
   return transformed_jobs
 
+def transform_job_stint(job_stint):
+  transformed_job = {}
+  first_entry, last_entry = job_stint[0, -1]
+  transformed_job['job_title'] = last_entry['jobcode_descr']
+  transformed_job['deptid'] = last_entry['deptid']
+  transformed_job['empl_rcdno'] = last_entry['empl_rcdno']
+
+  transformed_job['start_date'] = min(
+    first_entry['effdt'],
+    first_entry['job_entry_dt'],
+    position['entry_dt']
+  )
+
+  if last_entry['empl_status'] not in active_states or last_entry['job_terminated'] == 'Y':
+    transformed_job['end_date'] = max(
+      last_entry['effdt'],
+      last_entry['last_date_worked']
+    )
+  else:
+    transformed_job['last_date_worked'] = None
+
+  umn_dept_pure_org = (
+    session.query(UmnDeptPureOrg)
+    .filter(UmnDeptPureOrg.umn_dept_id == first_entry['deptid'])
+    .one_or_none()
+  )
+  if umn_dept_pure_org:
+    transformed_job['org_id'] = umn_dept_pure_org.pure_org_id
+  else:
+    transformed_job['org_id'] = None
+
+  return transformed_job
+
 def transform_job_entries(entries):
   job_stints = []
   current_stint = []
-  active_states = ['A', 'L', 'S', 'W']
   current_stint_ending = False
 
   for entry in entries:
