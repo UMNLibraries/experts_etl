@@ -41,6 +41,9 @@ def transform(person_dict):
     person_dict['middle_initial']
   )
 
+  return person_dict
+
+def serialize(person_dict):
   template = env.get_template('person.xml.j2')
   return template.render(person_dict)
 

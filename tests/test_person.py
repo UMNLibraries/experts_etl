@@ -41,7 +41,43 @@ def test_transform_first_name():
 
 def test_transform():
   person_dict = person.extract('5150075')
-  person_xml = person.transform(person_dict)
+  transformed_person_dict = person.transform(person_dict)
+  expected_transformed_person_dict = {
+    'contact_info_url': 'https://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada',
+    'emplid': '5150075',
+    'first_name': 'Maximiliano',
+    'instl_email_addr': 'mbezada@umn.edu',
+    'internet_id': 'mbezada',
+    'last_name': 'Bezada',
+    'middle_initial': ' ',
+    'name': 'Bezada Vierma,Maximiliano J',
+    'name_suffix': None,
+    'person_id': '8185',
+    'primary_empl_rcdno': 0,
+    'scival_id': '8185',
+    'tenure_flag': 'N',
+    'tenure_track_flag': 'Y',
+  }
+  assert transformed_person_dict == expected_transformed_person_dict
+
+def test_serialize():
+  transformed_person_dict = {
+    'contact_info_url': 'https://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada',
+    'emplid': '5150075',
+    'first_name': 'Maximiliano',
+    'instl_email_addr': 'mbezada@umn.edu',
+    'internet_id': 'mbezada',
+    'last_name': 'Bezada',
+    'middle_initial': ' ',
+    'name': 'Bezada Vierma,Maximiliano J',
+    'name_suffix': None,
+    'person_id': '8185',
+    'primary_empl_rcdno': 0,
+    'scival_id': '8185',
+    'tenure_flag': 'N',
+    'tenure_track_flag': 'Y',
+  }
+  person_xml = person.serialize(transformed_person_dict)
 
   expected_person_xml = """<person id="8185">
   <name>
