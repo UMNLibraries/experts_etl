@@ -44,7 +44,7 @@ def transform(jobs):
 
     for job_stint in job_stints:
       transformed_job = transform_job_stint(job_stint)
-      transformed_jobs.append(transormed_job)
+      transformed_jobs.append(transformed_job)
       
   return transformed_jobs
 
