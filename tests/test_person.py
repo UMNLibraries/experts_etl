@@ -157,3 +157,47 @@ def test_serialize():
 </person>"""
 
   assert person_xml == expected_person_xml
+
+def test_extract_transform_serialize():
+  person_xml = person.extract_transform_serialize('5150075')
+
+  expected_person_xml = """<person id="8185">
+  <name>
+    <v3:firstname>Maximiliano</v3:firstname>
+    <v3:lastname>Bezada</v3:lastname>
+  </name>
+  <gender>unknown</gender>
+  <organisationAssociations>
+    <staffOrganisationAssociation id="staffAssoc-5150075-IHRBIHRB-1" managedInPure="false">
+      <employmentType>faculty</employmentType>
+      <primaryAssociation>true</primaryAssociation>
+      <organisation>
+        <v3:source_id>IHRBIHRB</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>29-08-2014</v3:startDate>
+      </period>
+      <staffType>academic</staffType>
+      <jobTitle>Assistant Professor</jobTitle>
+    </staffOrganisationAssociation>
+  </organisationAssociations>
+  <links>
+    <v3:link id="contactInfoLink-5150075">
+      <v3:url>https://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada</v3:url>
+      <v3:type>contact_information</v3:type>
+      <v3:description>
+        <v3:text lang="en" country="US">Contact Information</v3:text>
+      </v3:description>
+    </v3:link>
+  </links>
+  <user>
+    <userName>mbezada@umn.edu</userName>
+    <email>mbezada@umn.edu</email>
+  </user>
+  <personIds>
+    <v3:id type="employee">5150075</v3:id>
+    <v3:id type="umn">mbezada</v3:id>
+  </personIds>
+</person>"""
+
+  assert person_xml == expected_person_xml

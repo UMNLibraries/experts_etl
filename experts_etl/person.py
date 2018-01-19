@@ -12,6 +12,9 @@ env = Environment(
     autoescape=select_autoescape(['html', 'xml'])
 )
 
+def extract_transform_serialize(emplid):
+  return serialize(transform(extract(emplid)))
+
 def extract(emplid):
   demog = (
     session.query(PureEligibleDemog)
