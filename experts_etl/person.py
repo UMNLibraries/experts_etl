@@ -47,13 +47,30 @@ def transform(person_dict):
 
   jobs = []
   jobs.extend(employee_job.extract_transform(person_dict['emplid']))
-  person_dict['jobs'] = jobs
+
+  jobs_with_primary = transform_primary_job(jobs, person_dict['primary_empl_rcdno'])  
+
+  person_dict['jobs'] = jobs_with_primary
 
   return person_dict
 
 def serialize(person_dict):
   template = env.get_template('person.xml.j2')
   return template.render(person_dict)
+
+def transform_primary_job(jobs, primary_empl_rcdno):
+  transformed_jobs = jobs.copy()
+  # Any currently-active jobs are likely to be at or near the end of the list:
+  transformed_jobs.reverse()
+  primary_job_set = False
+  for job in transformed_jobs:
+    if not primary_job_set and job['empl_rcdno'] == str(primary_empl_rcdno) and job['end_date'] == None:
+      job['primary'] = 'true'
+      primary_job_set = True
+    else:
+      job['primary'] = 'false'
+  transformed_jobs.reverse()
+  return transformed_jobs
 
 def transform_person_id(emplid, scival_id):
   # The Pure person id from most persons will be the emplid, but for some

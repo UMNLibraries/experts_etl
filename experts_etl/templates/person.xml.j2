@@ -18,7 +18,7 @@
     {%- for job in jobs %}
     <staffOrganisationAssociation id="staffAssoc-{{ emplid }}-{{ job.org_id }}-{{ loop.index }}" managedInPure="false">
       <employmentType>{{ job.employment_type }}</employmentType>
-      <primaryAssociation>true</primaryAssociation>
+      <primaryAssociation>{{ job.primary }}</primaryAssociation>
       <organisation>
         <v3:source_id>{{ job.org_id }}</v3:source_id>
       </organisation>

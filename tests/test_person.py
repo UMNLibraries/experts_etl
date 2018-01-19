@@ -80,7 +80,8 @@ def test_transform():
         'job_title': 'Assistant Professor',
         'org_id': 'IHRBIHRB',
         'staff_type': 'academic',
-        'start_date': datetime.datetime(2014, 8, 29, 0, 0)
+        'start_date': datetime.datetime(2014, 8, 29, 0, 0),
+	'primary': 'true',
       },
     ],
   }
@@ -111,7 +112,8 @@ def test_serialize():
         'job_title': 'Assistant Professor',
         'org_id': 'IHRBIHRB',
         'staff_type': 'academic',
-        'start_date': datetime.datetime(2014, 8, 29, 0, 0)
+        'start_date': datetime.datetime(2014, 8, 29, 0, 0),
+	'primary': 'true'
       },
     ],
   }
