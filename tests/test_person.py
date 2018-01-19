@@ -81,7 +81,7 @@ def test_transform():
         'org_id': 'IHRBIHRB',
         'staff_type': 'academic',
         'start_date': datetime.datetime(2014, 8, 29, 0, 0),
-	'primary': 'true',
+	'primary': True,
       },
     ],
   }
@@ -113,7 +113,7 @@ def test_serialize():
         'org_id': 'IHRBIHRB',
         'staff_type': 'academic',
         'start_date': datetime.datetime(2014, 8, 29, 0, 0),
-	'primary': 'true'
+	'primary': True,
       },
     ],
   }

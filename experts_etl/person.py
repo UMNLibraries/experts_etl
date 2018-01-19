@@ -65,10 +65,10 @@ def transform_primary_job(jobs, primary_empl_rcdno):
   primary_job_set = False
   for job in transformed_jobs:
     if not primary_job_set and job['empl_rcdno'] == str(primary_empl_rcdno) and job['end_date'] == None:
-      job['primary'] = 'true'
+      job['primary'] = True
       primary_job_set = True
     else:
-      job['primary'] = 'false'
+      job['primary'] = False
   transformed_jobs.reverse()
   return transformed_jobs
 
