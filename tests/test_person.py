@@ -102,6 +102,18 @@ def test_serialize():
     'scival_id': '8185',
     'tenure_flag': 'N',
     'tenure_track_flag': 'Y',
+    'jobs': [
+      {
+        'deptid': '11130',
+        'empl_rcdno': '0',
+        'employment_type': 'faculty',
+        'end_date': None,
+        'job_title': 'Assistant Professor',
+        'org_id': 'IHRBIHRB',
+        'staff_type': 'academic',
+        'start_date': datetime.datetime(2014, 8, 29, 0, 0)
+      },
+    ],
   }
   person_xml = person.serialize(transformed_person_dict)
 
@@ -111,8 +123,22 @@ def test_serialize():
     <v3:lastname>Bezada</v3:lastname>
   </name>
   <gender>unknown</gender>
+  <organisationAssociations>
+    <staffOrganisationAssociation id="staffAssoc-8185-IHRBIHRB-1" managedInPure="false">
+      <employmentType>faculty</employmentType>
+      <primaryAssociation>true</primaryAssociation>
+      <organisation>
+        <v3:source_id>IHRBIHRB</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>29-08-2014</v3:startDate>
+      </period>
+      <staffType>academic</staffType>
+      <jobTitle>Assistant Professor</jobTitle>
+    </staffOrganisationAssociation>
+  </organisationAssociations>
   <links>
-    <v3:link id="contactInfoLink8185">
+    <v3:link id="contactInfoLink-8185">
       <v3:url>https://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada</v3:url>
       <v3:type>contact_information</v3:type>
       <v3:description>

@@ -14,8 +14,27 @@
   </titles>
   {% endif %}
   <gender>unknown</gender>
+  <organisationAssociations>
+    {%- for job in jobs %}
+    <staffOrganisationAssociation id="staffAssoc-{{ person_id }}-{{ job.org_id }}-{{ loop.index }}" managedInPure="false">
+      <employmentType>{{ job.employment_type }}</employmentType>
+      <primaryAssociation>true</primaryAssociation>
+      <organisation>
+        <v3:source_id>{{ job.org_id }}</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>{{ job.start_date.strftime('%d-%m-%Y') }}</v3:startDate>
+        {%- if job.end_date %}
+        <v3:endDate>{{ job.end_date.strftime('%d-%m-%Y') }}</v3:endDate>
+        {% endif %}
+      </period>
+      <staffType>{{ job.staff_type }}</staffType>
+      <jobTitle>{{ job.job_title }}</jobTitle>
+    </staffOrganisationAssociation>
+    {%- endfor %}
+  </organisationAssociations>
   <links>
-    <v3:link id="contactInfoLink{{ person_id }}">
+    <v3:link id="contactInfoLink-{{ person_id }}">
       <v3:url>{{ contact_info_url }}</v3:url>
       <v3:type>contact_information</v3:type>
       <v3:description>
