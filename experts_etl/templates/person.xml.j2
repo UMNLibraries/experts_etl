@@ -5,7 +5,7 @@
   </name>
   {%- if name_suffix %}
   <titles>
-    <title id="{{ person_id }}">
+    <title id="{{ emplid }}">
       <typeClassification>postnominal</typeClassification>
       <value>
         <v3:text lang="en" country="US">i{{ name_suffix }}</v3:text>
@@ -16,7 +16,7 @@
   <gender>unknown</gender>
   <organisationAssociations>
     {%- for job in jobs %}
-    <staffOrganisationAssociation id="staffAssoc-{{ person_id }}-{{ job.org_id }}-{{ loop.index }}" managedInPure="false">
+    <staffOrganisationAssociation id="staffAssoc-{{ emplid }}-{{ job.org_id }}-{{ loop.index }}" managedInPure="false">
       <employmentType>{{ job.employment_type }}</employmentType>
       <primaryAssociation>true</primaryAssociation>
       <organisation>
@@ -34,7 +34,7 @@
     {%- endfor %}
   </organisationAssociations>
   <links>
-    <v3:link id="contactInfoLink-{{ person_id }}">
+    <v3:link id="contactInfoLink-{{ emplid }}">
       <v3:url>{{ contact_info_url }}</v3:url>
       <v3:type>contact_information</v3:type>
       <v3:description>

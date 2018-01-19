@@ -124,7 +124,7 @@ def test_serialize():
   </name>
   <gender>unknown</gender>
   <organisationAssociations>
-    <staffOrganisationAssociation id="staffAssoc-8185-IHRBIHRB-1" managedInPure="false">
+    <staffOrganisationAssociation id="staffAssoc-5150075-IHRBIHRB-1" managedInPure="false">
       <employmentType>faculty</employmentType>
       <primaryAssociation>true</primaryAssociation>
       <organisation>
@@ -138,7 +138,7 @@ def test_serialize():
     </staffOrganisationAssociation>
   </organisationAssociations>
   <links>
-    <v3:link id="contactInfoLink-8185">
+    <v3:link id="contactInfoLink-5150075">
       <v3:url>https://myaccount.umn.edu/lookup?type=Internet+ID&CN=mbezada</v3:url>
       <v3:type>contact_information</v3:type>
       <v3:description>
