@@ -50,6 +50,14 @@ def transform(person_dict):
 
   jobs_with_primary = transform_primary_job(jobs, person_dict['primary_empl_rcdno'])  
 
+  person_dict['visibility'] = 'Restricted'
+  person_dict['profiled'] = False
+  for job in jobs_with_primary:
+    if job['visibility'] == 'Public':
+      person_dict['visibility'] = 'Public'
+    if job['profiled']:
+      person_dict['profiled'] = True
+
   person_dict['jobs'] = jobs_with_primary
 
   return person_dict
@@ -57,6 +65,28 @@ def transform(person_dict):
 def serialize(person_dict):
   template = env.get_template('person.xml.j2')
   return template.render(person_dict)
+
+def transform_visibility_profiled(jobs):
+  person_has_an_active_job = False
+  for job in jobs:
+    if job['end_date'] == None:
+      person_has_an_active_job = True
+      break
+
+  if not person_has_an_active_job:
+    person['visibility'] = 'Restricted'
+    person['profiled'] = False
+  else:
+    defaults = (
+      session.query(PureNewStaffDeptDefaults)
+      .filter(and_(
+        PureNewStaffDeptDefaults.deptid == job.deptid,
+        PureNewStaffDeptDefaults.deptid == job.deptid,
+      ))
+      .one_or_none()
+    )
+    person_dict['scival_id'] = person.pure_id
+
 
 def transform_primary_job(jobs, primary_empl_rcdno):
   transformed_jobs = jobs.copy()

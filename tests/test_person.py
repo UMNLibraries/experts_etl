@@ -71,6 +71,8 @@ def test_transform():
     'scival_id': '8185',
     'tenure_flag': 'N',
     'tenure_track_flag': 'Y',
+    'visibility': 'Public',
+    'profiled': True,
     'jobs': [
       {
         'deptid': '11130',
@@ -82,6 +84,8 @@ def test_transform():
         'staff_type': 'academic',
         'start_date': datetime.datetime(2014, 8, 29, 0, 0),
 	'primary': True,
+        'visibility': 'Public',
+        'profiled': True,
       },
     ],
   }
@@ -103,6 +107,8 @@ def test_serialize():
     'scival_id': '8185',
     'tenure_flag': 'N',
     'tenure_track_flag': 'Y',
+    'visibility': 'Public',
+    'profiled': True,
     'jobs': [
       {
         'deptid': '11130',
@@ -114,6 +120,8 @@ def test_serialize():
         'staff_type': 'academic',
         'start_date': datetime.datetime(2014, 8, 29, 0, 0),
 	'primary': True,
+        'visibility': 'Public',
+        'profiled': True,
       },
     ],
   }
@@ -156,6 +164,8 @@ def test_serialize():
     <v3:id type="employee">5150075</v3:id>
     <v3:id type="umn">mbezada</v3:id>
   </personIds>
+  <visibility>Public</visibility>
+  <profiled>true</profiled>
 </person>"""
 
   assert person_xml == expected_person_xml
@@ -200,6 +210,8 @@ def test_extract_transform_serialize():
     <v3:id type="employee">5150075</v3:id>
     <v3:id type="umn">mbezada</v3:id>
   </personIds>
+  <visibility>Public</visibility>
+  <profiled>true</profiled>
 </person>"""
 
   assert person_xml == expected_person_xml
