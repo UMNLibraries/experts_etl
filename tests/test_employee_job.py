@@ -198,6 +198,8 @@ def test_transform_job_stint():
    'staff_type': 'academic',
    'start_date': datetime.date(2007, 1, 30),
    'end_date': datetime.date(2015, 8, 24),
+   'visibility': 'Restricted',
+   'profiled': False,
   }
 
   transformed_job_1 = employee_job.transform_job_stint(job_stint_1)
@@ -327,6 +329,8 @@ def test_transform_job_stint():
    'staff_type': 'academic',
    'start_date': datetime.date(2015,8,31),
    'end_date': None,
+   'visibility': 'Public',
+   'profiled': True,
   }
 
   transformed_job_2 = employee_job.transform_job_stint(job_stint_2)
@@ -516,6 +520,8 @@ def test_transform():
      'staff_type': 'academic',
      'start_date': datetime.date(2007, 1, 30),
      'end_date': datetime.date(2015, 8, 24),
+     'visibility': 'Restricted',
+     'profiled': False,
     },
     {
      'deptid': '11945',
@@ -526,6 +532,8 @@ def test_transform():
      'staff_type': 'academic',
      'start_date': datetime.date(2015,8,31),
      'end_date': None,
+     'visibility': 'Public',
+     'profiled': True,
     },
   ]
 
@@ -544,6 +552,8 @@ def test_extract_transform():
      'staff_type': 'academic',
      'start_date': datetime.datetime(2007,1,30,0,0),
      'end_date': datetime.datetime(2015,8,24,0,0),
+     'visibility': 'Restricted',
+     'profiled': False,
     },
     {
      'deptid': '11945',
@@ -554,6 +564,8 @@ def test_extract_transform():
      'staff_type': 'academic',
      'start_date': datetime.datetime(2015,8,31,0,0),
      'end_date': None,
+     'visibility': 'Public',
+     'profiled': True,
     },
   ]
 

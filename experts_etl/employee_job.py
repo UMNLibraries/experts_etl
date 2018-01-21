@@ -1,6 +1,7 @@
 import re
 from experts_dw import db
 from experts_dw.models import PureEligibleEmpJobChngHst, PureNewStaffDeptDefaults, PureNewStaffPosDefaults, UmnDeptPureOrg
+from sqlalchemy import and_
 
 session = db.session('hotel')
 
@@ -64,8 +65,25 @@ def transform_job_stint(job_stint):
   if last_entry['empl_status'] not in active_states or last_entry['job_terminated'] == 'Y':
     potential_end_dates = [dt for dt in (last_entry['effdt'],last_entry['last_date_worked']) if dt]
     transformed_job['end_date'] = max(potential_end_dates)
+    transformed_job['visibility'] = 'Restricted'
+    transformed_job['profiled'] = False
   else:
     transformed_job['end_date'] = None
+    pure_new_staff_dept_defaults = (
+      session.query(PureNewStaffDeptDefaults)
+      .filter(and_(
+        PureNewStaffDeptDefaults.deptid == last_entry['deptid'],
+        PureNewStaffDeptDefaults.jobcode == last_entry['jobcode'],
+        PureNewStaffDeptDefaults.jobcode_descr == last_entry['jobcode_descr'],
+      ))
+      .one_or_none()
+    )
+    if pure_new_staff_dept_defaults:
+      transformed_job['visibility'] = pure_new_staff_dept_defaults.default_visibility
+      if pure_new_staff_dept_defaults.default_profiled == 'true':
+        transformed_job['profiled'] = True
+      else:
+        transformed_job['profiled'] = False
 
   umn_dept_pure_org = (
     session.query(UmnDeptPureOrg)
