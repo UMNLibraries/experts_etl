@@ -23,21 +23,11 @@ C Current
 F Future (We exclude these entries in the SQL views.)
 H Historical
 
-empl_status values:
+status values:
 A Active 
-D Deceased 
-L Leave of Absence 
-P Leave With Pay 
-Q Retired With Pay 
-R Retired 
-S Suspended 
-T Terminated 
-U Terminated With Pay 
-V Terminated Pension Pay Out 
-W Short Work Break 
-X Retired-Pension Administration
+I Inactive
 """
-active_states = ['A', 'L', 'S', 'W']
+active_states = ['A']
 
 #def transform(jobs):
 #  jobs_by_position_nbr = group_by_position_nbr(jobs)
@@ -108,38 +98,47 @@ active_states = ['A', 'L', 'S', 'W']
 #    transformed_job['staff_type'] = None
 #
 #  return transformed_job
-#
-#def transform_job_entries(entries):
-#  job_stints = []
-#  current_stint = []
-#  current_stint_ending = False
-#
-#  for entry in entries:
-#    if current_stint_ending:
-#      if entry['empl_status'] in active_states:
-#        # We've passed the end of the current stint, and this is a new stint in the same position.
-#        job_stints.append(current_stint)
-#        current_stint = []
-#        current_stint_ending = False
-#      current_stint.append(entry)
-#      continue
-#
-#    if entry['empl_status'] not in active_states:
-#      # This is the first entry with an inactive state for this stint, so it's ending.
-#      # Other entries with inactive states may follow.
-#      current_stint_ending = True
-#    current_stint.append(entry)
-#
-#  if len(current_stint) > 0:
-#    job_stints.append(current_stint)
-#
-#  return job_stints
-#
-def group_by_deptid_um_affiliate_id(jobs):
-  jobs_by_deptid_um_affiliate_id = {}
+
+def transform_job_entries(entries):
+  job_stints = []
+  current_stint = []
+  current_stint_ending = False
+
+  for entry in entries:
+    if current_stint_ending:
+      if entry['status'] in active_states:
+        # We've passed the end of the current stint, and this is a new stint in the same position.
+        job_stints.append(current_stint)
+        current_stint = []
+        current_stint_ending = False
+      current_stint.append(entry)
+      if entry['status_flg'] == 'C': # C is current.
+        # Sometimes there are historical (H) entries with effdt's later than a C entry. Ignore them.
+        break
+      else:
+        continue
+
+    if entry['status'] not in active_states:
+      # This is the first entry with an inactive state for this stint, so it's ending.
+      # Other entries with inactive states may follow.
+      current_stint_ending = True
+    current_stint.append(entry)
+    if entry['status_flg'] == 'C': # C is current.
+      # Sometimes there are historical (H) entries with effdt's later than a C entry. Ignore them.
+      break
+    else:
+      continue
+
+  if len(current_stint) > 0:
+    job_stints.append(current_stint)
+
+  return job_stints
+
+def group_by_deptid_um_affiliate_id_um_affil_relation(jobs):
+  jobs_by_deptid_um_affiliate_id_um_affil_relation = {}
   for job in jobs:
-    key = job['deptid'] + '-'  + job['um_affiliate_id']
-    if key not in jobs_by_deptid_um_affiliate_id:
-      jobs_by_deptid_um_affiliate_id[key] = [] 
-    jobs_by_deptid_um_affiliate_id[key].append(job)
-  return jobs_by_deptid_um_affiliate_id
+    key = job['deptid'] + '-'  + job['um_affiliate_id'] + '-' + job['um_affil_relation']
+    if key not in jobs_by_deptid_um_affiliate_id_um_affil_relation:
+      jobs_by_deptid_um_affiliate_id_um_affil_relation[key] = [] 
+    jobs_by_deptid_um_affiliate_id_um_affil_relation[key].append(job)
+  return jobs_by_deptid_um_affiliate_id_um_affil_relation

@@ -4,7 +4,7 @@ import datetime, re
 from experts_etl import affiliate_job
 
 def test_extract():
-  #emplid = '3367339'
+  #emplid = '3367339', '1173706'
   emplid = '2585238'
   jobs = affiliate_job.extract(emplid)
 
@@ -16,125 +16,169 @@ def test_extract():
     assert re.match(r'^\d+$', job['deptid']) 
     assert isinstance(job['effdt'], datetime.date)
 
-def test_group_jobs_by_deptid_um_affiliate_id():
+def test_group_jobs_by_deptid_um_affiliate_id_um_affil_relation():
   jobs = [
-    {'um_affiliate_id': '01', 'deptid': '10986', 'a': 2, 'b': 3},
-    {'um_affiliate_id': '01', 'deptid': '10986', 'a': 3, 'b': 4},
-    {'um_affiliate_id': '02', 'deptid': '11083', 'a': 5, 'b': 6},
-    {'um_affiliate_id': '03', 'deptid': '11219', 'a': 7, 'b': 8},
-    {'um_affiliate_id': '02', 'deptid': '11083', 'a': 9, 'b': 10},
-    {'um_affiliate_id': '03', 'deptid': '11219', 'a': 11, 'b': 12},
-    {'um_affiliate_id': '03', 'deptid': '11219', 'a': 13, 'b': 14},
-    {'um_affiliate_id': '04', 'deptid': '10986', 'a': 15, 'b': 16},
+    {'um_affiliate_id': '01', 'um_affil_relation': '9402A', 'deptid': '10986', 'a': 2, 'b': 3},
+    {'um_affiliate_id': '01', 'um_affil_relation': '9402A', 'deptid': '10986', 'a': 3, 'b': 4},
+    {'um_affiliate_id': '02', 'um_affil_relation': '9403A', 'deptid': '11083', 'a': 5, 'b': 6},
+    {'um_affiliate_id': '03', 'um_affil_relation': '9402A', 'deptid': '11219', 'a': 7, 'b': 8},
+    {'um_affiliate_id': '02', 'um_affil_relation': '9403A', 'deptid': '11083', 'a': 9, 'b': 10},
+    {'um_affiliate_id': '03', 'um_affil_relation': '9402A', 'deptid': '11219', 'a': 11, 'b': 12},
+    {'um_affiliate_id': '03', 'um_affil_relation': '9401A', 'deptid': '11219', 'a': 13, 'b': 14},
+    {'um_affiliate_id': '04', 'um_affil_relation': '9403A', 'deptid': '10986', 'a': 15, 'b': 16},
   ]
 
-  expected_jobs_by_deptid_um_affiliate_id = {
-    '10986-01': [
-      {'um_affiliate_id': '01', 'deptid': '10986', 'a': 2, 'b': 3},
-      {'um_affiliate_id': '01', 'deptid': '10986', 'a': 3, 'b': 4},
+  expected_jobs_by_deptid_um_affiliate_id_um_affil_relation = {
+    '10986-01-9402A': [
+      {'um_affiliate_id': '01', 'um_affil_relation': '9402A', 'deptid': '10986', 'a': 2, 'b': 3},
+      {'um_affiliate_id': '01', 'um_affil_relation': '9402A', 'deptid': '10986', 'a': 3, 'b': 4},
     ],
-    '11083-02': [
-      {'um_affiliate_id': '02', 'deptid': '11083', 'a': 5, 'b': 6},
-      {'um_affiliate_id': '02', 'deptid': '11083', 'a': 9, 'b': 10},
+    '11083-02-9403A': [
+      {'um_affiliate_id': '02', 'um_affil_relation': '9403A', 'deptid': '11083', 'a': 5, 'b': 6},
+      {'um_affiliate_id': '02', 'um_affil_relation': '9403A', 'deptid': '11083', 'a': 9, 'b': 10},
     ],
-    '11219-03': [
-      {'um_affiliate_id': '03', 'deptid': '11219', 'a': 7, 'b': 8},
-      {'um_affiliate_id': '03', 'deptid': '11219', 'a': 11, 'b': 12},
-      {'um_affiliate_id': '03', 'deptid': '11219', 'a': 13, 'b': 14},
+    '11219-03-9402A': [
+      {'um_affiliate_id': '03', 'um_affil_relation': '9402A', 'deptid': '11219', 'a': 7, 'b': 8},
+      {'um_affiliate_id': '03', 'um_affil_relation': '9402A', 'deptid': '11219', 'a': 11, 'b': 12},
     ],
-    '10986-04': [
-      {'um_affiliate_id': '04', 'deptid': '10986', 'a': 15, 'b': 16},
+    '11219-03-9401A': [
+      {'um_affiliate_id': '03', 'um_affil_relation': '9401A', 'deptid': '11219', 'a': 13, 'b': 14},
+    ],
+    '10986-04-9403A': [
+      {'um_affiliate_id': '04', 'um_affil_relation': '9403A', 'deptid': '10986', 'a': 15, 'b': 16},
     ],
   }
 
-  jobs_by_deptid_um_affiliate_id = affiliate_job.group_by_deptid_um_affiliate_id(jobs)
-  assert jobs_by_deptid_um_affiliate_id == expected_jobs_by_deptid_um_affiliate_id
+  jobs_by_deptid_um_affiliate_id_um_affil_relation = affiliate_job.group_by_deptid_um_affiliate_id_um_affil_relation(jobs)
+  assert jobs_by_deptid_um_affiliate_id_um_affil_relation == expected_jobs_by_deptid_um_affiliate_id_um_affil_relation
 
-#def test_transform_job_entries():
-#  entries = [
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,4,6), 'empl_status': 'A'},
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,5,25), 'empl_status': 'S'},
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,5,25), 'empl_status': 'T'},
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,8,24), 'empl_status': 'T'},
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,5,23), 'empl_status': 'W'},
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,11,14), 'empl_status': 'A'},
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,1,9), 'empl_status': 'A'},
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,5,28), 'empl_status': 'W'},
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,8,21), 'empl_status': 'W'},
-#    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-#  ]
-#
-#  job_stints = employee_job.transform_job_entries(entries)
-#
-#  expected_job_stints = [
-#    [
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,4,6), 'empl_status': 'A'},
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,5,25), 'empl_status': 'S'},
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,5,25), 'empl_status': 'T'},
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,8,24), 'empl_status': 'T'},
-#    ],
-#    [
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,5,23), 'empl_status': 'W'},
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,11,14), 'empl_status': 'A'},
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,1,9), 'empl_status': 'A'},
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,5,28), 'empl_status': 'W'},
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,8,21), 'empl_status': 'W'},
-#      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-#    ],
-#  ]
-#
-#  assert job_stints == expected_job_stints
-#
-#  entries_2 = [
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,4,6), 'empl_status': 'A'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,5,25), 'empl_status': 'W'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,7,27), 'empl_status': 'W'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,5,25), 'empl_status': 'A'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,1,1), 'empl_status': 'W'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,5,30), 'empl_status': 'W'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,7,25), 'empl_status': 'A'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,5,29), 'empl_status': 'W'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,7,24), 'empl_status': 'W'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-#    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-#  ]
-#
-#  job_stints_2 = employee_job.transform_job_entries(entries_2)
-#
-#  expected_job_stints_2 = [
-#    [
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,4,6), 'empl_status': 'A'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,5,25), 'empl_status': 'W'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,7,27), 'empl_status': 'W'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,5,25), 'empl_status': 'A'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,1,1), 'empl_status': 'W'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,5,30), 'empl_status': 'W'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,7,25), 'empl_status': 'A'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,5,29), 'empl_status': 'W'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,7,24), 'empl_status': 'W'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-#      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-#    ],
-#  ]
-#
-#  assert job_stints_2 == expected_job_stints_2
-#
+def test_transform_job_entries():
+  entries = [
+    {
+      'emplid': '1173706',
+      'deptid': '11735',
+      'um_affiliate_id': '01',
+      'um_affil_relation': '9403A',
+      'effdt': datetime.date(2015,4,6),
+      'status': 'A',
+      'status_flg': 'H',
+    },
+    {
+      'emplid': '1173706',
+      'deptid': '11735',
+      'um_affiliate_id': '01',
+      'um_affil_relation': '9403A',
+      'effdt': datetime.date(2015,4,7),
+      'status': 'I',
+      'status_flg': 'C',
+    },
+  ]
+
+  job_stints = affiliate_job.transform_job_entries(entries)
+
+  expected_job_stints = [
+    [
+      {
+        'emplid': '1173706',
+        'deptid': '11735',
+        'um_affiliate_id': '01',
+        'um_affil_relation': '9403A',
+        'effdt': datetime.date(2015,4,6),
+        'status': 'A',
+        'status_flg': 'H',
+      },
+      {
+        'emplid': '1173706',
+        'deptid': '11735',
+        'um_affiliate_id': '01',
+        'um_affil_relation': '9403A',
+        'effdt': datetime.date(2015,4,7),
+        'status': 'I',
+        'status_flg': 'C',
+      },
+    ],
+  ]
+
+  assert job_stints == expected_job_stints
+
+  entries_2 = [
+    {
+      'emplid': '2585238',
+      'deptid': '11219',
+      'um_affiliate_id': '03',
+      'um_affil_relation': '9402A',
+      'effdt': datetime.date(2015,4,6),
+      'status': 'A',
+      'status_flg': 'H',
+    },
+    {
+      'emplid': '2585238',
+      'deptid': '11219',
+      'um_affiliate_id': '03',
+      'um_affil_relation': '9402A',
+      'effdt': datetime.date(2017,1,12),
+      'status': 'A',
+      'status_flg': 'H',
+    },
+  ]
+
+  job_stints_2 = affiliate_job.transform_job_entries(entries_2)
+
+  expected_job_stints_2 = [
+    [
+      {
+        'emplid': '2585238',
+        'deptid': '11219',
+        'um_affiliate_id': '03',
+        'um_affil_relation': '9402A',
+        'effdt': datetime.date(2015,4,6),
+        'status': 'A',
+        'status_flg': 'H',
+      },
+      {
+        'emplid': '2585238',
+        'deptid': '11219',
+        'um_affiliate_id': '03',
+        'um_affil_relation': '9402A',
+        'effdt': datetime.date(2017,1,12),
+        'status': 'A',
+        'status_flg': 'H',
+      },
+    ],
+  ]
+
+  assert job_stints_2 == expected_job_stints_2
+
+  entries_3 = [
+    {
+      'emplid': '2585238',
+      'deptid': '11219',
+      'um_affiliate_id': '03',
+      'um_affil_relation': '9401A',
+      'effdt': datetime.date(2017,1,18),
+      'status': 'A',
+      'status_flg': 'C',
+    },
+  ]
+
+  job_stints_3 = affiliate_job.transform_job_entries(entries_3)
+
+  expected_job_stints_3 = [
+    [
+      {
+        'emplid': '2585238',
+        'deptid': '11219',
+        'um_affiliate_id': '03',
+        'um_affil_relation': '9401A',
+        'effdt': datetime.date(2017,1,18),
+        'status': 'A',
+        'status_flg': 'C',
+      },
+    ],
+  ]
+
+  assert job_stints_3 == expected_job_stints_3
+
 #def test_transform_job_stint():
 #  job_stint_1 = [
 #    {
