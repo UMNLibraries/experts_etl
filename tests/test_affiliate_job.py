@@ -4,7 +4,8 @@ import datetime, re
 from experts_etl import affiliate_job
 
 def test_extract():
-  emplid = '3367339'
+  #emplid = '3367339'
+  emplid = '2585238'
   jobs = affiliate_job.extract(emplid)
 
   assert isinstance(jobs, list)
@@ -15,34 +16,40 @@ def test_extract():
     assert re.match(r'^\d+$', job['deptid']) 
     assert isinstance(job['effdt'], datetime.date)
 
-#def test_group_jobs_by_position_nbr():
-#  jobs = [
-#    {'position_nbr': '1', 'a': 2, 'b': 3},
-#    {'position_nbr': '1', 'a': 3, 'b': 4},
-#    {'position_nbr': '2', 'a': 5, 'b': 6},
-#    {'position_nbr': '3', 'a': 7, 'b': 8},
-#    {'position_nbr': '2', 'a': 9, 'b': 10},
-#    {'position_nbr': '1', 'a': 11, 'b': 12},
-#  ]
-#
-#  expected_jobs_by_position_nbr = {
-#    '1': [
-#      {'position_nbr': '1', 'a': 2, 'b': 3},
-#      {'position_nbr': '1', 'a': 3, 'b': 4},
-#      {'position_nbr': '1', 'a': 11, 'b': 12},
-#    ],
-#    '2': [
-#      {'position_nbr': '2', 'a': 5, 'b': 6},
-#      {'position_nbr': '2', 'a': 9, 'b': 10},
-#    ],
-#    '3': [
-#      {'position_nbr': '3', 'a': 7, 'b': 8},
-#    ],
-#  }
-#
-#  jobs_by_position_nbr = employee_job.group_by_position_nbr(jobs)
-#  assert jobs_by_position_nbr == expected_jobs_by_position_nbr
-#
+def test_group_jobs_by_deptid_um_affiliate_id():
+  jobs = [
+    {'um_affiliate_id': '01', 'deptid': '10986', 'a': 2, 'b': 3},
+    {'um_affiliate_id': '01', 'deptid': '10986', 'a': 3, 'b': 4},
+    {'um_affiliate_id': '02', 'deptid': '11083', 'a': 5, 'b': 6},
+    {'um_affiliate_id': '03', 'deptid': '11219', 'a': 7, 'b': 8},
+    {'um_affiliate_id': '02', 'deptid': '11083', 'a': 9, 'b': 10},
+    {'um_affiliate_id': '03', 'deptid': '11219', 'a': 11, 'b': 12},
+    {'um_affiliate_id': '03', 'deptid': '11219', 'a': 13, 'b': 14},
+    {'um_affiliate_id': '04', 'deptid': '10986', 'a': 15, 'b': 16},
+  ]
+
+  expected_jobs_by_deptid_um_affiliate_id = {
+    '10986-01': [
+      {'um_affiliate_id': '01', 'deptid': '10986', 'a': 2, 'b': 3},
+      {'um_affiliate_id': '01', 'deptid': '10986', 'a': 3, 'b': 4},
+    ],
+    '11083-02': [
+      {'um_affiliate_id': '02', 'deptid': '11083', 'a': 5, 'b': 6},
+      {'um_affiliate_id': '02', 'deptid': '11083', 'a': 9, 'b': 10},
+    ],
+    '11219-03': [
+      {'um_affiliate_id': '03', 'deptid': '11219', 'a': 7, 'b': 8},
+      {'um_affiliate_id': '03', 'deptid': '11219', 'a': 11, 'b': 12},
+      {'um_affiliate_id': '03', 'deptid': '11219', 'a': 13, 'b': 14},
+    ],
+    '10986-04': [
+      {'um_affiliate_id': '04', 'deptid': '10986', 'a': 15, 'b': 16},
+    ],
+  }
+
+  jobs_by_deptid_um_affiliate_id = affiliate_job.group_by_deptid_um_affiliate_id(jobs)
+  assert jobs_by_deptid_um_affiliate_id == expected_jobs_by_deptid_um_affiliate_id
+
 #def test_transform_job_entries():
 #  entries = [
 #    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,4,6), 'empl_status': 'A'},

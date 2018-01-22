@@ -135,11 +135,11 @@ active_states = ['A', 'L', 'S', 'W']
 #
 #  return job_stints
 #
-#def group_by_position_nbr(jobs):
-#  jobs_by_position_nbr = {}
-#  for job in jobs:
-#    position_nbr = job['position_nbr']
-#    if position_nbr not in jobs_by_position_nbr:
-#      jobs_by_position_nbr[position_nbr] = [] 
-#    jobs_by_position_nbr[position_nbr].append(job)
-#  return jobs_by_position_nbr
+def group_by_deptid_um_affiliate_id(jobs):
+  jobs_by_deptid_um_affiliate_id = {}
+  for job in jobs:
+    key = job['deptid'] + '-'  + job['um_affiliate_id']
+    if key not in jobs_by_deptid_um_affiliate_id:
+      jobs_by_deptid_um_affiliate_id[key] = [] 
+    jobs_by_deptid_um_affiliate_id[key].append(job)
+  return jobs_by_deptid_um_affiliate_id
