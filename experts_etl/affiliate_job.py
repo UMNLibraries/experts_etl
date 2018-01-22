@@ -5,8 +5,8 @@ from sqlalchemy import and_
 
 session = db.session('hotel')
 
-#def extract_transform(emplid):
-#  return transform(extract(emplid))
+def extract_transform(emplid):
+  return transform(extract(emplid))
 
 def extract(emplid):
   jobs = []

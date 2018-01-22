@@ -321,39 +321,26 @@ def test_transform():
       'end_date': datetime.date(2015,4,7),
       'visibility': 'Restricted',
       'profiled': False,
-    }
+    },
   ]
 
   assert transformed_jobs == expected_transformed_jobs
 
-#def test_extract_transform():
-#  transformed_jobs = employee_job.extract_transform('1082441')
-#
-#  expected_transformed_jobs = [
-#    {
-#     'deptid': '11945',
-#     'org_id': 'QWTDIYIJ',
-#     'empl_rcdno': '0',
-#     'job_title': 'Assistant Professor',
-#     'employment_type': 'faculty',
-#     'staff_type': 'academic',
-#     'start_date': datetime.datetime(2007,1,30,0,0),
-#     'end_date': datetime.datetime(2015,8,24,0,0),
-#     'visibility': 'Restricted',
-#     'profiled': False,
-#    },
-#    {
-#     'deptid': '11945',
-#     'org_id': 'QWTDIYIJ',
-#     'empl_rcdno': '0',
-#     'job_title': 'Assistant Professor',
-#     'employment_type': 'faculty',
-#     'staff_type': 'academic',
-#     'start_date': datetime.datetime(2015,8,31,0,0),
-#     'end_date': None,
-#     'visibility': 'Public',
-#     'profiled': True,
-#    },
-#  ]
-#
-#  assert transformed_jobs == expected_transformed_jobs
+def test_extract_transform():
+  transformed_jobs = affiliate_job.extract_transform('1173706')
+
+  expected_transformed_jobs = [
+    {
+      'deptid': '11735',
+      'org_id': 'WSSKOZQ',
+      'job_title': 'Adjunct Assistant Professor',
+      'employment_type': 'adjunct_faculty',
+      'staff_type': 'nonacademic',
+      'start_date': datetime.datetime(2015,4,6,0,0),
+      'end_date': datetime.datetime(2015,4,7,0,0),
+      'visibility': 'Restricted',
+      'profiled': False,
+    },
+  ]
+
+  assert transformed_jobs == expected_transformed_jobs
