@@ -26,7 +26,7 @@
         <v3:startDate>{{ job.start_date.strftime('%d-%m-%Y') }}</v3:startDate>
         {%- if job.end_date %}
         <v3:endDate>{{ job.end_date.strftime('%d-%m-%Y') }}</v3:endDate>
-        {% endif %}
+        {%- endif %}
       </period>
       <staffType>{{ job.staff_type }}</staffType>
       <jobTitle>{{ job.job_title }}</jobTitle>

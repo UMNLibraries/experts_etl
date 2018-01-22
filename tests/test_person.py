@@ -215,3 +215,109 @@ def test_extract_transform_serialize():
 </person>"""
 
   assert person_xml == expected_person_xml
+
+  person_xml_2 = person.extract_transform_serialize('2585238')
+
+  expected_person_xml_2 = """<person id="898">
+  <name>
+    <v3:firstname>Abigail</v3:firstname>
+    <v3:lastname>Gewirtz</v3:lastname>
+  </name>
+  <gender>unknown</gender>
+  <organisationAssociations>
+    <staffOrganisationAssociation id="staffAssoc-2585238-RQHKJLUF-1" managedInPure="false">
+      <employmentType>faculty</employmentType>
+      <primaryAssociation>false</primaryAssociation>
+      <organisation>
+        <v3:source_id>RQHKJLUF</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>27-08-2007</v3:startDate>
+      </period>
+      <staffType>academic</staffType>
+      <jobTitle>Professor</jobTitle>
+    </staffOrganisationAssociation>
+    <staffOrganisationAssociation id="staffAssoc-2585238-LBZUCPBF-2" managedInPure="false">
+      <employmentType>adjunct_faculty</employmentType>
+      <primaryAssociation>false</primaryAssociation>
+      <organisation>
+        <v3:source_id>LBZUCPBF</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>06-04-2015</v3:startDate>
+        <v3:endDate>12-01-2017</v3:endDate>
+      </period>
+      <staffType>nonacademic</staffType>
+      <jobTitle>Adjunct Associate Professor</jobTitle>
+    </staffOrganisationAssociation>
+    <staffOrganisationAssociation id="staffAssoc-2585238-CBIHJRCYWWAA-3" managedInPure="false">
+      <employmentType>adjunct_faculty</employmentType>
+      <primaryAssociation>false</primaryAssociation>
+      <organisation>
+        <v3:source_id>CBIHJRCYWWAA</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>06-04-2015</v3:startDate>
+      </period>
+      <staffType>nonacademic</staffType>
+      <jobTitle>Adjunct Associate Professor</jobTitle>
+    </staffOrganisationAssociation>
+    <staffOrganisationAssociation id="staffAssoc-2585238-SKDPLVKBRNWDZMQ-4" managedInPure="false">
+      <employmentType>adjunct_faculty</employmentType>
+      <primaryAssociation>false</primaryAssociation>
+      <organisation>
+        <v3:source_id>SKDPLVKBRNWDZMQ</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>06-04-2015</v3:startDate>
+      </period>
+      <staffType>nonacademic</staffType>
+      <jobTitle>Adjunct Assistant Professor</jobTitle>
+    </staffOrganisationAssociation>
+    <staffOrganisationAssociation id="staffAssoc-2585238-LBZUCPBF-5" managedInPure="false">
+      <employmentType>adjunct_faculty</employmentType>
+      <primaryAssociation>false</primaryAssociation>
+      <organisation>
+        <v3:source_id>LBZUCPBF</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>18-01-2017</v3:startDate>
+      </period>
+      <staffType>nonacademic</staffType>
+      <jobTitle>Adjunct Professor</jobTitle>
+    </staffOrganisationAssociation>
+    <staffOrganisationAssociation id="staffAssoc-2585238-CBIHJRCYWWAA-6" managedInPure="false">
+      <employmentType>adjunct_faculty</employmentType>
+      <primaryAssociation>false</primaryAssociation>
+      <organisation>
+        <v3:source_id>CBIHJRCYWWAA</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>01-07-2017</v3:startDate>
+      </period>
+      <staffType>nonacademic</staffType>
+      <jobTitle>Adjunct Assistant Professor</jobTitle>
+    </staffOrganisationAssociation>
+  </organisationAssociations>
+  <links>
+    <v3:link id="contactInfoLink-2585238">
+      <v3:url>https://myaccount.umn.edu/lookup?type=Internet+ID&CN=agewirtz</v3:url>
+      <v3:type>contact_information</v3:type>
+      <v3:description>
+        <v3:text lang="en" country="US">Contact Information</v3:text>
+      </v3:description>
+    </v3:link>
+  </links>
+  <user>
+    <userName>agewirtz@umn.edu</userName>
+    <email>agewirtz@umn.edu</email>
+  </user>
+  <personIds>
+    <v3:id type="employee">2585238</v3:id>
+    <v3:id type="umn">agewirtz</v3:id>
+  </personIds>
+  <visibility>Public</visibility>
+  <profiled>true</profiled>
+</person>"""
+
+  assert person_xml_2 == expected_person_xml_2

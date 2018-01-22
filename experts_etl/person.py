@@ -2,7 +2,7 @@ import re
 from experts_dw import db
 #from experts_dw.models import PureEligibleAffJob, PureEligibleAffJobNew, PureEligibleAffJobChngHst, PureEligibleEmpJob, PureEligibleEmpJobNew, PureEligibleEmpJobChngHst
 from experts_dw.models import Person, PureEligibleDemog
-from . import employee_job
+from . import affiliate_job, employee_job
 
 session = db.session('hotel')
 
@@ -46,19 +46,24 @@ def transform(person_dict):
   )
 
   jobs = []
-  jobs.extend(employee_job.extract_transform(person_dict['emplid']))
-
-  jobs_with_primary = transform_primary_job(jobs, person_dict['primary_empl_rcdno'])  
+  employee_jobs = employee_job.extract_transform(person_dict['emplid'])
+  employee_jobs_with_primary = transform_primary_job(employee_jobs, person_dict['primary_empl_rcdno'])  
+  jobs.extend(employee_jobs_with_primary)
+  affiliate_jobs = affiliate_job.extract_transform(person_dict['emplid'])
+  for job in affiliate_jobs:
+    # An affiliate job will never be a primary job.
+    job['primary'] = False
+  jobs.extend(affiliate_jobs)
 
   person_dict['visibility'] = 'Restricted'
   person_dict['profiled'] = False
-  for job in jobs_with_primary:
+  for job in jobs:
     if job['visibility'] == 'Public':
       person_dict['visibility'] = 'Public'
     if job['profiled']:
       person_dict['profiled'] = True
 
-  person_dict['jobs'] = jobs_with_primary
+  person_dict['jobs'] = jobs
 
   return person_dict
 
