@@ -29,18 +29,18 @@ I Inactive
 """
 active_states = ['A']
 
-#def transform(jobs):
-#  jobs_by_position_nbr = group_by_position_nbr(jobs)
-#  transformed_jobs = []
-#
-#  for position_nbr, entries in jobs_by_position_nbr.items():
-#    job_stints = transform_job_entries(entries)
-#
-#    for job_stint in job_stints:
-#      transformed_job = transform_job_stint(job_stint)
-#      transformed_jobs.append(transformed_job)
-#      
-#  return transformed_jobs
+def transform(jobs):
+  jobs_by_deptid_um_affiliate_id_um_affil_relation = group_by_deptid_um_affiliate_id_um_affil_relation(jobs)
+  transformed_jobs = []
+
+  for key, entries in jobs_by_deptid_um_affiliate_id_um_affil_relation.items():
+    job_stints = transform_job_entries(entries)
+
+    for job_stint in job_stints:
+      transformed_job = transform_job_stint(job_stint)
+      transformed_jobs.append(transformed_job)
+      
+  return transformed_jobs
 
 def transform_job_stint(job_stint):
   transformed_job = {}
