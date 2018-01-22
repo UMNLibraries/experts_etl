@@ -41,63 +41,59 @@ active_states = ['A']
 #      transformed_jobs.append(transformed_job)
 #      
 #  return transformed_jobs
-#
-#def transform_job_stint(job_stint):
-#  transformed_job = {}
-#  first_entry, last_entry = job_stint[0], job_stint[-1]
-#  transformed_job['job_title'] = last_entry['jobcode_descr']
-#  transformed_job['deptid'] = last_entry['deptid']
-#  transformed_job['empl_rcdno'] = last_entry['empl_rcdno']
-#
-#  potential_start_dates = [dt for dt in (first_entry['effdt'],first_entry['job_entry_dt'],first_entry['position_entry_dt']) if dt]
-#  transformed_job['start_date'] = min(potential_start_dates)
-#
-#  if last_entry['empl_status'] not in active_states or last_entry['job_terminated'] == 'Y':
-#    potential_end_dates = [dt for dt in (last_entry['effdt'],last_entry['last_date_worked']) if dt]
-#    transformed_job['end_date'] = max(potential_end_dates)
-#    transformed_job['visibility'] = 'Restricted'
-#    transformed_job['profiled'] = False
-#  else:
-#    transformed_job['end_date'] = None
-#    pure_new_staff_dept_defaults = (
-#      session.query(PureNewStaffDeptDefaults)
-#      .filter(and_(
-#        PureNewStaffDeptDefaults.deptid == last_entry['deptid'],
-#        PureNewStaffDeptDefaults.jobcode == last_entry['jobcode'],
-#        PureNewStaffDeptDefaults.jobcode_descr == last_entry['jobcode_descr'],
-#      ))
-#      .one_or_none()
-#    )
-#    if pure_new_staff_dept_defaults:
-#      transformed_job['visibility'] = pure_new_staff_dept_defaults.default_visibility
-#      if pure_new_staff_dept_defaults.default_profiled == 'true':
-#        transformed_job['profiled'] = True
-#      else:
-#        transformed_job['profiled'] = False
-#
-#  umn_dept_pure_org = (
-#    session.query(UmnDeptPureOrg)
-#    .filter(UmnDeptPureOrg.umn_dept_id == last_entry['deptid'])
-#    .one_or_none()
-#  )
-#  if umn_dept_pure_org:
-#    transformed_job['org_id'] = umn_dept_pure_org.pure_org_id
-#  else:
-#    transformed_job['org_id'] = None
-#
-#  pure_new_staff_pos_defaults = (
-#    session.query(PureNewStaffPosDefaults)
-#    .filter(PureNewStaffPosDefaults.jobcode == last_entry['jobcode'])
-#    .one_or_none()
-#  )
-#  if pure_new_staff_pos_defaults:
-#    transformed_job['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
-#    transformed_job['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
-#  else:
-#    transformed_job['employment_type'] = None
-#    transformed_job['staff_type'] = None
-#
-#  return transformed_job
+
+def transform_job_stint(job_stint):
+  transformed_job = {}
+  first_entry, last_entry = job_stint[0], job_stint[-1]
+  transformed_job['job_title'] = last_entry['title']
+  transformed_job['deptid'] = last_entry['deptid']
+  transformed_job['start_date'] = first_entry['effdt']
+
+  if last_entry['status'] not in active_states or last_entry['status_flg'] == 'H':
+    transformed_job['end_date'] = last_entry['effdt']
+    transformed_job['visibility'] = 'Restricted'
+    transformed_job['profiled'] = False
+  else:
+    transformed_job['end_date'] = None
+    pure_new_staff_dept_defaults = (
+      session.query(PureNewStaffDeptDefaults)
+      .filter(and_(
+        PureNewStaffDeptDefaults.deptid == last_entry['deptid'],
+        PureNewStaffDeptDefaults.jobcode == last_entry['um_affil_relation'],
+        PureNewStaffDeptDefaults.jobcode_descr == last_entry['title'],
+      ))
+      .one_or_none()
+    )
+    if pure_new_staff_dept_defaults:
+      transformed_job['visibility'] = pure_new_staff_dept_defaults.default_visibility
+      if pure_new_staff_dept_defaults.default_profiled == 'true':
+        transformed_job['profiled'] = True
+      else:
+        transformed_job['profiled'] = False
+
+  umn_dept_pure_org = (
+    session.query(UmnDeptPureOrg)
+    .filter(UmnDeptPureOrg.umn_dept_id == last_entry['deptid'])
+    .one_or_none()
+  )
+  if umn_dept_pure_org:
+    transformed_job['org_id'] = umn_dept_pure_org.pure_org_id
+  else:
+    transformed_job['org_id'] = None
+
+  pure_new_staff_pos_defaults = (
+    session.query(PureNewStaffPosDefaults)
+    .filter(PureNewStaffPosDefaults.jobcode == last_entry['um_affil_relation'])
+    .one_or_none()
+  )
+  if pure_new_staff_pos_defaults:
+    transformed_job['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
+    transformed_job['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
+  else:
+    transformed_job['employment_type'] = None
+    transformed_job['staff_type'] = None
+
+  return transformed_job
 
 def transform_job_entries(entries):
   job_stints = []

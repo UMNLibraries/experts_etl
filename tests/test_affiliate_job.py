@@ -179,213 +179,111 @@ def test_transform_job_entries():
 
   assert job_stints_3 == expected_job_stints_3
 
-#def test_transform_job_stint():
-#  job_stint_1 = [
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989',
-#      'effdt': datetime.date(2015,4,6),
-#      'job_entry_dt': datetime.date(2014,12,15),
-#      'position_entry_dt': datetime.date(2007,1,30),
-#      'last_date_worked': None,
-#      'empl_status': 'A',
-#      'job_terminated': 'N',
-#    },
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989',
-#      'effdt': datetime.date(2015,5,25),
-#      'job_entry_dt': datetime.date(2014,12,15),
-#      'position_entry_dt': datetime.date(2007,1,30),
-#      'last_date_worked': datetime.date(2015,5,24),
-#      'empl_status': 'S',
-#      'job_terminated': 'N',
-#    },
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989',
-#      'effdt': datetime.date(2015,5,25),
-#      'job_entry_dt': datetime.date(2014,12,15),
-#      'position_entry_dt': datetime.date(2007,1,30),
-#      'last_date_worked': datetime.date(2015,5,24),
-#      'empl_status': 'T',
-#      'job_terminated': 'N',
-#    },
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989', 
-#      'effdt': datetime.date(2015,8,24),
-#      'job_entry_dt': datetime.date(2014,12,15),
-#      'position_entry_dt': datetime.date(2007,1,30),
-#      'last_date_worked': datetime.date(2015,5,24),
-#      'empl_status': 'T',
-#      'job_terminated': 'N',
-#    },
-#  ]
-#
-#  expected_transformed_job_1 = {
-#   'deptid': '11945',
-#   'org_id': 'QWTDIYIJ',
-#   'empl_rcdno': '0',
-#   'job_title': 'Assistant Professor',
-#   'employment_type': 'faculty',
-#   'staff_type': 'academic',
-#   'start_date': datetime.date(2007, 1, 30),
-#   'end_date': datetime.date(2015, 8, 24),
-#   'visibility': 'Restricted',
-#   'profiled': False,
-#  }
-#
-#  transformed_job_1 = employee_job.transform_job_stint(job_stint_1)
-#  assert transformed_job_1 == expected_transformed_job_1
-#
-#  job_stint_2 = [
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989',
-#      'effdt': datetime.date(2015,8,31),
-#      'job_entry_dt': datetime.date(2015,8,31),
-#      'position_entry_dt': datetime.date(2015,8,31),
-#      'last_date_worked': None,
-#      'empl_status': 'A',
-#      'job_terminated': 'N',
-#    },
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989',
-#      'effdt': datetime.date(2016,5,23),
-#      'job_entry_dt': datetime.date(2015,8,31),
-#      'position_entry_dt': datetime.date(2015,8,31),
-#      'last_date_worked': datetime.date(2016,5,22),
-#      'empl_status': 'W',
-#      'job_terminated': 'N',
-#    },
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989',
-#      'effdt': datetime.date(2016,8,29),
-#      'job_entry_dt': datetime.date(2015,8,31),
-#      'position_entry_dt': datetime.date(2015,8,31),
-#      'last_date_worked': None,
-#      'empl_status': 'A',
-#      'job_terminated': 'N',
-#    },
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989',
-#      'effdt': datetime.date(2016,11,14),
-#      'job_entry_dt': datetime.date(2015,8,31),
-#      'position_entry_dt': datetime.date(2015,8,31),
-#      'last_date_worked': None,
-#      'empl_status': 'A',
-#      'job_terminated': 'N',
-#    },
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989',
-#      'effdt': datetime.date(2017,1,9),
-#      'job_entry_dt': datetime.date(2015,8,31),
-#      'position_entry_dt': datetime.date(2015,8,31),
-#      'last_date_worked': None,
-#      'empl_status': 'A',
-#      'job_terminated': 'N',
-#    },
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989',
-#      'effdt': datetime.date(2017,5,28),
-#      'job_entry_dt': datetime.date(2015,8,31),
-#      'position_entry_dt': datetime.date(2015,8,31),
-#      'last_date_worked': datetime.date(2017,5,27),
-#      'empl_status': 'W',
-#      'job_terminated': 'N',
-#    },
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989',
-#      'effdt': datetime.date(2017,8,21),
-#      'job_entry_dt': datetime.date(2015,8,31),
-#      'position_entry_dt': datetime.date(2015,8,31),
-#      'last_date_worked': datetime.date(2017,5,27),
-#      'empl_status': 'W',
-#      'job_terminated': 'N',
-#    },
-#    {
-#      'emplid': '1082441',
-#      'empl_rcdno': '0',
-#      'jobcode': '9403',
-#      'jobcode_descr': 'Assistant Professor',
-#      'deptid': '11945',
-#      'position_nbr': '208989',
-#      'effdt': datetime.date(2017,8,28),
-#      'job_entry_dt': datetime.date(2015,8,31),
-#      'position_entry_dt': datetime.date(2015,8,31),
-#      'last_date_worked': None,
-#      'empl_status': 'A',
-#      'job_terminated': 'N',
-#    },
-#  ]
-#
-#  expected_transformed_job_2 = {
-#   'deptid': '11945',
-#   'org_id': 'QWTDIYIJ',
-#   'empl_rcdno': '0',
-#   'job_title': 'Assistant Professor',
-#   'employment_type': 'faculty',
-#   'staff_type': 'academic',
-#   'start_date': datetime.date(2015,8,31),
-#   'end_date': None,
-#   'visibility': 'Public',
-#   'profiled': True,
-#  }
-#
-#  transformed_job_2 = employee_job.transform_job_stint(job_stint_2)
-#  assert transformed_job_2 == expected_transformed_job_2
-#
+def test_transform_job_stint():
+  job_stint_1 = [
+    {
+      'emplid': '1173706',
+      'deptid': '11735',
+      'um_affiliate_id': '01',
+      'um_affil_relation': '9403A',
+      'title': 'Adjunct Assistant Professor',
+      'effdt': datetime.date(2015,4,6),
+      'status': 'A',
+      'status_flg': 'H',
+    },
+    {
+      'emplid': '1173706',
+      'deptid': '11735',
+      'um_affiliate_id': '01',
+      'um_affil_relation': '9403A',
+      'title': 'Adjunct Assistant Professor',
+      'effdt': datetime.date(2015,4,7),
+      'status': 'I',
+      'status_flg': 'C',
+    },
+  ]
+
+  expected_transformed_job_1 = {
+   'deptid': '11735',
+   'org_id': 'WSSKOZQ',
+   'job_title': 'Adjunct Assistant Professor',
+   'employment_type': 'adjunct_faculty',
+   'staff_type': 'nonacademic',
+   'start_date': datetime.date(2015,4,6),
+   'end_date': datetime.date(2015,4,7),
+   'visibility': 'Restricted',
+   'profiled': False,
+  }
+
+  transformed_job_1 = affiliate_job.transform_job_stint(job_stint_1)
+  assert transformed_job_1 == expected_transformed_job_1
+
+  job_stint_2 = [
+    {
+      'emplid': '2585238',
+      'deptid': '11219',
+      'um_affiliate_id': '03',
+      'um_affil_relation': '9402A',
+      'title': 'Adjunct Associate Professor',
+      'effdt': datetime.date(2015,4,6),
+      'status': 'A',
+      'status_flg': 'H',
+    },
+    {
+      'emplid': '2585238',
+      'deptid': '11219',
+      'um_affiliate_id': '03',
+      'um_affil_relation': '9402A',
+      'title': 'Adjunct Associate Professor',
+      'effdt': datetime.date(2017,1,12),
+      'status': 'A',
+      'status_flg': 'H',
+    },
+  ]
+
+  expected_transformed_job_2 = {
+   'deptid': '11219',
+   'org_id': 'LBZUCPBF',
+   'job_title': 'Adjunct Associate Professor',
+   'employment_type': 'adjunct_faculty',
+   'staff_type': 'nonacademic',
+   'start_date': datetime.date(2015,4,6),
+   'end_date': datetime.date(2017,1,12),
+   'visibility': 'Restricted',
+   'profiled': False,
+  }
+
+  transformed_job_2 = affiliate_job.transform_job_stint(job_stint_2)
+  assert transformed_job_2 == expected_transformed_job_2
+
+  job_stint_3 = [
+    {
+      'emplid': '2585238',
+      'deptid': '11219',
+      'um_affiliate_id': '03',
+      'um_affil_relation': '9401A',
+      'title': 'Adjunct Professor',
+      'effdt': datetime.date(2017,1,18),
+      'status': 'A',
+      'status_flg': 'C',
+    },
+  ]
+
+  expected_transformed_job_3 = {
+   'deptid': '11219',
+   'org_id': 'LBZUCPBF',
+   'job_title': 'Adjunct Professor',
+   'employment_type': 'adjunct_faculty',
+   'staff_type': 'nonacademic',
+   'start_date': datetime.date(2017,1,18),
+   'end_date': None,
+   'visibility': 'Restricted',
+   'profiled': False,
+  }
+
+  transformed_job_3 = affiliate_job.transform_job_stint(job_stint_3)
+  assert transformed_job_3 == expected_transformed_job_3
+
 #def test_transform():
 #  jobs = [
 #    {
