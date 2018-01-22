@@ -4,7 +4,7 @@ import datetime, re
 from experts_etl import affiliate_job
 
 def test_extract():
-  #emplid = '3367339', '1173706'
+  #emplid = '3367339' # Maybe use this later...
   emplid = '2585238'
   jobs = affiliate_job.extract(emplid)
 
