@@ -77,6 +77,9 @@ def transform_job_stint(job_stint):
         transformed_job['profiled'] = True
       else:
         transformed_job['profiled'] = False
+    else:
+      transformed_job['visibility'] = 'Restricted'
+      transformed_job['profiled'] = False
 
   umn_dept_pure_org = (
     session.query(UmnDeptPureOrg)
