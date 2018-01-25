@@ -33,6 +33,7 @@
     </staffOrganisationAssociation>
     {%- endfor %}
   </organisationAssociations>
+  {%- if contact_info_url %}
   <links>
     <v3:link id="contactInfoLink-{{ emplid }}">
       <v3:url>{{ contact_info_url }}</v3:url>
@@ -42,13 +43,16 @@
       </v3:description>
     </v3:link>
   </links>
+  {%- endif %}
   <user>
     <userName>{{ instl_email_addr }}</userName>
     <email>{{ instl_email_addr }}</email>
   </user>
   <personIds>
     <v3:id type="employee">{{ emplid }}</v3:id>
+    {%- if internet_id %}
     <v3:id type="umn">{{ internet_id }}</v3:id>
+    {%- endif %}
   </personIds>
   <visibility>{{ visibility }}</visibility>
   <profiled>{% if profiled %}true{% else %}false{% endif %}</profiled>

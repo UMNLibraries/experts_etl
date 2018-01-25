@@ -39,7 +39,10 @@ def extract(emplid):
   return person_dict
 
 def transform(person_dict):
-  person_dict['contact_info_url'] = 'https://myaccount.umn.edu/lookup?type=Internet+ID&CN=' + person_dict['internet_id']
+  if person_dict['internet_id']:
+    person_dict['contact_info_url'] = 'https://myaccount.umn.edu/lookup?type=Internet+ID&CN=' + person_dict['internet_id']
+  else:
+    person_dict['contact_info_url'] = None
 
   person_dict['person_id'] = transform_person_id(
     person_dict['emplid'],
