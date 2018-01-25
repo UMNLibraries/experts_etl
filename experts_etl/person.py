@@ -31,7 +31,10 @@ def extract(emplid):
     .filter(Person.emplid == demog.emplid)
     .one_or_none()
   )
-  person_dict['scival_id'] = person.pure_id
+  if person:
+    person_dict['scival_id'] = person.pure_id
+  else:
+    person_dict['scival_id'] = None
 
   return person_dict
 
@@ -73,28 +76,6 @@ def transform(person_dict):
 def serialize(person_dict):
   template = env.get_template('person.xml.j2')
   return template.render(person_dict)
-
-def transform_visibility_profiled(jobs):
-  person_has_an_active_job = False
-  for job in jobs:
-    if job['end_date'] == None:
-      person_has_an_active_job = True
-      break
-
-  if not person_has_an_active_job:
-    person['visibility'] = 'Restricted'
-    person['profiled'] = False
-  else:
-    defaults = (
-      session.query(PureNewStaffDeptDefaults)
-      .filter(and_(
-        PureNewStaffDeptDefaults.deptid == job.deptid,
-        PureNewStaffDeptDefaults.deptid == job.deptid,
-      ))
-      .one_or_none()
-    )
-    person_dict['scival_id'] = person.pure_id
-
 
 def transform_primary_job(jobs, primary_empl_rcdno):
   transformed_jobs = jobs.copy()
