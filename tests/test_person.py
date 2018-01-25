@@ -18,7 +18,8 @@ def test_extract():
     'instl_email_addr': 'mbezada@umn.edu',
     'tenure_flag': 'N',
     'tenure_track_flag': 'Y',
-    'primary_empl_rcdno': 0,
+    'primary_empl_rcdno': '0',
+    'timestamp': datetime.datetime(2018, 1, 22, 12, 6, 30),
   }
 
   assert person_dict == expected_person_dict

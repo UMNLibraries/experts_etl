@@ -1,7 +1,8 @@
 import re
+from sqlalchemy import func
 from experts_dw import db
 #from experts_dw.models import PureEligibleAffJob, PureEligibleAffJobNew, PureEligibleAffJobChngHst, PureEligibleEmpJob, PureEligibleEmpJobNew, PureEligibleEmpJobChngHst
-from experts_dw.models import Person, PureEligibleDemog
+from experts_dw.models import Person, PureEligibleDemogChngHst
 from . import affiliate_job, employee_job
 
 session = db.session('hotel')
@@ -16,9 +17,11 @@ def extract_transform_serialize(emplid):
   return serialize(transform(extract(emplid)))
 
 def extract(emplid):
+  subqry = session.query(func.max(PureEligibleDemogChngHst.timestamp)).filter(PureEligibleDemogChngHst.emplid == emplid)
+
   demog = (
-    session.query(PureEligibleDemog)
-    .filter(PureEligibleDemog.emplid == emplid)
+    session.query(PureEligibleDemogChngHst)
+    .filter(PureEligibleDemogChngHst.emplid == emplid, PureEligibleDemogChngHst.timestamp == subqry)
     .one_or_none()
   )
   person_dict = {c.name: getattr(demog, c.name) for c in demog.__table__.columns}
@@ -107,6 +110,11 @@ def transform_primary_job(jobs, primary_empl_rcdno):
       job['primary'] = False
   transformed_jobs.reverse()
 
+  # From Jan Fransen on setting a primary position in email, 2018-01-23:
+  # Rather than being completely arbitrary, make the position with the earliest
+  # effective date the primary. If they have the same effective date, then
+  # choose the lowest empl_rcdno. Hopefully it's not duplicated to that level,
+  # but if it is then just pick one.
   if not primary_job_set:
     earliest_start_dates = []
     lowest_empl_rcdnos = []
