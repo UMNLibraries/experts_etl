@@ -96,15 +96,18 @@ def transform_job_stint(job_stint):
       transformed_job['visibility'] = 'Restricted'
       transformed_job['profiled'] = False
 
-  umn_dept_pure_org = (
-    session.query(UmnDeptPureOrg)
-    .filter(UmnDeptPureOrg.umn_dept_id == last_entry['deptid'])
-    .one_or_none()
-  )
-  if umn_dept_pure_org:
-    transformed_job['org_id'] = umn_dept_pure_org.pure_org_id
-  else:
-    transformed_job['org_id'] = None
+  # Default:
+  transformed_job['org_id'] = None
+  # Some old deptids include letters, but umn_dept_pure_org.umn_dept_id is a number.
+  # The old ones won't be in that table, anyway, so just skip those:
+  if re.match('^\d+$', last_entry['deptid']):
+    umn_dept_pure_org = (
+      session.query(UmnDeptPureOrg)
+      .filter(UmnDeptPureOrg.umn_dept_id == last_entry['deptid'])
+      .one_or_none()
+    )
+    if umn_dept_pure_org:
+      transformed_job['org_id'] = umn_dept_pure_org.pure_org_id
 
   pure_new_staff_pos_defaults = (
     session.query(PureNewStaffPosDefaults)
