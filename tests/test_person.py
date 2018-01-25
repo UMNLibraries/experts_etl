@@ -105,7 +105,7 @@ def test_serialize():
     'name': 'Bezada Vierma,Maximiliano J',
     'name_suffix': None,
     'person_id': '8185',
-    'primary_empl_rcdno': 0,
+    'primary_empl_rcdno': '0',
     'scival_id': '8185',
     'tenure_flag': 'N',
     'tenure_track_flag': 'Y',
