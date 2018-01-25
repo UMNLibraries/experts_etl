@@ -54,7 +54,7 @@ def test_transform():
     'instl_email_addr': 'mbezada@umn.edu',
     'tenure_flag': 'N',
     'tenure_track_flag': 'Y',
-    'primary_empl_rcdno': 0,
+    'primary_empl_rcdno': '0',
   }
   transformed_person_dict = person.transform(person_dict)
   expected_transformed_person_dict = {
@@ -68,7 +68,7 @@ def test_transform():
     'name': 'Bezada Vierma,Maximiliano J',
     'name_suffix': None,
     'person_id': '8185',
-    'primary_empl_rcdno': 0,
+    'primary_empl_rcdno': '0',
     'scival_id': '8185',
     'tenure_flag': 'N',
     'tenure_track_flag': 'Y',
