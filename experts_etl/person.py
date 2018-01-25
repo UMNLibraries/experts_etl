@@ -95,6 +95,7 @@ def transform_visibility_profiled(jobs):
 
 def transform_primary_job(jobs, primary_empl_rcdno):
   transformed_jobs = jobs.copy()
+
   # Any currently-active jobs are likely to be at or near the end of the list:
   transformed_jobs.reverse()
   primary_job_set = False
@@ -105,6 +106,51 @@ def transform_primary_job(jobs, primary_empl_rcdno):
     else:
       job['primary'] = False
   transformed_jobs.reverse()
+
+  if not primary_job_set:
+    earliest_start_dates = []
+    lowest_empl_rcdnos = []
+    for job in transformed_jobs:
+
+      if job['end_date']:
+        continue
+
+      if len(earliest_start_dates) == 0 or job['start_date'] == min(earliest_start_dates):
+        earliest_start_dates.append(job['start_date'])
+      else:
+        earliest_start_dates = [job['start_date']]
+
+      if len(lowest_empl_rcdnos) == 0 or job['empl_rcdno'] == min(lowest_empl_rcdnos):
+        lowest_empl_rcdnos.append(job['empl_rcdno'])
+      else:
+        lowest_empl_rcdnos = [job['empl_rcdno']]
+
+    if len(earliest_start_dates) == 1:
+      earliest_start_date = earliest_start_dates[0]
+      for job in transformed_jobs:
+        if job['end_date']:
+          continue
+        if job['start_date'] == earliest_start_date:
+          job['primary'] = True
+          primary_job_set = True
+    elif len(lowest_empl_rcdnos) == 1:
+      lowest_empl_rcdno = lowest_empl_rcdnos[0]
+      for job in transformed_jobs:
+        if job['end_date']:
+          continue
+        if job['empl_rcdno'] == lowest_empl_rcdno:
+          job['primary'] = True
+          primary_job_set = True
+
+    if not primary_job_set:
+      for job in transformed_jobs:
+        if job['end_date']:
+          continue
+        if job['start_date'] == min(earliest_start_dates):
+          job['primary'] = True
+          primary_job_set = True
+          break
+
   return transformed_jobs
 
 def transform_person_id(emplid, scival_id):

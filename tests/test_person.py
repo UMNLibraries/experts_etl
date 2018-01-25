@@ -230,7 +230,7 @@ def test_extract_transform_serialize():
   <organisationAssociations>
     <staffOrganisationAssociation id="staffAssoc-2585238-11217-9401-2007-08-27" managedInPure="false">
       <employmentType>faculty</employmentType>
-      <primaryAssociation>false</primaryAssociation>
+      <primaryAssociation>true</primaryAssociation>
       <organisation>
         <v3:source_id>RQHKJLUF</v3:source_id>
       </organisation>
