@@ -44,10 +44,12 @@
     </v3:link>
   </links>
   {%- endif %}
+  {%- if internet_id %}
   <user>
-    <userName>{{ instl_email_addr }}</userName>
-    <email>{{ instl_email_addr }}</email>
+    <userName>{{ internet_id }}@umn.edu</userName>
+    <email>{{ internet_id }}@umn.edu</email>
   </user>
+  {%- endif %}
   <personIds>
     <v3:id type="employee">{{ emplid }}</v3:id>
     {%- if internet_id %}
