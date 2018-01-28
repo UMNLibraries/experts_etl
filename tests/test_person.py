@@ -148,7 +148,7 @@ def test_serialize():
         <v3:startDate>29-08-2014</v3:startDate>
       </period>
       <staffType>academic</staffType>
-      <jobTitle>Assistant Professor</jobTitle>
+      <jobDescription><v3:text lang="en">Assistant Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
   </organisationAssociations>
   <links>
@@ -194,7 +194,7 @@ def test_extract_transform_serialize():
         <v3:startDate>29-08-2014</v3:startDate>
       </period>
       <staffType>academic</staffType>
-      <jobTitle>Assistant Professor</jobTitle>
+      <jobDescription><v3:text lang="en">Assistant Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
   </organisationAssociations>
   <links>
@@ -239,7 +239,7 @@ def test_extract_transform_serialize():
         <v3:startDate>27-08-2007</v3:startDate>
       </period>
       <staffType>academic</staffType>
-      <jobTitle>Professor</jobTitle>
+      <jobDescription><v3:text lang="en">Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
     <staffOrganisationAssociation id="staffAssoc-2585238-10986-9402A-2015-04-06" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
@@ -251,7 +251,7 @@ def test_extract_transform_serialize():
         <v3:startDate>06-04-2015</v3:startDate>
       </period>
       <staffType>nonacademic</staffType>
-      <jobTitle>Adjunct Associate Professor</jobTitle>
+      <jobDescription><v3:text lang="en">Adjunct Associate Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
     <staffOrganisationAssociation id="staffAssoc-2585238-11219-9402A-2015-04-06" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
@@ -264,7 +264,7 @@ def test_extract_transform_serialize():
         <v3:endDate>12-01-2017</v3:endDate>
       </period>
       <staffType>nonacademic</staffType>
-      <jobTitle>Adjunct Associate Professor</jobTitle>
+      <jobDescription><v3:text lang="en">Adjunct Associate Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
     <staffOrganisationAssociation id="staffAssoc-2585238-11803-9403A-2015-04-06" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
@@ -276,7 +276,7 @@ def test_extract_transform_serialize():
         <v3:startDate>06-04-2015</v3:startDate>
       </period>
       <staffType>nonacademic</staffType>
-      <jobTitle>Adjunct Assistant Professor</jobTitle>
+      <jobDescription><v3:text lang="en">Adjunct Assistant Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
     <staffOrganisationAssociation id="staffAssoc-2585238-11219-9401A-2017-01-18" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
@@ -288,7 +288,7 @@ def test_extract_transform_serialize():
         <v3:startDate>18-01-2017</v3:startDate>
       </period>
       <staffType>nonacademic</staffType>
-      <jobTitle>Adjunct Professor</jobTitle>
+      <jobDescription><v3:text lang="en">Adjunct Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
     <staffOrganisationAssociation id="staffAssoc-2585238-10986-9403A-2017-07-01" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
@@ -300,7 +300,7 @@ def test_extract_transform_serialize():
         <v3:startDate>01-07-2017</v3:startDate>
       </period>
       <staffType>nonacademic</staffType>
-      <jobTitle>Adjunct Assistant Professor</jobTitle>
+      <jobDescription><v3:text lang="en">Adjunct Assistant Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
   </organisationAssociations>
   <links>

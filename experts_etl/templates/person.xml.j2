@@ -29,7 +29,7 @@
         {%- endif %}
       </period>
       <staffType>{{ job.staff_type }}</staffType>
-      <jobTitle>{{ job.job_title }}</jobTitle>
+      <jobDescription><v3:text lang="en">{{ job.job_title }}</v3:text></jobDescription>
     </staffOrganisationAssociation>
     {%- endfor %}
   </organisationAssociations>
