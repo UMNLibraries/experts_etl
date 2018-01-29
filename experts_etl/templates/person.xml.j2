@@ -51,9 +51,9 @@
   </user>
   {%- endif %}
   <personIds>
-    <v3:id type="employee">{{ emplid }}</v3:id>
+    <v3:id type="employee" id="{{ person_id }}">{{ emplid }}</v3:id>
     {%- if internet_id %}
-    <v3:id type="umn">{{ internet_id }}</v3:id>
+    <v3:id type="umn" id="{{ person_id }}">{{ internet_id }}</v3:id>
     {%- endif %}
   </personIds>
   <visibility>{{ visibility }}</visibility>

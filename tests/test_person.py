@@ -165,8 +165,8 @@ def test_serialize():
     <email>mbezada@umn.edu</email>
   </user>
   <personIds>
-    <v3:id type="employee">5150075</v3:id>
-    <v3:id type="umn">mbezada</v3:id>
+    <v3:id type="employee" id="8185">5150075</v3:id>
+    <v3:id type="umn" id="8185">mbezada</v3:id>
   </personIds>
   <visibility>Public</visibility>
   <profiled>true</profiled>
@@ -211,8 +211,8 @@ def test_extract_transform_serialize():
     <email>mbezada@umn.edu</email>
   </user>
   <personIds>
-    <v3:id type="employee">5150075</v3:id>
-    <v3:id type="umn">mbezada</v3:id>
+    <v3:id type="employee" id="8185">5150075</v3:id>
+    <v3:id type="umn" id="8185">mbezada</v3:id>
   </personIds>
   <visibility>Public</visibility>
   <profiled>true</profiled>
@@ -317,8 +317,8 @@ def test_extract_transform_serialize():
     <email>agewirtz@umn.edu</email>
   </user>
   <personIds>
-    <v3:id type="employee">2585238</v3:id>
-    <v3:id type="umn">agewirtz</v3:id>
+    <v3:id type="employee" id="898">2585238</v3:id>
+    <v3:id type="umn" id="898">agewirtz</v3:id>
   </personIds>
   <visibility>Public</visibility>
   <profiled>true</profiled>
