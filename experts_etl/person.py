@@ -55,16 +55,9 @@ def transform(person_dict):
     person_dict['middle_initial']
   )
 
-  jobs = []
   employee_jobs = employee_job.extract_transform(person_dict['emplid'])
-  employee_jobs_with_primary = transform_primary_job(employee_jobs, person_dict['primary_empl_rcdno'])  
-  jobs.extend(employee_jobs_with_primary)
   affiliate_jobs = affiliate_job.extract_transform(person_dict['emplid'])
-  for job in affiliate_jobs:
-    # An affiliate job will never be a primary job.
-    job['primary'] = False
-  jobs.extend(affiliate_jobs)
-
+  jobs = transform_primary_job(affiliate_jobs, employee_jobs, person_dict['primary_empl_rcdno'])  
   person_dict['jobs'] = transform_staff_org_assoc_id(jobs, person_dict['person_id'])
 
   person_dict['visibility'] = 'Restricted'
@@ -96,19 +89,25 @@ def transform_staff_org_assoc_id(jobs, person_id):
      job['staff_org_assoc_id'] = None
   return transformed_jobs
 
-def transform_primary_job(jobs, primary_empl_rcdno):
-  transformed_jobs = jobs.copy()
+def transform_primary_job(affiliate_jobs, employee_jobs, primary_empl_rcdno):
+  transformed_aff_jobs = affiliate_jobs.copy()
+  transformed_emp_jobs = employee_jobs.copy()
+
+  # Affiliate jobs have no empl_rcdno, and thus no primary_empl_rcdno will ever match them,
+  # so they default to false:
+  for job in transformed_aff_jobs:
+    job['primary'] = False
 
   # Any currently-active jobs are likely to be at or near the end of the list:
-  transformed_jobs.reverse()
+  transformed_emp_jobs.reverse()
   primary_job_set = False
-  for job in transformed_jobs:
+  for job in transformed_emp_jobs:
     if not primary_job_set and job['empl_rcdno'] == str(primary_empl_rcdno) and job['end_date'] == None:
       job['primary'] = True
       primary_job_set = True
     else:
       job['primary'] = False
-  transformed_jobs.reverse()
+  transformed_emp_jobs.reverse()
 
   # From Jan Fransen on setting a primary position in email, 2018-01-23:
   # Rather than being completely arbitrary, make the position with the earliest
@@ -118,7 +117,7 @@ def transform_primary_job(jobs, primary_empl_rcdno):
   if not primary_job_set:
     earliest_start_dates = []
     lowest_empl_rcdnos = []
-    for job in transformed_jobs:
+    for job in transformed_emp_jobs:
 
       if job['end_date']:
         continue
@@ -135,7 +134,7 @@ def transform_primary_job(jobs, primary_empl_rcdno):
 
     if len(earliest_start_dates) == 1:
       earliest_start_date = earliest_start_dates[0]
-      for job in transformed_jobs:
+      for job in transformed_emp_jobs:
         if job['end_date']:
           continue
         if job['start_date'] == earliest_start_date:
@@ -143,7 +142,7 @@ def transform_primary_job(jobs, primary_empl_rcdno):
           primary_job_set = True
     elif len(lowest_empl_rcdnos) == 1:
       lowest_empl_rcdno = lowest_empl_rcdnos[0]
-      for job in transformed_jobs:
+      for job in transformed_emp_jobs:
         if job['end_date']:
           continue
         if job['empl_rcdno'] == lowest_empl_rcdno:
@@ -151,13 +150,27 @@ def transform_primary_job(jobs, primary_empl_rcdno):
           primary_job_set = True
 
     if not primary_job_set:
-      for job in transformed_jobs:
+      for job in transformed_emp_jobs:
         if job['end_date']:
           continue
         if job['start_date'] == min(earliest_start_dates):
           job['primary'] = True
           primary_job_set = True
           break
+
+    if not primary_job_set:
+      # In this case (maybe all emp jobs are ended, or there are none),
+      # just pick any active aff job:
+      for job in transformed_aff_jobs:
+        if job['end_date']:
+          continue
+        else:
+          job['primary'] = True
+          primary_job_set = True
+          break
+
+  transformed_jobs = transformed_emp_jobs
+  transformed_jobs.extend(transformed_aff_jobs)
 
   return transformed_jobs
 
