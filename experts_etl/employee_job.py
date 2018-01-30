@@ -63,13 +63,6 @@ def transform_job_stint(job_stint):
   potential_start_dates = [dt for dt in (first_entry['effdt'],first_entry['job_entry_dt'],first_entry['position_entry_dt']) if dt]
   transformed_job['start_date'] = min(potential_start_dates)
 
-  transformed_job['staff_org_assoc_id'] = '{}-{}-{}-{}'.format(
-    last_entry['emplid'],
-    last_entry['deptid'],
-    last_entry['jobcode'],
-    transformed_job['start_date'].strftime('%Y-%m-%d')
-  )
-
   if last_entry['empl_status'] not in active_states or last_entry['job_terminated'] == 'Y':
     potential_end_dates = [dt for dt in (last_entry['effdt'],last_entry['last_date_worked']) if dt]
     transformed_job['end_date'] = max(potential_end_dates)

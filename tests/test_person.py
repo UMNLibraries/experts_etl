@@ -87,7 +87,7 @@ def test_transform():
 	'primary': True,
         'visibility': 'Public',
         'profiled': True,
-        'staff_org_assoc_id': '5150075-11130-9403-2014-08-29',
+        'staff_org_assoc_id': 'autoid:8185-IHRBIHRB-Assistant Professor-faculty-2014-08-29',
       },
     ],
   }
@@ -125,7 +125,7 @@ def test_serialize():
 	'primary': True,
         'visibility': 'Public',
         'profiled': True,
-        'staff_org_assoc_id': '5150075-11130-9403-2014-08-29',
+        'staff_org_assoc_id': 'autoid:8185-IHRBIHRB-Assistant Professor-faculty-2014-08-29',
       },
     ],
   }
@@ -138,7 +138,7 @@ def test_serialize():
   </name>
   <gender>unknown</gender>
   <organisationAssociations>
-    <staffOrganisationAssociation id="staffAssoc-5150075-11130-9403-2014-08-29" managedInPure="false">
+    <staffOrganisationAssociation id="autoid:8185-IHRBIHRB-Assistant Professor-faculty-2014-08-29" managedInPure="false">
       <employmentType>faculty</employmentType>
       <primaryAssociation>true</primaryAssociation>
       <organisation>
@@ -184,7 +184,7 @@ def test_extract_transform_serialize():
   </name>
   <gender>unknown</gender>
   <organisationAssociations>
-    <staffOrganisationAssociation id="staffAssoc-5150075-11130-9403-2014-08-29" managedInPure="false">
+    <staffOrganisationAssociation id="autoid:8185-IHRBIHRB-Assistant Professor-faculty-2014-08-29" managedInPure="false">
       <employmentType>faculty</employmentType>
       <primaryAssociation>true</primaryAssociation>
       <organisation>
@@ -229,7 +229,7 @@ def test_extract_transform_serialize():
   </name>
   <gender>unknown</gender>
   <organisationAssociations>
-    <staffOrganisationAssociation id="staffAssoc-2585238-11217-9401-2007-08-27" managedInPure="false">
+    <staffOrganisationAssociation id="autoid:898-RQHKJLUF-Professor-faculty-2007-08-27" managedInPure="false">
       <employmentType>faculty</employmentType>
       <primaryAssociation>true</primaryAssociation>
       <organisation>
@@ -241,7 +241,7 @@ def test_extract_transform_serialize():
       <staffType>academic</staffType>
       <jobDescription><v3:text lang="en">Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
-    <staffOrganisationAssociation id="staffAssoc-2585238-10986-9402A-2015-04-06" managedInPure="false">
+    <staffOrganisationAssociation id="autoid:898-CBIHJRCYWWAA-Adjunct Associate Professor-adjunct_faculty-2015-04-06" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
       <primaryAssociation>false</primaryAssociation>
       <organisation>
@@ -253,7 +253,7 @@ def test_extract_transform_serialize():
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Adjunct Associate Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
-    <staffOrganisationAssociation id="staffAssoc-2585238-11219-9402A-2015-04-06" managedInPure="false">
+    <staffOrganisationAssociation id="autoid:898-LBZUCPBF-Adjunct Associate Professor-adjunct_faculty-2015-04-06" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
       <primaryAssociation>false</primaryAssociation>
       <organisation>
@@ -266,7 +266,7 @@ def test_extract_transform_serialize():
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Adjunct Associate Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
-    <staffOrganisationAssociation id="staffAssoc-2585238-11803-9403A-2015-04-06" managedInPure="false">
+    <staffOrganisationAssociation id="autoid:898-SKDPLVKBRNWDZMQ-Adjunct Assistant Professor-adjunct_faculty-2015-04-06" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
       <primaryAssociation>false</primaryAssociation>
       <organisation>
@@ -278,7 +278,7 @@ def test_extract_transform_serialize():
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Adjunct Assistant Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
-    <staffOrganisationAssociation id="staffAssoc-2585238-11219-9401A-2017-01-18" managedInPure="false">
+    <staffOrganisationAssociation id="autoid:898-LBZUCPBF-Adjunct Professor-adjunct_faculty-2017-01-18" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
       <primaryAssociation>false</primaryAssociation>
       <organisation>
@@ -290,7 +290,7 @@ def test_extract_transform_serialize():
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Adjunct Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
-    <staffOrganisationAssociation id="staffAssoc-2585238-10986-9403A-2017-07-01" managedInPure="false">
+    <staffOrganisationAssociation id="autoid:898-CBIHJRCYWWAA-Adjunct Assistant Professor-adjunct_faculty-2017-07-01" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
       <primaryAssociation>false</primaryAssociation>
       <organisation>

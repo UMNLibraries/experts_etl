@@ -65,6 +65,8 @@ def transform(person_dict):
     job['primary'] = False
   jobs.extend(affiliate_jobs)
 
+  person_dict['jobs'] = transform_staff_org_assoc_id(jobs, person_dict['person_id'])
+
   person_dict['visibility'] = 'Restricted'
   person_dict['profiled'] = False
   for job in jobs:
@@ -73,13 +75,26 @@ def transform(person_dict):
     if job['profiled']:
       person_dict['profiled'] = True
 
-  person_dict['jobs'] = jobs
-
   return person_dict
 
 def serialize(person_dict):
   template = env.get_template('person.xml.j2')
   return template.render(person_dict)
+
+def transform_staff_org_assoc_id(jobs, person_id):
+  transformed_jobs = jobs.copy()
+  for job in transformed_jobs:
+    if job['org_id'] and job['job_title'] and job['employment_type']:
+      job['staff_org_assoc_id'] = 'autoid:{}-{}-{}-{}-{}'.format(
+        person_id,
+        job['org_id'],
+        job['job_title'],
+        job['employment_type'],
+        job['start_date'].strftime('%Y-%m-%d')
+      )
+    else:
+     job['staff_org_assoc_id'] = None
+  return transformed_jobs
 
 def transform_primary_job(jobs, primary_empl_rcdno):
   transformed_jobs = jobs.copy()

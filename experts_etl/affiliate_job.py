@@ -49,13 +49,6 @@ def transform_job_stint(job_stint):
   transformed_job['deptid'] = last_entry['deptid']
   transformed_job['start_date'] = first_entry['effdt']
 
-  transformed_job['staff_org_assoc_id'] = '{}-{}-{}-{}'.format(
-    last_entry['emplid'],
-    last_entry['deptid'],
-    last_entry['um_affil_relation'],
-    transformed_job['start_date'].strftime('%Y-%m-%d')
-  )
-
   if last_entry['status'] not in active_states or last_entry['status_flg'] == 'H':
     transformed_job['end_date'] = last_entry['effdt']
     transformed_job['visibility'] = 'Restricted'

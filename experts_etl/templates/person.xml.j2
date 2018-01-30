@@ -16,7 +16,7 @@
   <gender>unknown</gender>
   <organisationAssociations>
     {%- for job in jobs %}
-    <staffOrganisationAssociation id="staffAssoc-{{ job.staff_org_assoc_id }}" managedInPure="false">
+    <staffOrganisationAssociation id="{{ job.staff_org_assoc_id }}" managedInPure="false">
       <employmentType>{{ job.employment_type }}</employmentType>
       <primaryAssociation>{% if job.primary %}true{% else %}false{% endif %}</primaryAssociation>
       <organisation>

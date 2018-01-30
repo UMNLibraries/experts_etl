@@ -200,7 +200,6 @@ def test_transform_job_stint():
    'end_date': datetime.date(2015, 8, 24),
    'visibility': 'Restricted',
    'profiled': False,
-   'staff_org_assoc_id': '1082441-11945-9403-2007-01-30',
   }
 
   transformed_job_1 = employee_job.transform_job_stint(job_stint_1)
@@ -332,7 +331,6 @@ def test_transform_job_stint():
    'end_date': None,
    'visibility': 'Public',
    'profiled': True,
-   'staff_org_assoc_id': '1082441-11945-9403-2015-08-31',
   }
 
   transformed_job_2 = employee_job.transform_job_stint(job_stint_2)
@@ -524,7 +522,6 @@ def test_transform():
      'end_date': datetime.date(2015, 8, 24),
      'visibility': 'Restricted',
      'profiled': False,
-     'staff_org_assoc_id': '1082441-11945-9403-2007-01-30',
     },
     {
      'deptid': '11945',
@@ -537,7 +534,6 @@ def test_transform():
      'end_date': None,
      'visibility': 'Public',
      'profiled': True,
-     'staff_org_assoc_id': '1082441-11945-9403-2015-08-31',
     },
   ]
 
@@ -558,7 +554,6 @@ def test_extract_transform():
      'end_date': datetime.datetime(2015,8,24,0,0),
      'visibility': 'Restricted',
      'profiled': False,
-     'staff_org_assoc_id': '1082441-11945-9403-2007-01-30',
     },
     {
      'deptid': '11945',
@@ -571,7 +566,6 @@ def test_extract_transform():
      'end_date': None,
      'visibility': 'Public',
      'profiled': True,
-     'staff_org_assoc_id': '1082441-11945-9403-2015-08-31',
     },
   ]
 

@@ -213,7 +213,6 @@ def test_transform_job_stint():
    'end_date': datetime.date(2015,4,7),
    'visibility': 'Restricted',
    'profiled': False,
-   'staff_org_assoc_id': '1173706-11735-9403A-2015-04-06',
   }
 
   transformed_job_1 = affiliate_job.transform_job_stint(job_stint_1)
@@ -252,7 +251,6 @@ def test_transform_job_stint():
    'end_date': datetime.date(2017,1,12),
    'visibility': 'Restricted',
    'profiled': False,
-   'staff_org_assoc_id': '2585238-11219-9402A-2015-04-06',
   }
 
   transformed_job_2 = affiliate_job.transform_job_stint(job_stint_2)
@@ -281,7 +279,6 @@ def test_transform_job_stint():
    'end_date': None,
    'visibility': 'Restricted',
    'profiled': False,
-   'staff_org_assoc_id': '2585238-11219-9401A-2017-01-18',
   }
 
   transformed_job_3 = affiliate_job.transform_job_stint(job_stint_3)
@@ -324,7 +321,6 @@ def test_transform():
       'end_date': datetime.date(2015,4,7),
       'visibility': 'Restricted',
       'profiled': False,
-      'staff_org_assoc_id': '1173706-11735-9403A-2015-04-06',
     },
   ]
 
@@ -344,7 +340,6 @@ def test_extract_transform():
       'end_date': datetime.datetime(2015,4,7,0,0),
       'visibility': 'Restricted',
       'profiled': False,
-      'staff_org_assoc_id': '1173706-11735-9403A-2015-04-06',
     },
   ]
 
