@@ -44,7 +44,20 @@ def transform(jobs):
 
 def transform_job_stint(job_stint):
   transformed_job = {}
-  first_entry, last_entry = job_stint[0], job_stint[-1]
+
+  first_entry = job_stint[0]
+
+  # For the last entry, find the latest current (C) entry, if there is one:
+  last_entry = None
+  reversed_job_stint = job_stint.copy()
+  reversed_job_stint.reverse()
+  for entry in reversed_job_stint:
+    if entry['status_flg'] == 'C':
+      last_entry = entry
+      break
+  if not last_entry:
+    last_entry = job_stint[-1]
+
   transformed_job['job_title'] = last_entry['title']
   transformed_job['deptid'] = last_entry['deptid']
   transformed_job['start_date'] = first_entry['effdt']

@@ -55,7 +55,20 @@ def transform(jobs):
 
 def transform_job_stint(job_stint):
   transformed_job = {}
-  first_entry, last_entry = job_stint[0], job_stint[-1]
+
+  first_entry = job_stint[0]
+
+  # For the last entry, find the latest current (C) entry, if there is one:
+  last_entry = None
+  reversed_job_stint = job_stint.copy()
+  reversed_job_stint.reverse()
+  for entry in reversed_job_stint:
+    if entry['status_flg'] == 'C':
+      last_entry = entry
+      break
+  if not last_entry:
+    last_entry = job_stint[-1]
+
   transformed_job['job_title'] = last_entry['jobcode_descr']
   transformed_job['deptid'] = last_entry['deptid']
   transformed_job['empl_rcdno'] = last_entry['empl_rcdno']
@@ -63,7 +76,7 @@ def transform_job_stint(job_stint):
   potential_start_dates = [dt for dt in (first_entry['effdt'],first_entry['job_entry_dt'],first_entry['position_entry_dt']) if dt]
   transformed_job['start_date'] = min(potential_start_dates)
 
-  if last_entry['empl_status'] not in active_states or last_entry['job_terminated'] == 'Y':
+  if last_entry['empl_status'] not in active_states or last_entry['job_terminated'] == 'Y' or last_entry['status_flg'] == 'H':
     potential_end_dates = [dt for dt in (last_entry['effdt'],last_entry['last_date_worked']) if dt]
     transformed_job['end_date'] = max(potential_end_dates)
     transformed_job['visibility'] = 'Restricted'

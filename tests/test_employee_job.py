@@ -144,6 +144,7 @@ def test_transform_job_stint():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -158,6 +159,7 @@ def test_transform_job_stint():
       'last_date_worked': datetime.date(2015,5,24),
       'empl_status': 'S',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -172,6 +174,7 @@ def test_transform_job_stint():
       'last_date_worked': datetime.date(2015,5,24),
       'empl_status': 'T',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -186,6 +189,7 @@ def test_transform_job_stint():
       'last_date_worked': datetime.date(2015,5,24),
       'empl_status': 'T',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
   ]
 
@@ -219,6 +223,7 @@ def test_transform_job_stint():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -233,6 +238,7 @@ def test_transform_job_stint():
       'last_date_worked': datetime.date(2016,5,22),
       'empl_status': 'W',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -247,6 +253,7 @@ def test_transform_job_stint():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -261,6 +268,7 @@ def test_transform_job_stint():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -275,6 +283,7 @@ def test_transform_job_stint():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -289,6 +298,7 @@ def test_transform_job_stint():
       'last_date_worked': datetime.date(2017,5,27),
       'empl_status': 'W',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -303,6 +313,7 @@ def test_transform_job_stint():
       'last_date_worked': datetime.date(2017,5,27),
       'empl_status': 'W',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -317,6 +328,37 @@ def test_transform_job_stint():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'C',
+    },
+    {
+      'emplid': '1082441',
+      'empl_rcdno': '0',
+      'jobcode': '9403',
+      'jobcode_descr': 'Assistant Professor',
+      'deptid': '11945',
+      'position_nbr': '208989',
+      'effdt': datetime.date(2017,8,28),
+      'job_entry_dt': datetime.date(2015,8,31),
+      'position_entry_dt': datetime.date(2015,8,31),
+      'last_date_worked': None,
+      'empl_status': 'A',
+      'job_terminated': 'N',
+      'status_flg': 'H',
+    },
+    {
+      'emplid': '1082441',
+      'empl_rcdno': '0',
+      'jobcode': '9403',
+      'jobcode_descr': 'Assistant Professor',
+      'deptid': '11945',
+      'position_nbr': '208989',
+      'effdt': datetime.date(2018,1,3),
+      'job_entry_dt': datetime.date(2015,8,31),
+      'position_entry_dt': datetime.date(2015,8,31),
+      'last_date_worked': None,
+      'empl_status': 'A',
+      'job_terminated': 'N',
+      'status_flg': 'C',
     },
   ]
 
@@ -351,6 +393,7 @@ def test_transform():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -365,6 +408,7 @@ def test_transform():
       'last_date_worked': datetime.date(2015,5,24),
       'empl_status': 'S',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -379,6 +423,7 @@ def test_transform():
       'last_date_worked': datetime.date(2015,5,24),
       'empl_status': 'T',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -393,6 +438,7 @@ def test_transform():
       'last_date_worked': datetime.date(2015,5,24),
       'empl_status': 'T',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -407,6 +453,7 @@ def test_transform():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -421,6 +468,7 @@ def test_transform():
       'last_date_worked': datetime.date(2016,5,22),
       'empl_status': 'W',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -435,6 +483,7 @@ def test_transform():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -449,6 +498,7 @@ def test_transform():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -463,6 +513,7 @@ def test_transform():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -477,6 +528,7 @@ def test_transform():
       'last_date_worked': datetime.date(2017,5,27),
       'empl_status': 'W',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -491,6 +543,7 @@ def test_transform():
       'last_date_worked': datetime.date(2017,5,27),
       'empl_status': 'W',
       'job_terminated': 'N',
+      'status_flg': 'H',
     },
     {
       'emplid': '1082441',
@@ -505,6 +558,37 @@ def test_transform():
       'last_date_worked': None,
       'empl_status': 'A',
       'job_terminated': 'N',
+      'status_flg': 'C',
+    },
+    {
+      'emplid': '1082441',
+      'empl_rcdno': '0',
+      'jobcode': '9403',
+      'jobcode_descr': 'Assistant Professor',
+      'deptid': '11945',
+      'position_nbr': '208989',
+      'effdt': datetime.date(2017,8,28),
+      'job_entry_dt': datetime.date(2015,8,31),
+      'position_entry_dt': datetime.date(2015,8,31),
+      'last_date_worked': None,
+      'empl_status': 'A',
+      'job_terminated': 'N',
+      'status_flg': 'H',
+    },
+    {
+      'emplid': '1082441',
+      'empl_rcdno': '0',
+      'jobcode': '9403',
+      'jobcode_descr': 'Assistant Professor',
+      'deptid': '11945',
+      'position_nbr': '208989',
+      'effdt': datetime.date(2018,1,3),
+      'job_entry_dt': datetime.date(2015,8,31),
+      'position_entry_dt': datetime.date(2015,8,31),
+      'last_date_worked': None,
+      'empl_status': 'A',
+      'job_terminated': 'N',
+      'status_flg': 'C',
     },
   ]
 
