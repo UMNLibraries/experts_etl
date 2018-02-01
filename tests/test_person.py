@@ -160,7 +160,7 @@ def test_serialize():
       </v3:description>
     </v3:link>
   </links>
-  <user>
+  <user id="8185">
     <userName>mbezada@umn.edu</userName>
     <email>mbezada@umn.edu</email>
   </user>
@@ -206,7 +206,7 @@ def test_extract_transform_serialize():
       </v3:description>
     </v3:link>
   </links>
-  <user>
+  <user id="8185">
     <userName>mbezada@umn.edu</userName>
     <email>mbezada@umn.edu</email>
   </user>
@@ -324,7 +324,7 @@ def test_extract_transform_serialize():
       </v3:description>
     </v3:link>
   </links>
-  <user>
+  <user id="898">
     <userName>agewirtz@umn.edu</userName>
     <email>agewirtz@umn.edu</email>
   </user>
