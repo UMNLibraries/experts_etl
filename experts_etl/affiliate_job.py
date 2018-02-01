@@ -1,6 +1,6 @@
 import re
 from experts_dw import db
-from experts_dw.models import PureEligibleAffJobChngHst, PureNewStaffDeptDefaults, PureNewStaffPosDefaults, UmnDeptPureOrg
+from experts_dw.models import PureEligibleAffJob, PureNewStaffDeptDefaults, PureNewStaffPosDefaults, UmnDeptPureOrg
 from sqlalchemy import and_
 
 session = db.session('hotel')
@@ -10,7 +10,7 @@ def extract_transform(emplid):
 
 def extract(emplid):
   jobs = []
-  for job in session.query(PureEligibleAffJobChngHst).filter(PureEligibleAffJobChngHst.emplid == emplid).order_by(PureEligibleAffJobChngHst.effdt):
+  for job in session.query(PureEligibleAffJob).filter(PureEligibleAffJob.emplid == emplid).order_by(PureEligibleAffJob.effdt):
     jobs.append(
       {c.name: getattr(job, c.name) for c in job.__table__.columns}
     )
