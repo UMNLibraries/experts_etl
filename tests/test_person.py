@@ -165,8 +165,8 @@ def test_serialize():
     <email>mbezada@umn.edu</email>
   </user>
   <personIds>
-    <v3:id type="employee" id="8185">5150075</v3:id>
-    <v3:id type="umn" id="8185">mbezada</v3:id>
+    <v3:id type="employee" id="autoid:8185-employee-5150075">5150075</v3:id>
+    <v3:id type="umn" id="autoid:8185-umn-mbezada">mbezada</v3:id>
   </personIds>
   <visibility>Public</visibility>
   <profiled>true</profiled>
@@ -211,8 +211,8 @@ def test_extract_transform_serialize():
     <email>mbezada@umn.edu</email>
   </user>
   <personIds>
-    <v3:id type="employee" id="8185">5150075</v3:id>
-    <v3:id type="umn" id="8185">mbezada</v3:id>
+    <v3:id type="employee" id="autoid:8185-employee-5150075">5150075</v3:id>
+    <v3:id type="umn" id="autoid:8185-umn-mbezada">mbezada</v3:id>
   </personIds>
   <visibility>Public</visibility>
   <profiled>true</profiled>
@@ -231,7 +231,7 @@ def test_extract_transform_serialize():
   <organisationAssociations>
     <staffOrganisationAssociation id="autoid:898-RQHKJLUF-Professor-faculty-2007-08-27" managedInPure="false">
       <employmentType>faculty</employmentType>
-      <primaryAssociation>true</primaryAssociation>
+      <primaryAssociation>false</primaryAssociation>
       <organisation>
         <v3:source_id>RQHKJLUF</v3:source_id>
       </organisation>
@@ -241,17 +241,17 @@ def test_extract_transform_serialize():
       <staffType>academic</staffType>
       <jobDescription><v3:text lang="en">Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
-    <staffOrganisationAssociation id="autoid:898-CBIHJRCYWWAA-Adjunct Associate Professor-adjunct_faculty-2015-04-06" managedInPure="false">
-      <employmentType>adjunct_faculty</employmentType>
-      <primaryAssociation>false</primaryAssociation>
+    <staffOrganisationAssociation id="autoid:898-WDQMICGM-Administrative Manager 2-academic_administrative-2016-06-13" managedInPure="false">
+      <employmentType>academic_administrative</employmentType>
+      <primaryAssociation>true</primaryAssociation>
       <organisation>
-        <v3:source_id>CBIHJRCYWWAA</v3:source_id>
+        <v3:source_id>WDQMICGM</v3:source_id>
       </organisation>
       <period>
-        <v3:startDate>06-04-2015</v3:startDate>
+        <v3:startDate>13-06-2016</v3:startDate>
       </period>
       <staffType>nonacademic</staffType>
-      <jobDescription><v3:text lang="en">Adjunct Associate Professor</v3:text></jobDescription>
+      <jobDescription><v3:text lang="en">Administrative Manager 2</v3:text></jobDescription>
     </staffOrganisationAssociation>
     <staffOrganisationAssociation id="autoid:898-LBZUCPBF-Adjunct Associate Professor-adjunct_faculty-2015-04-06" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
@@ -262,6 +262,18 @@ def test_extract_transform_serialize():
       <period>
         <v3:startDate>06-04-2015</v3:startDate>
         <v3:endDate>12-01-2017</v3:endDate>
+      </period>
+      <staffType>nonacademic</staffType>
+      <jobDescription><v3:text lang="en">Adjunct Associate Professor</v3:text></jobDescription>
+    </staffOrganisationAssociation>
+    <staffOrganisationAssociation id="autoid:898-CBIHJRCYWWAA-Adjunct Associate Professor-adjunct_faculty-2015-04-06" managedInPure="false">
+      <employmentType>adjunct_faculty</employmentType>
+      <primaryAssociation>false</primaryAssociation>
+      <organisation>
+        <v3:source_id>CBIHJRCYWWAA</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>06-04-2015</v3:startDate>
       </period>
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Adjunct Associate Professor</v3:text></jobDescription>
@@ -317,8 +329,8 @@ def test_extract_transform_serialize():
     <email>agewirtz@umn.edu</email>
   </user>
   <personIds>
-    <v3:id type="employee" id="898">2585238</v3:id>
-    <v3:id type="umn" id="898">agewirtz</v3:id>
+    <v3:id type="employee" id="autoid:898-employee-2585238">2585238</v3:id>
+    <v3:id type="umn" id="autoid:898-umn-agewirtz">agewirtz</v3:id>
   </personIds>
   <visibility>Public</visibility>
   <profiled>true</profiled>
