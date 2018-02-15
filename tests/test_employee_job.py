@@ -22,7 +22,7 @@ def fake123():
   from . import fake123_employee_jobs
   return fake123_employee_jobs
 
-def test_group_jobs_by_position_nbr(fake123):
+def test_group_by_position_nbr(fake123):
   assert employee_job.group_by_position_nbr(fake123.entries) == fake123.entries_by_position_nbr
 
 def test_transform_job_entries():
