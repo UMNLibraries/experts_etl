@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<users xmlns="v1.user-sync.pure.atira.dk" xmlns:v3="v3.commons.pure.atira.dk">
+    <user id="user1">
+        <userName>JohnDoe</userName>
+        <email>John@Doe.com</email>
+        <name>
+            <v3:firstname>John</v3:firstname>
+            <v3:lastname>Doe</v3:lastname>
+        </name>
+    </user>
+
+    <user id="user2">
+        <userName>JaneDoe</userName>
+        <email>Jane@Doe.com</email>
+        <name>
+            <v3:firstname>Jane</v3:firstname>
+            <v3:lastname>Doe</v3:lastname>
+        </name>
+    </user>
+
+</users>

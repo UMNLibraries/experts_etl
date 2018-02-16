@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		   xmlns:commons="v3.commons.pure.atira.dk"
+		   xmlns="v1.user-sync.pure.atira.dk"
+		   attributeFormDefault="unqualified" elementFormDefault="qualified"
+		   targetNamespace="v1.user-sync.pure.atira.dk">
+
+	<xs:import schemaLocation="commons.xsd" namespace="v3.commons.pure.atira.dk" />
+
+	<xs:element name="users">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="user" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="user" type="userType"/>
+
+	<xs:complexType name="userType">
+		<xs:sequence>
+			<xs:element name="userName" type="commons:string_256" />
+			<xs:element name="email" type="commons:string_256" />
+			<xs:element name="name" type="commons:name" minOccurs="0" />
+		</xs:sequence>
+		<xs:attribute type="commons:string_400" name="id">
+			<xs:annotation>
+				<xs:documentation>
+					Id of the user. This would be the id from an external source i.e. HR system.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+</xs:schema>
