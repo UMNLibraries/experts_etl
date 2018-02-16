@@ -25,90 +25,19 @@ def fake123():
 def test_group_by_position_nbr(fake123):
   assert employee_job.group_by_position_nbr(fake123.entries) == fake123.entries_by_position_nbr
 
-def test_transform_job_entries():
-  entries = [
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,4,6), 'empl_status': 'A'},
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,5,25), 'empl_status': 'S'},
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,5,25), 'empl_status': 'T'},
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,8,24), 'empl_status': 'T'},
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,5,23), 'empl_status': 'W'},
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,11,14), 'empl_status': 'A'},
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,1,9), 'empl_status': 'A'},
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,5,28), 'empl_status': 'W'},
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,8,21), 'empl_status': 'W'},
-    {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-  ]
+@pytest.fixture(params=['fake321','fake765'])
+def job_entries(request):
+  from . import fake321_emp_job_entries
+  from . import fake765_emp_job_entries
+  entries_sets = {
+    'fake321': fake321_emp_job_entries,
+    'fake765': fake765_emp_job_entries,
+  }
+  entries_set = entries_sets[request.param]
+  yield entries_set
 
-  job_stints = employee_job.transform_job_entries(entries)
-
-  expected_job_stints = [
-    [
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,4,6), 'empl_status': 'A'},
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,5,25), 'empl_status': 'S'},
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,5,25), 'empl_status': 'T'},
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,8,24), 'empl_status': 'T'},
-    ],
-    [
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,5,23), 'empl_status': 'W'},
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2016,11,14), 'empl_status': 'A'},
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,1,9), 'empl_status': 'A'},
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,5,28), 'empl_status': 'W'},
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,8,21), 'empl_status': 'W'},
-      {'emplid': '1082441', 'position_nbr': '208989', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-    ],
-  ]
-
-  assert job_stints == expected_job_stints
-
-  entries_2 = [
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,4,6), 'empl_status': 'A'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,5,25), 'empl_status': 'W'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,7,27), 'empl_status': 'W'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,5,25), 'empl_status': 'A'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,1,1), 'empl_status': 'W'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,5,30), 'empl_status': 'W'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,7,25), 'empl_status': 'A'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,5,29), 'empl_status': 'W'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,7,24), 'empl_status': 'W'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-    {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-  ]
-
-  job_stints_2 = employee_job.transform_job_entries(entries_2)
-
-  expected_job_stints_2 = [
-    [
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,4,6), 'empl_status': 'A'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,5,25), 'empl_status': 'W'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,7,27), 'empl_status': 'W'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,5,25), 'empl_status': 'A'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2015,8,31), 'empl_status': 'A'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,1,1), 'empl_status': 'W'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,5,30), 'empl_status': 'W'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,7,25), 'empl_status': 'A'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2016,8,29), 'empl_status': 'A'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,5,29), 'empl_status': 'W'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,7,24), 'empl_status': 'W'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-      {'emplid': '5150075', 'position_nbr': '258641', 'effdt': datetime.date(2017,8,28), 'empl_status': 'A'},
-    ],
-  ]
-
-  assert job_stints_2 == expected_job_stints_2
+def test_transform_job_entries(job_entries):
+  assert employee_job.transform_job_entries(job_entries.entries) == job_entries.stints
 
 def test_transform_job_stint():
   job_stint_1 = [
