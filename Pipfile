@@ -8,15 +8,15 @@ name = "pypi"
 [packages]
 
 alembic = "*"
-cx-oracle = "*"
+cx_Oracle = "*"
 python-dotenv = "*"
-sqlalchemy = "*"
-sqlalchemy-mptt = "*"
+SQLAlchemy = "*"
+sqlalchemy_mptt = "*"
 experts-dw = {git = "git://github.com/UMNLibraries/experts_dw.git", editable = true}
 addict = "*"
 requests = "*"
 pureapi = {git = "git://github.com/UMNLibraries/pureapi.git", editable = true}
-"jinja2" = "*"
+"Jinja2" = "*"
 
 
 [dev-packages]

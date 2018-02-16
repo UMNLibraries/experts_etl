@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "67b6a98b0574da6a809917fe89b320a006f0c2dbdcaa7248ffcd25a4ba04b80b"
+            "sha256": "ef798fdbbd5db496f6ef688e93f63b5e2956bc540611a2957b2321db5266abe1"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -83,7 +83,8 @@
         },
         "experts-dw": {
             "editable": true,
-            "git": "git://github.com/UMNLibraries/experts_dw.git"
+            "git": "git://github.com/UMNLibraries/experts_dw.git",
+            "ref": "915720f20f22072346208b8fcdbacfd3451c36f0"
         },
         "idna": {
             "hashes": [
@@ -113,7 +114,8 @@
         },
         "pureapi": {
             "editable": true,
-            "git": "git://github.com/UMNLibraries/pureapi.git"
+            "git": "git://github.com/UMNLibraries/pureapi.git",
+            "ref": "bd3fe1bb6b2ccc4ecaaffe9a51516cc45af438b6"
         },
         "python-dateutil": {
             "hashes": [
@@ -192,10 +194,10 @@
         },
         "pytest": {
             "hashes": [
-                "sha256:b84878865558194630c6147f44bdaef27222a9f153bbd4a08908b16bf285e0b1",
-                "sha256:53548280ede7818f4dc2ad96608b9f08ae2cc2ca3874f2ceb6f97e3583f25bc4"
+                "sha256:95fa025cd6deb5d937e04e368a00552332b58cae23f63b76c8c540ff1733ab6d",
+                "sha256:6074ea3b9c999bd6d0df5fa9d12dd95ccd23550df2a582f5f5b848331d2e82ca"
             ],
-            "version": "==3.3.2"
+            "version": "==3.4.0"
         },
         "six": {
             "hashes": [
