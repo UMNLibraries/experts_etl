@@ -239,5 +239,5 @@ jobs = [
    'end_date': None,
    'visibility': 'Public',
    'profiled': True,
-  }
+  },
 ]

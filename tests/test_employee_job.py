@@ -14,7 +14,7 @@ def test_extract():
     assert job['emplid'] == emplid
     assert re.match(r'^\d+$', job['empl_rcdno']) 
     assert re.match(r'^\d+$', job['position_nbr']) 
-    assert isinstance(job['effdt'], datetime.date)
+    assert isinstance(job['effdt'], datetime.datetime)
     assert isinstance(job['effseq'], int)
 
 @pytest.fixture
@@ -45,8 +45,8 @@ def job_stints():
   return fake321_emp_job_entries
 
 def test_transform_job_stint(job_stints):
-    for index, stint in enumerate(job_stints.stints):
-      assert employee_job.transform_job_stint(stint) == job_stints.jobs[index]
+  for index, stint in enumerate(job_stints.stints):
+    assert employee_job.transform_job_stint(stint) == job_stints.jobs[index]
 
 def test_transform(job_stints):
   assert job_stints.jobs == employee_job.transform(job_stints.entries)
