@@ -1,6 +1,7 @@
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 import datetime, re
+import pytest
 from experts_etl import affiliate_job
 
 def test_extract():
@@ -14,7 +15,7 @@ def test_extract():
     assert job['emplid'] == emplid
     assert re.match(r'^\d+$', job['um_affiliate_id']) 
     assert re.match(r'^\d+$', job['deptid']) 
-    assert isinstance(job['effdt'], datetime.date)
+    assert isinstance(job['effdt'], datetime.datetime)
 
 def test_group_jobs_by_deptid_um_affiliate_id_um_affil_relation():
   jobs = [
@@ -52,279 +53,28 @@ def test_group_jobs_by_deptid_um_affiliate_id_um_affil_relation():
   jobs_by_deptid_um_affiliate_id_um_affil_relation = affiliate_job.group_by_deptid_um_affiliate_id_um_affil_relation(jobs)
   assert jobs_by_deptid_um_affiliate_id_um_affil_relation == expected_jobs_by_deptid_um_affiliate_id_um_affil_relation
 
-def test_transform_job_entries():
-  entries = [
-    {
-      'emplid': '1173706',
-      'deptid': '11735',
-      'um_affiliate_id': '01',
-      'um_affil_relation': '9403A',
-      'effdt': datetime.date(2015,4,6),
-      'status': 'A',
-      'status_flg': 'H',
-    },
-    {
-      'emplid': '1173706',
-      'deptid': '11735',
-      'um_affiliate_id': '01',
-      'um_affil_relation': '9403A',
-      'effdt': datetime.date(2015,4,7),
-      'status': 'I',
-      'status_flg': 'C',
-    },
-  ]
-
-  job_stints = affiliate_job.transform_job_entries(entries)
-
-  expected_job_stints = [
-    [
-      {
-        'emplid': '1173706',
-        'deptid': '11735',
-        'um_affiliate_id': '01',
-        'um_affil_relation': '9403A',
-        'effdt': datetime.date(2015,4,6),
-        'status': 'A',
-        'status_flg': 'H',
-      },
-      {
-        'emplid': '1173706',
-        'deptid': '11735',
-        'um_affiliate_id': '01',
-        'um_affil_relation': '9403A',
-        'effdt': datetime.date(2015,4,7),
-        'status': 'I',
-        'status_flg': 'C',
-      },
-    ],
-  ]
-
-  assert job_stints == expected_job_stints
-
-  entries_2 = [
-    {
-      'emplid': '2585238',
-      'deptid': '11219',
-      'um_affiliate_id': '03',
-      'um_affil_relation': '9402A',
-      'effdt': datetime.date(2015,4,6),
-      'status': 'A',
-      'status_flg': 'H',
-    },
-    {
-      'emplid': '2585238',
-      'deptid': '11219',
-      'um_affiliate_id': '03',
-      'um_affil_relation': '9402A',
-      'effdt': datetime.date(2017,1,12),
-      'status': 'A',
-      'status_flg': 'H',
-    },
-  ]
-
-  job_stints_2 = affiliate_job.transform_job_entries(entries_2)
-
-  expected_job_stints_2 = [
-    [
-      {
-        'emplid': '2585238',
-        'deptid': '11219',
-        'um_affiliate_id': '03',
-        'um_affil_relation': '9402A',
-        'effdt': datetime.date(2015,4,6),
-        'status': 'A',
-        'status_flg': 'H',
-      },
-      {
-        'emplid': '2585238',
-        'deptid': '11219',
-        'um_affiliate_id': '03',
-        'um_affil_relation': '9402A',
-        'effdt': datetime.date(2017,1,12),
-        'status': 'A',
-        'status_flg': 'H',
-      },
-    ],
-  ]
-
-  assert job_stints_2 == expected_job_stints_2
-
-  entries_3 = [
-    {
-      'emplid': '2585238',
-      'deptid': '11219',
-      'um_affiliate_id': '03',
-      'um_affil_relation': '9401A',
-      'effdt': datetime.date(2017,1,18),
-      'status': 'A',
-      'status_flg': 'C',
-    },
-  ]
-
-  job_stints_3 = affiliate_job.transform_job_entries(entries_3)
-
-  expected_job_stints_3 = [
-    [
-      {
-        'emplid': '2585238',
-        'deptid': '11219',
-        'um_affiliate_id': '03',
-        'um_affil_relation': '9401A',
-        'effdt': datetime.date(2017,1,18),
-        'status': 'A',
-        'status_flg': 'C',
-      },
-    ],
-  ]
-
-  assert job_stints_3 == expected_job_stints_3
-
-def test_transform_job_stint():
-  job_stint_1 = [
-    {
-      'emplid': '1173706',
-      'deptid': '11735',
-      'um_affiliate_id': '01',
-      'um_affil_relation': '9403A',
-      'title': 'Adjunct Assistant Professor',
-      'effdt': datetime.date(2015,4,6),
-      'status': 'A',
-      'status_flg': 'H',
-    },
-    {
-      'emplid': '1173706',
-      'deptid': '11735',
-      'um_affiliate_id': '01',
-      'um_affil_relation': '9403A',
-      'title': 'Adjunct Assistant Professor',
-      'effdt': datetime.date(2015,4,7),
-      'status': 'I',
-      'status_flg': 'C',
-    },
-  ]
-
-  expected_transformed_job_1 = {
-   'deptid': '11735',
-   'org_id': 'WSSKOZQ',
-   'job_title': 'Adjunct Assistant Professor',
-   'employment_type': 'adjunct_faculty',
-   'staff_type': 'nonacademic',
-   'start_date': datetime.date(2015,4,6),
-   'end_date': datetime.date(2015,4,7),
-   'visibility': 'Restricted',
-   'profiled': False,
+@pytest.fixture(params=['fake357','fake531','fake531_2'])
+def job_entries(request):
+  from . import fake357_aff_job_entries
+  from . import fake531_aff_job_entries
+  from . import fake531_aff_job_entries_2
+  entries_sets = {
+    'fake357': fake357_aff_job_entries,
+    'fake531': fake531_aff_job_entries,
+    'fake531_2': fake531_aff_job_entries_2,
   }
+  entries_set = entries_sets[request.param]
+  yield entries_set
 
-  transformed_job_1 = affiliate_job.transform_job_stint(job_stint_1)
-  assert transformed_job_1 == expected_transformed_job_1
+def test_transform_job_entries(job_entries):
+  assert affiliate_job.transform_job_entries(job_entries.entries) == job_entries.stints
 
-  job_stint_2 = [
-    {
-      'emplid': '2585238',
-      'deptid': '11219',
-      'um_affiliate_id': '03',
-      'um_affil_relation': '9402A',
-      'title': 'Adjunct Associate Professor',
-      'effdt': datetime.date(2015,4,6),
-      'status': 'A',
-      'status_flg': 'H',
-    },
-    {
-      'emplid': '2585238',
-      'deptid': '11219',
-      'um_affiliate_id': '03',
-      'um_affil_relation': '9402A',
-      'title': 'Adjunct Associate Professor',
-      'effdt': datetime.date(2017,1,12),
-      'status': 'A',
-      'status_flg': 'H',
-    },
-  ]
+def test_transform_job_stint(job_entries):
+  for index, stint in enumerate(job_entries.stints):
+    assert affiliate_job.transform_job_stint(stint) == job_entries.jobs[index]
 
-  expected_transformed_job_2 = {
-   'deptid': '11219',
-   'org_id': 'LBZUCPBF',
-   'job_title': 'Adjunct Associate Professor',
-   'employment_type': 'adjunct_faculty',
-   'staff_type': 'nonacademic',
-   'start_date': datetime.date(2015,4,6),
-   'end_date': datetime.date(2017,1,12),
-   'visibility': 'Restricted',
-   'profiled': False,
-  }
-
-  transformed_job_2 = affiliate_job.transform_job_stint(job_stint_2)
-  assert transformed_job_2 == expected_transformed_job_2
-
-  job_stint_3 = [
-    {
-      'emplid': '2585238',
-      'deptid': '11219',
-      'um_affiliate_id': '03',
-      'um_affil_relation': '9401A',
-      'title': 'Adjunct Professor',
-      'effdt': datetime.date(2017,1,18),
-      'status': 'A',
-      'status_flg': 'C',
-    },
-  ]
-
-  expected_transformed_job_3 = {
-   'deptid': '11219',
-   'org_id': 'LBZUCPBF',
-   'job_title': 'Adjunct Professor',
-   'employment_type': 'adjunct_faculty',
-   'staff_type': 'nonacademic',
-   'start_date': datetime.date(2017,1,18),
-   'end_date': None,
-   'visibility': 'Restricted',
-   'profiled': False,
-  }
-
-  transformed_job_3 = affiliate_job.transform_job_stint(job_stint_3)
-  assert transformed_job_3 == expected_transformed_job_3
-
-def test_transform():
-  jobs = [
-    {
-      'emplid': '1173706',
-      'deptid': '11735',
-      'um_affiliate_id': '01',
-      'um_affil_relation': '9403A',
-      'title': 'Adjunct Assistant Professor',
-      'effdt': datetime.date(2015,4,6),
-      'status': 'A',
-      'status_flg': 'H',
-    },
-    {
-      'emplid': '1173706',
-      'deptid': '11735',
-      'um_affiliate_id': '01',
-      'um_affil_relation': '9403A',
-      'title': 'Adjunct Assistant Professor',
-      'effdt': datetime.date(2015,4,7),
-      'status': 'I',
-      'status_flg': 'C',
-    },
-  ]
-
-  transformed_jobs = affiliate_job.transform(jobs)
-
-  expected_transformed_jobs = [
-    {
-      'deptid': '11735',
-      'org_id': 'WSSKOZQ',
-      'job_title': 'Adjunct Assistant Professor',
-      'employment_type': 'adjunct_faculty',
-      'staff_type': 'nonacademic',
-      'start_date': datetime.date(2015,4,6),
-      'end_date': datetime.date(2015,4,7),
-      'visibility': 'Restricted',
-      'profiled': False,
-    },
-  ]
-
-  assert transformed_jobs == expected_transformed_jobs
+def test_transform(job_entries):
+  assert affiliate_job.transform(job_entries.entries) == job_entries.jobs
 
 def test_extract_transform():
   transformed_jobs = affiliate_job.extract_transform('1173706')
