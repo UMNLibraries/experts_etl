@@ -1,5 +1,6 @@
 # Temporary output files and other data:
 data/
+.emplid_map
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
