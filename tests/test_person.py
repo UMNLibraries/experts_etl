@@ -1,6 +1,6 @@
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
-import datetime
+import datetime, pytest
 from experts_etl import person
 
 def test_extract():
@@ -40,6 +40,19 @@ def test_transform_first_name():
   assert person.transform_first_name(first_name, middle_initial) == 'Alex J'
   assert person.transform_first_name(first_name, ' ') == 'Alex'
   assert person.transform_first_name(first_name, None) == 'Alex'
+
+@pytest.fixture
+def jobs():
+  from . import fake312_employee_jobs
+  return fake312_employee_jobs
+
+def test_transform_staff_org_assoc_id(jobs):
+  # Trouble-shooting queries:
+  # select * from pure_eligible_emp_job where emplid = '1217312' order by effdt, effseq;
+
+  # select emplid, status_flg, count(*) from pure_eligible_emp_job where status_flg = 'C' group by emplid, status_flg having count(*) > 1;
+  # select * from pure_eligible_emp_job where emplid = '8003946' order by effdt, effseq;
+  assert person.transform_staff_org_assoc_id(jobs.jobs, '6030') == jobs.jobs_with_staff_org_assoc_id
 
 def test_transform():
   person_dict = {

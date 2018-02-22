@@ -75,18 +75,50 @@ def serialize(person_dict):
   return template.render(person_dict)
 
 def transform_staff_org_assoc_id(jobs, person_id):
-  transformed_jobs = jobs.copy()
-  for job in transformed_jobs:
-    if job['org_id'] and job['job_title'] and job['employment_type']:
-      job['staff_org_assoc_id'] = 'autoid:{}-{}-{}-{}-{}'.format(
+  transformed_jobs = []
+  transformed_jobs_with_staff_org_assoc_id = {}
+  for job in jobs:
+    transformed_job = job.copy()
+    if transformed_job['org_id'] and transformed_job['job_title'] and transformed_job['employment_type']:
+      staff_org_assoc_id = 'autoid:{}-{}-{}-{}-{}'.format(
         person_id,
-        job['org_id'],
-        job['job_title'],
-        job['employment_type'],
-        job['start_date'].strftime('%Y-%m-%d')
+        transformed_job['org_id'],
+        transformed_job['job_title'],
+        transformed_job['employment_type'],
+        transformed_job['start_date'].strftime('%Y-%m-%d')
       )
+      transformed_job['staff_org_assoc_id'] = staff_org_assoc_id
+      if staff_org_assoc_id not in transformed_jobs_with_staff_org_assoc_id:
+        transformed_jobs_with_staff_org_assoc_id[staff_org_assoc_id] = []
+      transformed_jobs_with_staff_org_assoc_id[staff_org_assoc_id].append(transformed_job)
     else:
-     job['staff_org_assoc_id'] = None
+     transformed_job['staff_org_assoc_id'] = None
+     transformed_jobs.append(transformed_job)
+
+  # Ensure we have only one job for each staff_org_assoc_id:
+  for staff_org_assoc_id, possibly_multiple_jobs in transformed_jobs_with_staff_org_assoc_id.items():
+    if len(possibly_multiple_jobs) == 1:
+      transformed_jobs.append(possibly_multiple_jobs[0])
+      continue
+
+    jobs_include_primary = False
+    jobs_with_no_end_date = []
+
+    for transformed_job in possibly_multiple_jobs:
+      if transformed_job['primary']:
+        jobs_include_primary = True
+      if not transformed_job['end_date']:
+        jobs_with_no_end_date.append(transformed_job)
+    
+    job_to_keep = possibly_multiple_jobs[0]
+    if len(jobs_with_no_end_date) > 0:
+      job_to_keep = jobs_with_no_end_date[0]
+
+    if jobs_include_primary:
+      job_to_keep['primary'] = True
+
+    transformed_jobs.append(job_to_keep)
+
   return transformed_jobs
 
 def transform_primary_job(affiliate_jobs, employee_jobs, primary_empl_rcdno):
