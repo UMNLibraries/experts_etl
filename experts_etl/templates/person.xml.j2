@@ -33,17 +33,6 @@
     </staffOrganisationAssociation>
     {%- endfor %}
   </organisationAssociations>
-  {%- if contact_info_url %}
-  <links>
-    <v3:link id="contactInfoLink-{{ emplid }}">
-      <v3:url>{{ contact_info_url }}</v3:url>
-      <v3:type>contact_information</v3:type>
-      <v3:description>
-        <v3:text lang="en" country="US">Contact Information</v3:text>
-      </v3:description>
-    </v3:link>
-  </links>
-  {%- endif %}
   {%- if internet_id %}
   <user id="{{ person_id }}">
     <userName>{{ internet_id }}@umn.edu</userName>

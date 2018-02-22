@@ -71,7 +71,6 @@ def test_transform():
   }
   transformed_person_dict = person.transform(person_dict)
   expected_transformed_person_dict = {
-    'contact_info_url': 'https://myaccount.umn.edu/lookup?type=Internet+ID&amp;CN=mbezada',
     'emplid': '5150075',
     'first_name': 'Maximiliano',
     'instl_email_addr': 'mbezada@umn.edu',
@@ -108,7 +107,6 @@ def test_transform():
 
 def test_serialize():
   transformed_person_dict = {
-    'contact_info_url': 'https://myaccount.umn.edu/lookup?type=Internet+ID&amp;CN=mbezada',
     'emplid': '5150075',
     'first_name': 'Maximiliano',
     'instl_email_addr': 'mbezada@umn.edu',
@@ -164,15 +162,6 @@ def test_serialize():
       <jobDescription><v3:text lang="en">Assistant Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
   </organisationAssociations>
-  <links>
-    <v3:link id="contactInfoLink-5150075">
-      <v3:url>https://myaccount.umn.edu/lookup?type=Internet+ID&amp;CN=mbezada</v3:url>
-      <v3:type>contact_information</v3:type>
-      <v3:description>
-        <v3:text lang="en" country="US">Contact Information</v3:text>
-      </v3:description>
-    </v3:link>
-  </links>
   <user id="8185">
     <userName>mbezada@umn.edu</userName>
     <email>mbezada@umn.edu</email>
@@ -210,15 +199,6 @@ def test_extract_transform_serialize():
       <jobDescription><v3:text lang="en">Assistant Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
   </organisationAssociations>
-  <links>
-    <v3:link id="contactInfoLink-5150075">
-      <v3:url>https://myaccount.umn.edu/lookup?type=Internet+ID&amp;CN=mbezada</v3:url>
-      <v3:type>contact_information</v3:type>
-      <v3:description>
-        <v3:text lang="en" country="US">Contact Information</v3:text>
-      </v3:description>
-    </v3:link>
-  </links>
   <user id="8185">
     <userName>mbezada@umn.edu</userName>
     <email>mbezada@umn.edu</email>
@@ -328,15 +308,6 @@ def test_extract_transform_serialize():
       <jobDescription><v3:text lang="en">Adjunct Assistant Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
   </organisationAssociations>
-  <links>
-    <v3:link id="contactInfoLink-2585238">
-      <v3:url>https://myaccount.umn.edu/lookup?type=Internet+ID&amp;CN=agewirtz</v3:url>
-      <v3:type>contact_information</v3:type>
-      <v3:description>
-        <v3:text lang="en" country="US">Contact Information</v3:text>
-      </v3:description>
-    </v3:link>
-  </links>
   <user id="898">
     <userName>agewirtz@umn.edu</userName>
     <email>agewirtz@umn.edu</email>

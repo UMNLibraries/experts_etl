@@ -39,12 +39,6 @@ def extract(emplid):
   return person_dict
 
 def transform(person_dict):
-  if person_dict['internet_id']:
-    # TODO: Why isn't Jinja automatically escaping this ampersand? For now, we'll just do it here:
-    person_dict['contact_info_url'] = 'https://myaccount.umn.edu/lookup?type=Internet+ID&amp;CN=' + person_dict['internet_id']
-  else:
-    person_dict['contact_info_url'] = None
-
   person_dict['person_id'] = transform_person_id(
     person_dict['emplid'],
     person_dict['scival_id']
