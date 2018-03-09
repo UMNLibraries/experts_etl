@@ -54,6 +54,14 @@ def test_transform_staff_org_assoc_id(jobs):
   # select * from pure_eligible_emp_job where emplid = '8003946' order by effdt, effseq;
   assert person.transform_staff_org_assoc_id(jobs.jobs, '6030') == jobs.jobs_with_staff_org_assoc_id
 
+@pytest.fixture
+def jobs_before_after_primary():
+  from . import fake567_employee_jobs
+  return fake567_employee_jobs
+
+def test_transform_primary_job(jobs_before_after_primary):
+  assert person.transform_primary_job([], jobs_before_after_primary.jobs, '0') == jobs_before_after_primary.jobs_with_primary
+
 def test_transform():
   person_dict = {
     'scival_id': '8185',
@@ -222,18 +230,6 @@ def test_extract_transform_serialize():
   </name>
   <gender>unknown</gender>
   <organisationAssociations>
-    <staffOrganisationAssociation id="autoid:898-RQHKJLUF-Professor-faculty-2007-08-27" managedInPure="false">
-      <employmentType>faculty</employmentType>
-      <primaryAssociation>false</primaryAssociation>
-      <organisation>
-        <v3:source_id>RQHKJLUF</v3:source_id>
-      </organisation>
-      <period>
-        <v3:startDate>27-08-2007</v3:startDate>
-      </period>
-      <staffType>academic</staffType>
-      <jobDescription><v3:text lang="en">Professor</v3:text></jobDescription>
-    </staffOrganisationAssociation>
     <staffOrganisationAssociation id="autoid:898-WDQMICGM-Administrative Manager 2-academic_administrative-2016-06-13" managedInPure="false">
       <employmentType>academic_administrative</employmentType>
       <primaryAssociation>true</primaryAssociation>
@@ -245,6 +241,18 @@ def test_extract_transform_serialize():
       </period>
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Administrative Manager 2</v3:text></jobDescription>
+    </staffOrganisationAssociation>
+    <staffOrganisationAssociation id="autoid:898-RQHKJLUF-Professor-faculty-2007-08-27" managedInPure="false">
+      <employmentType>faculty</employmentType>
+      <primaryAssociation>false</primaryAssociation>
+      <organisation>
+        <v3:source_id>RQHKJLUF</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>27-08-2007</v3:startDate>
+      </period>
+      <staffType>academic</staffType>
+      <jobDescription><v3:text lang="en">Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
     <staffOrganisationAssociation id="autoid:898-LBZUCPBF-Adjunct Associate Professor-adjunct_faculty-2015-04-06" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
