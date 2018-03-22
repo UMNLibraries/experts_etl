@@ -1,3 +1,4 @@
+import pandas as pd
 import re
 from experts_dw import db
 from experts_dw.models import PureEligibleEmpJob, PureNewStaffDeptDefaults, PureNewStaffPosDefaults, UmnDeptPureOrg
@@ -157,9 +158,24 @@ def transform_job_entries(entries):
 
 def group_by_position_nbr(jobs):
   jobs_by_position_nbr = {}
-  for job in jobs:
-    position_nbr = job['position_nbr']
-    if position_nbr not in jobs_by_position_nbr:
-      jobs_by_position_nbr[position_nbr] = [] 
-    jobs_by_position_nbr[position_nbr].append(job)
+
+  df = pd.DataFrame(data=jobs)
+  for position_nbr in df.position_nbr.unique():
+    position_nbr_selector = df['position_nbr'] == position_nbr
+    jobs_by_position_nbr[position_nbr] = df_to_dicts(df[position_nbr_selector])
+
   return jobs_by_position_nbr
+
+def df_to_dicts(df):
+  dicts = df.to_dict('records')
+  for d in dicts:
+    for k in ['effdt','action_dt','job_entry_dt','dept_entry_dt','position_entry_dt','last_date_worked']:
+      if k not in d:
+        continue
+      if pd.isnull(d[k]):
+        # Handles cases where the Timestamp value is NaT (not a timestamp).
+        d[k] = None
+      else:
+        # Otherwise it should be a Timestamp, so convert it to datetime.datetime:
+        d[k] = d[k].to_pydatetime()
+  return dicts

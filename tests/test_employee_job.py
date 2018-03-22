@@ -1,6 +1,7 @@
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 import datetime, re
+import pandas as pd
 import pytest
 from experts_etl import employee_job
 
@@ -51,34 +52,34 @@ def test_transform_job_stint(job_stints):
 def test_transform(job_stints):
   assert job_stints.jobs == employee_job.transform(job_stints.entries)
 
-def test_extract_transform():
-  transformed_jobs = employee_job.extract_transform('1082441')
-
-  expected_transformed_jobs = [
-    {
-     'deptid': '11945',
-     'org_id': 'QWTDIYIJ',
-     'empl_rcdno': '0',
-     'job_title': 'Assistant Professor',
-     'employment_type': 'faculty',
-     'staff_type': 'academic',
-     'start_date': datetime.datetime(2007,1,30,0,0),
-     'end_date': datetime.datetime(2015,8,24,0,0),
-     'visibility': 'Restricted',
-     'profiled': False,
-    },
-    {
-     'deptid': '11945',
-     'org_id': 'QWTDIYIJ',
-     'empl_rcdno': '0',
-     'job_title': 'Assistant Professor',
-     'employment_type': 'faculty',
-     'staff_type': 'academic',
-     'start_date': datetime.datetime(2015,8,31,0,0),
-     'end_date': None,
-     'visibility': 'Public',
-     'profiled': True,
-    },
-  ]
-
-  assert transformed_jobs == expected_transformed_jobs
+#def test_extract_transform():
+#  transformed_jobs = employee_job.extract_transform('1082441')
+#
+#  expected_transformed_jobs = [
+#    {
+#     'deptid': '11945',
+#     'org_id': 'QWTDIYIJ',
+#     'empl_rcdno': '0',
+#     'job_title': 'Assistant Professor',
+#     'employment_type': 'faculty',
+#     'staff_type': 'academic',
+#     'start_date': datetime.datetime(2007,1,30,0,0),
+#     'end_date': datetime.datetime(2015,8,24,0,0),
+#     'visibility': 'Restricted',
+#     'profiled': False,
+#    },
+#    {
+#     'deptid': '11945',
+#     'org_id': 'QWTDIYIJ',
+#     'empl_rcdno': '0',
+#     'job_title': 'Assistant Professor',
+#     'employment_type': 'faculty',
+#     'staff_type': 'academic',
+#     'start_date': datetime.datetime(2015,8,31,0,0),
+#     'end_date': None,
+#     'visibility': 'Public',
+#     'profiled': True,
+#    },
+#  ]
+#
+#  assert transformed_jobs == expected_transformed_jobs
