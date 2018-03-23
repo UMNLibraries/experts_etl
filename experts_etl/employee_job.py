@@ -131,6 +131,9 @@ def transform_job_stint(job_stint):
   return transformed_job
 
 def transform_job_entries(entries):
+  #df = pd.DataFrame(data=entries)
+  #jobcodes = df.jobcode.unique()
+
   job_stints = []
   current_stint = []
   current_stint_ending = False
@@ -169,13 +172,13 @@ def group_by_position_nbr(jobs):
 def df_to_dicts(df):
   dicts = df.to_dict('records')
   for d in dicts:
-    for k in ['effdt','action_dt','job_entry_dt','dept_entry_dt','position_entry_dt','last_date_worked']:
-      if k not in d:
-        continue
-      if pd.isnull(d[k]):
-        # Handles cases where the Timestamp value is NaT (not a timestamp).
+    for k, v in d.items():
+      if pd.isnull(v):
+        # Convert all Pandas NaN's, NaT's etc to None:
         d[k] = None
-      else:
-        # Otherwise it should be a Timestamp, so convert it to datetime.datetime:
+      if k  not in ['effdt','action_dt','job_entry_dt','dept_entry_dt','position_entry_dt','last_date_worked']:
+        # Skip anything that's not a datetime:
+        continue
+      if d[k] is not None:
         d[k] = d[k].to_pydatetime()
   return dicts
