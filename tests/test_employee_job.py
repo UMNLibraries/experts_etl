@@ -26,12 +26,14 @@ def fake123():
 def test_group_by_position_nbr(fake123):
   assert employee_job.group_by_position_nbr(fake123.entries) == fake123.entries_by_position_nbr
 
-@pytest.fixture(params=['fake321','fake765'])
+@pytest.fixture(params=['fake321','fake322','fake765'])
 def job_entries(request):
   from . import fake321_emp_job_entries
+  from . import fake322_emp_job_entries
   from . import fake765_emp_job_entries
   entries_sets = {
     'fake321': fake321_emp_job_entries,
+    'fake322': fake322_emp_job_entries,
     'fake765': fake765_emp_job_entries,
   }
   entries_set = entries_sets[request.param]
