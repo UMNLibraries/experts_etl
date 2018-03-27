@@ -25,15 +25,17 @@ def fake123():
 
 def test_group_by_position_nbr(fake123):
   assert employee_job.group_by_position_nbr(fake123.entries) == fake123.entries_by_position_nbr
+  assert employee_job.group_by_position_nbr([]) == {}
 
-@pytest.fixture(params=['fake321','fake322','fake765'])
+#@pytest.fixture(params=['fake321','fake322','fake765'])
+@pytest.fixture(params=['fake321','fake765'])
 def job_entries(request):
   from . import fake321_emp_job_entries
-  from . import fake322_emp_job_entries
+  #from . import fake322_emp_job_entries
   from . import fake765_emp_job_entries
   entries_sets = {
     'fake321': fake321_emp_job_entries,
-    'fake322': fake322_emp_job_entries,
+    #'fake322': fake322_emp_job_entries,
     'fake765': fake765_emp_job_entries,
   }
   entries_set = entries_sets[request.param]
@@ -41,6 +43,7 @@ def job_entries(request):
 
 def test_transform_job_entries(job_entries):
   assert employee_job.transform_job_entries(job_entries.entries) == job_entries.stints
+  assert employee_job.transform_job_entries([]) == []
 
 @pytest.fixture
 def job_stints():
@@ -50,9 +53,11 @@ def job_stints():
 def test_transform_job_stint(job_stints):
   for index, stint in enumerate(job_stints.stints):
     assert employee_job.transform_job_stint(stint) == job_stints.jobs[index]
+  assert employee_job.transform_job_stint([]) == {}
 
 def test_transform(job_stints):
-  assert job_stints.jobs == employee_job.transform(job_stints.entries)
+  assert employee_job.transform(job_stints.entries) == job_stints.jobs
+  assert employee_job.transform([]) == []
 
 #def test_extract_transform():
 #  transformed_jobs = employee_job.extract_transform('1082441')

@@ -42,8 +42,12 @@ X Retired-Pension Administration
 active_states = ['A', 'L', 'P', 'W']
 
 def transform(jobs):
-  jobs_by_position_nbr = group_by_position_nbr(jobs)
   transformed_jobs = []
+
+  if len(jobs) == 0:
+    return transformed_jobs
+
+  jobs_by_position_nbr = group_by_position_nbr(jobs)
 
   for position_nbr, entries in jobs_by_position_nbr.items():
     job_stints = transform_job_entries(entries)
@@ -56,6 +60,9 @@ def transform(jobs):
 
 def transform_job_stint(job_stint):
   transformed_job = {}
+
+  if len(job_stint) == 0:
+    return transformed_job
 
   first_entry = job_stint[0]
 
@@ -162,6 +169,10 @@ def transform_job_entries(entries):
 def group_by_position_nbr(jobs):
   jobs_by_position_nbr = {}
 
+  if len(jobs) == 0:
+    # Avoid attempts to operate on an empty DataFrame below, which will generate errors:
+    return jobs_by_position_nbr
+
   df = pd.DataFrame(data=jobs)
   for position_nbr in df.position_nbr.unique():
     position_nbr_selector = df['position_nbr'] == position_nbr
@@ -176,7 +187,7 @@ def df_to_dicts(df):
       if pd.isnull(v):
         # Convert all Pandas NaN's, NaT's etc to None:
         d[k] = None
-      if k  not in ['effdt','action_dt','job_entry_dt','dept_entry_dt','position_entry_dt','last_date_worked']:
+      if k not in ['effdt','action_dt','job_entry_dt','dept_entry_dt','position_entry_dt','last_date_worked']:
         # Skip anything that's not a datetime:
         continue
       if d[k] is not None:
