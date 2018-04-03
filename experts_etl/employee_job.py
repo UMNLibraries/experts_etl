@@ -180,6 +180,34 @@ def group_by_position_nbr(jobs):
 
   return jobs_by_position_nbr
 
+def group_entries(entries):
+  if len(entries) == 0:
+    return []
+
+  df = pd.DataFrame(data=entries)
+  position_nbr_groups = df.groupby(['position_nbr'])
+  
+  entry_groups = []
+  for position_nbr, position_entry_rows in position_nbr_groups:
+    position_entry_rows.sort_values(['effdt','effseq'])
+    position_entry_dicts = df_to_dicts(position_entry_rows)
+    for entry in position_entry_dicts:
+      if entry_matches_last_group(entry, entry_groups):
+        entry_groups[-1]['entries'].append(entry)
+        continue
+      entry_group = {k:entry[k] for k in ('position_nbr','job_entry_dt','jobcode','deptid')}
+      entry_group['entries'] = [entry]
+      entry_groups.append(entry_group)
+
+  return entry_groups
+
+def entry_matches_last_group(entry_dict, entry_groups):
+  if len(entry_groups) > 0:
+    last_entry_group = entry_groups[-1]
+    if all(entry_dict[k] == last_entry_group[k] for k in ('position_nbr','job_entry_dt','jobcode','deptid')):
+      return True
+  return False
+
 def df_to_dicts(df):
   dicts = df.to_dict('records')
   for d in dicts:

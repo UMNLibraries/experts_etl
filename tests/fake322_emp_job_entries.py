@@ -9,6 +9,7 @@ entries = [
     'deptid': '11030',
     'position_nbr': '256802',
     'effdt': datetime.datetime(2017,8,31,0,0),
+    'effseq': '0',
     'job_entry_dt': datetime.datetime(2017,8,31,0,0),
     'position_entry_dt': datetime.datetime(2017,8,31,0,0),
     'last_date_worked': None,
@@ -24,6 +25,7 @@ entries = [
     'deptid': '11030',
     'position_nbr': '256802',
     'effdt': datetime.datetime(2018,3,12,0,0),
+    'effseq': '0',
     'job_entry_dt': datetime.datetime(2018,3,12,0,0),
     'position_entry_dt': datetime.datetime(2017,8,31,0,0),
     'last_date_worked': None,
@@ -39,6 +41,7 @@ entries = [
     'deptid': '11030',
     'position_nbr': '256802',
     'effdt': datetime.datetime(2018,3,13,0,0),
+    'effseq': '0',
     'job_entry_dt': datetime.datetime(2018,3,12,0,0),
     'position_entry_dt': datetime.datetime(2017,8,31,0,0),
     'last_date_worked': None,
@@ -48,7 +51,24 @@ entries = [
   },
 ]
 
-stints = [entries[0:2], entries[2:],]
+stints = [entries[0:1], entries[1:],]
+
+entry_groups = [
+  {
+    'position_nbr': '256802',
+    'job_entry_dt': datetime.datetime(2017,8,31,0,0),
+    'jobcode': '9742R6',
+    'deptid': '11030',
+    'entries': entries[0:1],
+  },
+  {
+    'position_nbr': '256802',
+    'jobcode': '9403R',
+    'deptid': '11030',
+    'job_entry_dt': datetime.datetime(2018,3,12,0,0),
+    'entries': entries[1:],
+  },
+]
 
 jobs = [
   {
