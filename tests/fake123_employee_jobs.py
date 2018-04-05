@@ -626,3 +626,62 @@ entries_by_position_nbr = {
   '256774': entries[22:25],
   '260291': entries[25:],
 }
+
+entry_groups = [
+  {
+    'position_nbr': '200160',
+    'job_entry_dt': datetime.datetime(2002,1,22,0,0),
+    'jobcode': '8635',
+    'deptid': '803A',
+    'entries': entries[0:4],
+  },
+  {
+    'position_nbr': '200160',
+    'job_entry_dt': datetime.datetime(2002,11,18,0,0),
+    'jobcode': '8636',
+    'deptid': '803A',
+    'entries': entries[4:5],
+  },
+  {
+    'position_nbr': '200160',
+    'job_entry_dt': datetime.datetime(2002,11,18,0,0),
+    'jobcode': '8636',
+    'deptid': '804A',
+    'entries': entries[5:14],
+  },
+  {
+    'position_nbr': '220403',
+    'job_entry_dt': datetime.datetime(2008,3,31,0,0),
+    'jobcode': '9775',
+    'deptid': '10017',
+    'entries': entries[16:19],
+  },
+  {
+    'position_nbr': '220465',
+    'job_entry_dt': datetime.datetime(2008,3,31,0,0),
+    'jobcode': '9775',
+    'deptid': '372A',
+    'entries': entries[14:15],
+  },
+  {
+    'position_nbr': '220465',
+    'job_entry_dt': datetime.datetime(2008,3,31,0,0),
+    'jobcode': '9775',
+    'deptid': '10017',
+    'entries': entries[15:16] + entries[19:22],
+  },
+  {
+    'position_nbr': '256774',
+    'job_entry_dt': datetime.datetime(2008,3,31,0,0),
+    'jobcode': '9775',
+    'deptid': '10017',
+    'entries': entries[22:25],
+  },
+  {
+    'position_nbr': '260291',
+    'job_entry_dt': datetime.datetime(2013,6,17,0,0),
+    'jobcode': '9790D3',
+    'deptid': '10017',
+    'entries': entries[25:],
+  },
+]
