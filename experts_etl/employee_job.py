@@ -112,19 +112,27 @@ def transform_job_stint(job_stint):
 
   transformed_job['org_id'] = org_id(last_entry['deptid'])
 
+  defaults = new_staff_position_defaults(last_entry['jobcode'])
+  transformed_job['employment_type'] = defaults['employment_type']
+  transformed_job['staff_type'] = defaults['staff_type']
+
+
+  return transformed_job
+
+def new_staff_position_defaults(jobcode):
+  defaults = {}
   pure_new_staff_pos_defaults = (
     session.query(PureNewStaffPosDefaults)
-    .filter(PureNewStaffPosDefaults.jobcode == last_entry['jobcode'])
+    .filter(PureNewStaffPosDefaults.jobcode == jobcode)
     .one_or_none()
   )
   if pure_new_staff_pos_defaults:
-    transformed_job['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
-    transformed_job['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
+    defaults['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
+    defaults['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
   else:
-    transformed_job['employment_type'] = None
-    transformed_job['staff_type'] = None
-
-  return transformed_job
+    defaults['employment_type'] = None
+    defaults['staff_type'] = None
+  return defaults
 
 def org_id(deptid):
   org_id = None
