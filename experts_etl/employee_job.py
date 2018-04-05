@@ -110,18 +110,7 @@ def transform_job_stint(job_stint):
       transformed_job['visibility'] = 'Restricted'
       transformed_job['profiled'] = False
 
-  # Default:
-  transformed_job['org_id'] = None
-  # Some old deptids include letters, but umn_dept_pure_org.umn_dept_id is a number.
-  # The old ones won't be in that table, anyway, so just skip those:
-  if re.match('^\d+$', last_entry['deptid']):
-    umn_dept_pure_org = (
-      session.query(UmnDeptPureOrg)
-      .filter(UmnDeptPureOrg.umn_dept_id == last_entry['deptid'])
-      .one_or_none()
-    )
-    if umn_dept_pure_org:
-      transformed_job['org_id'] = umn_dept_pure_org.pure_org_id
+  transformed_job['org_id'] = org_id(last_entry['deptid'])
 
   pure_new_staff_pos_defaults = (
     session.query(PureNewStaffPosDefaults)
@@ -136,6 +125,20 @@ def transform_job_stint(job_stint):
     transformed_job['staff_type'] = None
 
   return transformed_job
+
+def org_id(deptid):
+  org_id = None
+  # Some old deptids include letters, but umn_dept_pure_org.umn_dept_id is a number.
+  # The old ones won't be in that table, anyway, so just skip those:
+  if re.match('^\d+$', deptid):
+    umn_dept_pure_org = (
+      session.query(UmnDeptPureOrg)
+      .filter(UmnDeptPureOrg.umn_dept_id == deptid)
+      .one_or_none()
+    )
+    if umn_dept_pure_org:
+      org_id = umn_dept_pure_org.pure_org_id
+  return org_id
 
 def transform_job_entries(entries):
   #df = pd.DataFrame(data=entries)
@@ -179,6 +182,28 @@ def group_by_position_nbr(jobs):
     jobs_by_position_nbr[position_nbr] = df_to_dicts(df[position_nbr_selector])
 
   return jobs_by_position_nbr
+
+def neighborhood(iterable):
+  iterator = iter(iterable)
+  prev_item = None
+  curr_item = next(iterator)  # throws StopIteration if empty.
+  for next_item in iterator:
+    yield (prev_item, curr_item, next_item)
+    prev_item, curr_item = curr_item, next_item
+  yield (prev_item, curr_item, None)
+
+def transform_entry_groups(entry_groups):
+  if len(entry_groups) == 0:
+    return []
+
+  jobs = []
+  for prev_group, curr_group, next_group in neighborhood(entry_groups):
+    job = {
+      'start_date': curr_group['job_entry_dt'],
+      'deptid': curr_group['deptid'],
+    }
+    curr_df = pd.DataFrame(data=curr_group['entries'])
+    curr_df_with_current_status = curr_df[curr_df['status_flg'] == 'C']
 
 def group_entries(entries):
   if len(entries) == 0:
