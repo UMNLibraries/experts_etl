@@ -87,37 +87,51 @@ def transform_job_stint(job_stint):
   if last_entry['empl_status'] not in active_states or last_entry['job_terminated'] == 'Y' or last_entry['status_flg'] == 'H':
     potential_end_dates = [dt for dt in (last_entry['effdt'],last_entry['last_date_worked']) if dt]
     transformed_job['end_date'] = max(potential_end_dates)
-    transformed_job['visibility'] = 'Restricted'
-    transformed_job['profiled'] = False
   else:
     transformed_job['end_date'] = None
+
+  dept_defaults = new_staff_dept_defaults(
+    end_date=transformed_job['end_date'],
+    deptid=last_entry['deptid'],
+    jobcode=last_entry['jobcode'],
+    jobcode_descr=last_entry['jobcode_descr'],
+  )
+  transformed_job['visibility'] = dept_defaults['visibility']
+  transformed_job['profiled'] = dept_defaults['profiled']
+
+  transformed_job['org_id'] = org_id(last_entry['deptid'])
+
+  position_defaults = new_staff_position_defaults(last_entry['jobcode'])
+  transformed_job['employment_type'] = position_defaults['employment_type']
+  transformed_job['staff_type'] = position_defaults['staff_type']
+
+  return transformed_job
+
+def new_staff_dept_defaults(**kwargs):
+  defaults = {}
+  if kwargs['end_date']:
+    defaults['visibility'] = 'Restricted'
+    defaults['profiled'] = False
+  else:
     pure_new_staff_dept_defaults = (
       session.query(PureNewStaffDeptDefaults)
       .filter(and_(
-        PureNewStaffDeptDefaults.deptid == last_entry['deptid'],
-        PureNewStaffDeptDefaults.jobcode == last_entry['jobcode'],
-        PureNewStaffDeptDefaults.jobcode_descr == last_entry['jobcode_descr'],
+        PureNewStaffDeptDefaults.deptid == kwargs['deptid'],
+        PureNewStaffDeptDefaults.jobcode == kwargs['jobcode'],
+        PureNewStaffDeptDefaults.jobcode_descr == kwargs['jobcode_descr'],
       ))
       .one_or_none()
     )
     if pure_new_staff_dept_defaults:
-      transformed_job['visibility'] = pure_new_staff_dept_defaults.default_visibility
+      defaults['visibility'] = pure_new_staff_dept_defaults.default_visibility
       if pure_new_staff_dept_defaults.default_profiled == 'true':
-        transformed_job['profiled'] = True
+        defaults['profiled'] = True
       else:
-        transformed_job['profiled'] = False
+        defaults['profiled'] = False
     else:
-      transformed_job['visibility'] = 'Restricted'
-      transformed_job['profiled'] = False
-
-  transformed_job['org_id'] = org_id(last_entry['deptid'])
-
-  defaults = new_staff_position_defaults(last_entry['jobcode'])
-  transformed_job['employment_type'] = defaults['employment_type']
-  transformed_job['staff_type'] = defaults['staff_type']
-
-
-  return transformed_job
+      defaults['visibility'] = 'Restricted'
+      defaults['profiled'] = False
+  return defaults
 
 def new_staff_position_defaults(jobcode):
   defaults = {}
