@@ -7,16 +7,16 @@ from experts_etl import employee_job
 
 def test_extract():
   emplid = '5150075'
-  jobs = employee_job.extract(emplid)
+  entries = employee_job.extract(emplid)
 
-  assert isinstance(jobs, list)
-  for job in jobs:
-    assert isinstance(job, dict)
-    assert job['emplid'] == emplid
-    assert re.match(r'^\d+$', job['empl_rcdno']) 
-    assert re.match(r'^\d+$', job['position_nbr']) 
-    assert isinstance(job['effdt'], datetime.datetime)
-    assert isinstance(job['effseq'], int)
+  assert isinstance(entries, list)
+  for entry in entries:
+    assert isinstance(entry, dict)
+    assert entry['emplid'] == emplid
+    assert re.match(r'^\d+$', entry['empl_rcdno']) 
+    assert re.match(r'^\d+$', entry['position_nbr']) 
+    assert isinstance(entry['effdt'], datetime.datetime)
+    assert isinstance(entry['effseq'], int)
 
 @pytest.fixture
 def fake123():
@@ -44,6 +44,21 @@ def test_group_entries(entries_to_group):
   assert employee_job.group_entries(entries_to_group.entries) == entries_to_group.entry_groups
   assert employee_job.group_entries([]) == []
 
+@pytest.fixture(params=['fake321','fake322'])
+def entry_groups(request):
+  from . import fake321_emp_job_entries
+  from . import fake322_emp_job_entries
+  entries_sets = {
+    'fake321': fake321_emp_job_entries,
+    'fake322': fake322_emp_job_entries,
+  }
+  entries_set = entries_sets[request.param]
+  yield entries_set
+
+def test_transform_entry_groups(entry_groups):
+  assert employee_job.transform_entry_groups(entry_groups.entry_groups) == entry_groups.jobs
+  assert employee_job.transform_entry_groups([]) == []
+
 #@pytest.fixture(params=['fake321','fake322','fake765'])
 @pytest.fixture(params=['fake321','fake765'])
 def job_entries(request):
@@ -67,10 +82,10 @@ def job_stints():
   from . import fake321_emp_job_entries
   return fake321_emp_job_entries
 
-def test_transform_job_stint(job_stints):
-  for index, stint in enumerate(job_stints.stints):
-    assert employee_job.transform_job_stint(stint) == job_stints.jobs[index]
-  assert employee_job.transform_job_stint([]) == {}
+#def test_transform_job_stint(job_stints):
+#  for index, stint in enumerate(job_stints.stints):
+#    assert employee_job.transform_job_stint(stint) == job_stints.jobs[index]
+#  assert employee_job.transform_job_stint([]) == {}
 
 def test_transform(job_stints):
   assert employee_job.transform(job_stints.entries) == job_stints.jobs

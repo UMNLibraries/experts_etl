@@ -10,13 +10,13 @@ def extract_transform(emplid):
   return transform(extract(emplid))
 
 def extract(emplid):
-  jobs = []
-  for job in session.query(PureEligibleEmpJob).filter(PureEligibleEmpJob.emplid == emplid).order_by(PureEligibleEmpJob.effdt, PureEligibleEmpJob.effseq):
-    jobs.append(
-      {c.name: getattr(job, c.name) for c in job.__table__.columns}
+  entries = []
+  for entry in session.query(PureEligibleEmpJob).filter(PureEligibleEmpJob.emplid == emplid).order_by(PureEligibleEmpJob.effdt, PureEligibleEmpJob.effseq):
+    entries.append(
+      {c.name: getattr(entry, c.name) for c in entry.__table__.columns}
     )
 
-  return jobs
+  return entries
 
 """
 status_flag values:
@@ -41,22 +41,16 @@ X Retired-Pension Administration
 #active_states = ['A', 'L', 'S', 'W']
 active_states = ['A', 'L', 'P', 'W']
 
-def transform(jobs):
-  transformed_jobs = []
+def transform(entries):
+  jobs = []
 
-  if len(jobs) == 0:
-    return transformed_jobs
+  if len(entries) == 0:
+    return jobs
 
-  jobs_by_position_nbr = group_by_position_nbr(jobs)
-
-  for position_nbr, entries in jobs_by_position_nbr.items():
-    job_stints = transform_job_entries(entries)
-
-    for job_stint in job_stints:
-      transformed_job = transform_job_stint(job_stint)
-      transformed_jobs.append(transformed_job)
+  entry_groups = group_entries(entries)
+  jobs = transform_entry_groups(entry_groups)
       
-  return transformed_jobs
+  return jobs
 
 def transform_job_stint(job_stint):
   transformed_job = {}
@@ -222,10 +216,60 @@ def transform_entry_groups(entry_groups):
   for prev_group, curr_group, next_group in neighborhood(entry_groups):
     job = {
       'start_date': curr_group['job_entry_dt'],
+      'end_date': None, # Default for current/active job.
       'deptid': curr_group['deptid'],
     }
+    reference_entry = None
+    job_is_active = False
     curr_df = pd.DataFrame(data=curr_group['entries'])
-    curr_df_with_current_status = curr_df[curr_df['status_flg'] == 'C']
+    current_status_df = curr_df[curr_df['status_flg'] == 'C']
+    if not current_status_df.empty:
+      current_status_entry_index = current_status_df.index[0]
+      reference_entry = curr_group['entries'][current_status_entry_index]
+      if reference_entry['empl_status'] in active_states:
+        job_is_active = True
+    else:
+      # If there is no 'C' row, this cannot be an active job, so just use the last entry,
+      # which should have the latest effdt and highest effseq for that date:
+      reference_entry = curr_group['entries'][-1]
+
+      # Special case: If the next job has the same position_nbr, this person has had multiple
+      # jobs in the same position. Here we can get a more accurate end_date by using the
+      # job_entry_dt of the next job:
+      if (
+        next_group and
+        next_group['position_nbr'] == curr_group['position_nbr'] and 
+        reference_entry['last_date_worked'] is None
+      ):
+        job['end_date'] = next_group['job_entry_dt']
+
+    if not job_is_active and job['end_date'] is None:   
+      if reference_entry['last_date_worked']:
+        job['end_date'] = reference_entry['last_date_worked']
+      else:
+        job['end_date'] = reference_entry['effdt']
+
+    job['job_title'] = reference_entry['jobcode_descr']
+    job['empl_rcdno'] = reference_entry['empl_rcdno']
+
+    dept_defaults = new_staff_dept_defaults(
+      end_date=job['end_date'],
+      deptid=reference_entry['deptid'],
+      jobcode=reference_entry['jobcode'],
+      jobcode_descr=reference_entry['jobcode_descr'],
+    )
+    job['visibility'] = dept_defaults['visibility']
+    job['profiled'] = dept_defaults['profiled']
+  
+    job['org_id'] = org_id(reference_entry['deptid'])
+  
+    position_defaults = new_staff_position_defaults(reference_entry['jobcode'])
+    job['employment_type'] = position_defaults['employment_type']
+    job['staff_type'] = position_defaults['staff_type']
+
+    jobs.append(job)
+
+  return jobs
 
 def group_entries(entries):
   if len(entries) == 0:
