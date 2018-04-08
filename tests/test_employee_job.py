@@ -77,18 +77,18 @@ def test_transform_job_entries(job_entries):
   assert employee_job.transform_job_entries(job_entries.entries) == job_entries.stints
   assert employee_job.transform_job_entries([]) == []
 
-@pytest.fixture
-def job_stints():
-  from . import fake321_emp_job_entries
-  return fake321_emp_job_entries
-
+#@pytest.fixture
+#def job_stints():
+#  from . import fake321_emp_job_entries
+#  return fake321_emp_job_entries
+#
 #def test_transform_job_stint(job_stints):
 #  for index, stint in enumerate(job_stints.stints):
 #    assert employee_job.transform_job_stint(stint) == job_stints.jobs[index]
 #  assert employee_job.transform_job_stint([]) == {}
 
-def test_transform(job_stints):
-  assert employee_job.transform(job_stints.entries) == job_stints.jobs
+def test_transform(entry_groups):
+  assert employee_job.transform(entry_groups.entries) == entry_groups.jobs
   assert employee_job.transform([]) == []
 
 #def test_extract_transform():
