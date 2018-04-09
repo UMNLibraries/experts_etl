@@ -222,6 +222,9 @@ def transform_entry_groups(entry_groups):
     reference_entry = None
     job_is_active = False
     curr_df = pd.DataFrame(data=curr_group['entries'])
+
+    last_date_worked_df = curr_df[curr_df['last_date_worked'].notnull()]
+
     current_status_df = curr_df[curr_df['status_flg'] == 'C']
     if not current_status_df.empty:
       current_status_entry_index = current_status_df.index[0]
@@ -239,15 +242,15 @@ def transform_entry_groups(entry_groups):
       if (
         next_group and
         next_group['position_nbr'] == curr_group['position_nbr'] and 
-        reference_entry['last_date_worked'] is None
+        last_date_worked_df.empty
       ):
         job['end_date'] = next_group['job_entry_dt']
 
     if not job_is_active and job['end_date'] is None:   
-      if reference_entry['last_date_worked']:
-        job['end_date'] = reference_entry['last_date_worked']
-      else:
+      if last_date_worked_df.empty:
         job['end_date'] = reference_entry['effdt']
+      else:
+        job['end_date'] = last_date_worked_df['last_date_worked'].max().to_pydatetime()
 
     job['job_title'] = reference_entry['jobcode_descr']
     job['empl_rcdno'] = reference_entry['empl_rcdno']
