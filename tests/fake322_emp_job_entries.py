@@ -51,8 +51,6 @@ entries = [
   },
 ]
 
-stints = [entries[0:1], entries[1:],]
-
 entry_groups = [
   {
     'position_nbr': '256802',
@@ -63,9 +61,9 @@ entry_groups = [
   },
   {
     'position_nbr': '256802',
+    'job_entry_dt': datetime.datetime(2018,3,12,0,0),
     'jobcode': '9403R',
     'deptid': '11030',
-    'job_entry_dt': datetime.datetime(2018,3,12,0,0),
     'entries': entries[1:],
   },
 ]

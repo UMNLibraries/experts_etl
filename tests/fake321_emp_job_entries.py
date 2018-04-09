@@ -227,8 +227,6 @@ entries = [
   },
 ]
 
-stints = [entries[0:4], entries[4:],]
-
 entry_groups = [
   {
     'position_nbr': '208989',
