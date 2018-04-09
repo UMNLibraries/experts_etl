@@ -27,14 +27,16 @@ def test_group_by_position_nbr(fake123):
   assert employee_job.group_by_position_nbr(fake123.entries) == fake123.entries_by_position_nbr
   assert employee_job.group_by_position_nbr([]) == {}
 
-@pytest.fixture(params=['fake321','fake322','fake123'])
+@pytest.fixture(params=['fake321','fake322','fake765','fake123'])
 def entries_to_group(request):
   from . import fake321_emp_job_entries
   from . import fake322_emp_job_entries
+  from . import fake765_emp_job_entries
   from . import fake123_employee_jobs
   entries_sets = {
     'fake321': fake321_emp_job_entries,
     'fake322': fake322_emp_job_entries,
+    'fake765': fake765_emp_job_entries,
     'fake123': fake123_employee_jobs,
   }
   entries_set = entries_sets[request.param]
@@ -44,13 +46,15 @@ def test_group_entries(entries_to_group):
   assert employee_job.group_entries(entries_to_group.entries) == entries_to_group.entry_groups
   assert employee_job.group_entries([]) == []
 
-@pytest.fixture(params=['fake321','fake322'])
+@pytest.fixture(params=['fake321','fake322','fake765'])
 def entry_groups(request):
   from . import fake321_emp_job_entries
   from . import fake322_emp_job_entries
+  from . import fake765_emp_job_entries
   entries_sets = {
     'fake321': fake321_emp_job_entries,
     'fake322': fake322_emp_job_entries,
+    'fake765': fake765_emp_job_entries,
   }
   entries_set = entries_sets[request.param]
   yield entries_set
@@ -60,15 +64,15 @@ def test_transform_entry_groups(entry_groups):
   assert employee_job.transform_entry_groups([]) == []
 
 #@pytest.fixture(params=['fake321','fake322','fake765'])
-@pytest.fixture(params=['fake321','fake765'])
+@pytest.fixture(params=['fake321'])
 def job_entries(request):
   from . import fake321_emp_job_entries
   #from . import fake322_emp_job_entries
-  from . import fake765_emp_job_entries
+  #from . import fake765_emp_job_entries
   entries_sets = {
     'fake321': fake321_emp_job_entries,
     #'fake322': fake322_emp_job_entries,
-    'fake765': fake765_emp_job_entries,
+    #'fake765': fake765_emp_job_entries,
   }
   entries_set = entries_sets[request.param]
   yield entries_set
