@@ -131,7 +131,7 @@ def transform_entry_groups(entry_groups):
     job_is_active = False
     curr_df = pd.DataFrame(data=curr_group['entries'])
 
-    last_date_worked_df = curr_df[curr_df['last_date_worked'].notnull()]
+    last_date_worked_df = curr_df[(curr_df['last_date_worked'].notnull()) & (~curr_df['empl_status'].isin(active_states))]
 
     current_status_df = curr_df[curr_df['status_flg'] == 'C']
     if not current_status_df.empty:

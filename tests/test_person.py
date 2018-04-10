@@ -52,7 +52,7 @@ def test_transform_staff_org_assoc_id(jobs):
 
   # select emplid, status_flg, count(*) from pure_eligible_emp_job where status_flg = 'C' group by emplid, status_flg having count(*) > 1;
   # select * from pure_eligible_emp_job where emplid = '8003946' order by effdt, effseq;
-  assert person.transform_staff_org_assoc_id(jobs.jobs, '6030') == jobs.jobs_with_staff_org_assoc_id
+  assert person.transform_staff_org_assoc_id(jobs.jobs_with_primary, '6030') == jobs.jobs_with_staff_org_assoc_id
 
 @pytest.fixture
 def jobs_before_after_primary():
@@ -242,14 +242,14 @@ def test_extract_transform_serialize():
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Administrative Manager 2</v3:text></jobDescription>
     </staffOrganisationAssociation>
-    <staffOrganisationAssociation id="autoid:898-RQHKJLUF-Professor-faculty-2007-08-27" managedInPure="false">
+    <staffOrganisationAssociation id="autoid:898-RQHKJLUF-Professor-faculty-2015-08-31" managedInPure="false">
       <employmentType>faculty</employmentType>
       <primaryAssociation>false</primaryAssociation>
       <organisation>
         <v3:source_id>RQHKJLUF</v3:source_id>
       </organisation>
       <period>
-        <v3:startDate>27-08-2007</v3:startDate>
+        <v3:startDate>31-08-2015</v3:startDate>
       </period>
       <staffType>academic</staffType>
       <jobDescription><v3:text lang="en">Professor</v3:text></jobDescription>
