@@ -18,19 +18,21 @@ def test_extract():
     assert isinstance(entry['effdt'], datetime.datetime)
     assert isinstance(entry['effseq'], int)
 
-@pytest.fixture(params=['fake321','fake322','fake765','fake123','fake312'])
+@pytest.fixture(params=['fake321','fake322','fake765','fake123','fake312','fake567'])
 def entries_to_group(request):
   from . import fake321_emp_job_entries
   from . import fake322_emp_job_entries
   from . import fake765_emp_job_entries
   from . import fake123_employee_jobs
   from . import fake312_employee_jobs
+  from . import fake567_employee_jobs
   entries_sets = {
     'fake321': fake321_emp_job_entries,
     'fake322': fake322_emp_job_entries,
     'fake765': fake765_emp_job_entries,
     'fake123': fake123_employee_jobs,
     'fake312': fake312_employee_jobs,
+    'fake567': fake567_employee_jobs,
   }
   entries_set = entries_sets[request.param]
   yield entries_set
@@ -39,17 +41,19 @@ def test_group_entries(entries_to_group):
   assert employee_job.group_entries(entries_to_group.entries) == entries_to_group.entry_groups
   assert employee_job.group_entries([]) == []
 
-@pytest.fixture(params=['fake321','fake322','fake765','fake312'])
+@pytest.fixture(params=['fake321','fake322','fake765','fake312','fake567'])
 def entry_groups(request):
   from . import fake321_emp_job_entries
   from . import fake322_emp_job_entries
   from . import fake765_emp_job_entries
   from . import fake312_employee_jobs
+  from . import fake567_employee_jobs
   entries_sets = {
     'fake321': fake321_emp_job_entries,
     'fake322': fake322_emp_job_entries,
     'fake765': fake765_emp_job_entries,
     'fake312': fake312_employee_jobs,
+    'fake567': fake567_employee_jobs,
   }
   entries_set = entries_sets[request.param]
   yield entries_set
