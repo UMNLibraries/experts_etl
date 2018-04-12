@@ -131,6 +131,10 @@ def transform_entry_groups(entry_groups):
     job_is_active = False
     curr_df = pd.DataFrame(data=curr_group['entries'])
 
+    # Find any last dates worked, excluding any cases where they are associated with an active
+    # employment status. For example, often there is a last_date_worked for a status of W (short
+    # work break). In such cases, the job did not end.
+    # Also note that Pandas requires bitwise operators (&, ~) for conditionals that operate on series.
     last_date_worked_df = curr_df[(curr_df['last_date_worked'].notnull()) & (~curr_df['empl_status'].isin(active_states))]
 
     current_status_df = curr_df[curr_df['status_flg'] == 'C']
