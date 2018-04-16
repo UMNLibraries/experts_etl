@@ -42,6 +42,32 @@ def transform(jobs):
       
   return transformed_jobs
 
+def new_staff_dept_defaults(**kwargs):
+  defaults = {}
+  if kwargs['end_date']:
+    defaults['visibility'] = 'Restricted'
+    defaults['profiled'] = False
+  else:
+    pure_new_staff_dept_defaults = (
+      session.query(PureNewStaffDeptDefaults)
+      .filter(and_(
+        PureNewStaffDeptDefaults.deptid == kwargs['deptid'],
+        PureNewStaffDeptDefaults.jobcode == kwargs['jobcode'],
+        PureNewStaffDeptDefaults.jobcode_descr == kwargs['jobcode_descr'],
+      ))
+      .one_or_none()
+    )
+    if pure_new_staff_dept_defaults:
+      defaults['visibility'] = pure_new_staff_dept_defaults.default_visibility
+      if pure_new_staff_dept_defaults.default_profiled == 'true':
+        defaults['profiled'] = True
+      else:
+        defaults['profiled'] = False
+    else:
+      defaults['visibility'] = 'Restricted'
+      defaults['profiled'] = False
+  return defaults
+
 def new_staff_position_defaults(jobcode):
   defaults = {}
   pure_new_staff_pos_defaults = (
@@ -93,28 +119,17 @@ def transform_job_stint(job_stint):
 
   if last_entry['status'] not in active_states or last_entry['status_flg'] == 'H':
     transformed_job['end_date'] = last_entry['effdt']
-    transformed_job['visibility'] = 'Restricted'
-    transformed_job['profiled'] = False
   else:
     transformed_job['end_date'] = None
-    pure_new_staff_dept_defaults = (
-      session.query(PureNewStaffDeptDefaults)
-      .filter(and_(
-        PureNewStaffDeptDefaults.deptid == last_entry['deptid'],
-        PureNewStaffDeptDefaults.jobcode == last_entry['um_affil_relation'],
-        PureNewStaffDeptDefaults.jobcode_descr == last_entry['title'],
-      ))
-      .one_or_none()
-    )
-    if pure_new_staff_dept_defaults:
-      transformed_job['visibility'] = pure_new_staff_dept_defaults.default_visibility
-      if pure_new_staff_dept_defaults.default_profiled == 'true':
-        transformed_job['profiled'] = True
-      else:
-        transformed_job['profiled'] = False
-    else:
-      transformed_job['visibility'] = 'Restricted'
-      transformed_job['profiled'] = False
+
+  dept_defaults = new_staff_dept_defaults(
+    end_date=transformed_job['end_date'],
+    deptid=last_entry['deptid'],
+    jobcode=last_entry['um_affil_relation'],
+    jobcode_descr=last_entry['title'],
+  )
+  transformed_job['visibility'] = dept_defaults['visibility']
+  transformed_job['profiled'] = dept_defaults['profiled']
 
   transformed_job['org_id'] = org_id(last_entry['deptid'])
 
