@@ -42,6 +42,21 @@ def transform(jobs):
       
   return transformed_jobs
 
+def new_staff_position_defaults(jobcode):
+  defaults = {}
+  pure_new_staff_pos_defaults = (
+    session.query(PureNewStaffPosDefaults)
+    .filter(PureNewStaffPosDefaults.jobcode == jobcode)
+    .one_or_none()
+  )
+  if pure_new_staff_pos_defaults:
+    defaults['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
+    defaults['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
+  else:
+    defaults['employment_type'] = None
+    defaults['staff_type'] = None
+  return defaults
+
 def org_id(deptid):
   org_id = None
   # Some old deptids include letters, but umn_dept_pure_org.umn_dept_id is a number.
@@ -102,30 +117,10 @@ def transform_job_stint(job_stint):
       transformed_job['profiled'] = False
 
   transformed_job['org_id'] = org_id(last_entry['deptid'])
-  # Default:
-#  transformed_job['org_id'] = None
-#  # Some old deptids include letters, but umn_dept_pure_org.umn_dept_id is a number.
-#  # The old ones won't be in that table, anyway, so just skip those:
-#  if re.match('^\d+$', last_entry['deptid']):
-#    umn_dept_pure_org = (
-#      session.query(UmnDeptPureOrg)
-#      .filter(UmnDeptPureOrg.umn_dept_id == last_entry['deptid'])
-#      .one_or_none()
-#    )
-#    if umn_dept_pure_org:
-#      transformed_job['org_id'] = umn_dept_pure_org.pure_org_id
 
-  pure_new_staff_pos_defaults = (
-    session.query(PureNewStaffPosDefaults)
-    .filter(PureNewStaffPosDefaults.jobcode == last_entry['um_affil_relation'])
-    .one_or_none()
-  )
-  if pure_new_staff_pos_defaults:
-    transformed_job['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
-    transformed_job['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
-  else:
-    transformed_job['employment_type'] = None
-    transformed_job['staff_type'] = None
+  position_defaults = new_staff_position_defaults(last_entry['um_affil_relation'])
+  transformed_job['employment_type'] = position_defaults['employment_type']
+  transformed_job['staff_type'] = position_defaults['staff_type']
 
   return transformed_job
 
