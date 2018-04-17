@@ -1,3 +1,4 @@
+import pandas as pd
 import re
 from experts_dw import db
 from experts_dw.models import PureEligibleAffJob, PureNewStaffDeptDefaults, PureNewStaffPosDefaults, UmnDeptPureOrg
@@ -9,13 +10,13 @@ def extract_transform(emplid):
   return transform(extract(emplid))
 
 def extract(emplid):
-  jobs = []
-  for job in session.query(PureEligibleAffJob).filter(PureEligibleAffJob.emplid == emplid).order_by(PureEligibleAffJob.effdt):
-    jobs.append(
-      {c.name: getattr(job, c.name) for c in job.__table__.columns}
+  entries = []
+  for entry in session.query(PureEligibleAffJob).filter(PureEligibleAffJob.emplid == emplid).order_by(PureEligibleAffJob.effdt):
+    entries.append(
+      {c.name: getattr(entry, c.name) for c in entry.__table__.columns}
     )
 
-  return jobs
+  return entries
 
 """
 status_flag values:
@@ -29,93 +30,115 @@ I Inactive
 """
 active_states = ['A']
 
-def transform(jobs):
-  jobs_by_deptid_um_affiliate_id_um_affil_relation = group_by_deptid_um_affiliate_id_um_affil_relation(jobs)
-  transformed_jobs = []
+def transform(entries):
+  jobs = []
 
-  for key, entries in jobs_by_deptid_um_affiliate_id_um_affil_relation.items():
-    job_stints = transform_job_entries(entries)
+  if len(entries) == 0:
+    return jobs
 
-    for job_stint in job_stints:
-      transformed_job = transform_job_stint(job_stint)
-      transformed_jobs.append(transformed_job)
+  entry_groups = group_entries(entries)
+  jobs = transform_entry_groups(entry_groups)
       
-  return transformed_jobs
+  return jobs
 
-def transform_job_stint(job_stint):
-  transformed_job = {}
-
-  first_entry = job_stint[0]
-
-  # For the last entry, find the latest current (C) entry, if there is one:
-  last_entry = None
-  reversed_job_stint = job_stint.copy()
-  reversed_job_stint.reverse()
-  for entry in reversed_job_stint:
-    if entry['status_flg'] == 'C':
-      last_entry = entry
-      break
-  if not last_entry:
-    last_entry = job_stint[-1]
-
-  transformed_job['job_title'] = last_entry['title']
-  transformed_job['deptid'] = last_entry['deptid']
-  transformed_job['start_date'] = first_entry['effdt']
-
-  if last_entry['status'] not in active_states or last_entry['status_flg'] == 'H':
-    transformed_job['end_date'] = last_entry['effdt']
-    transformed_job['visibility'] = 'Restricted'
-    transformed_job['profiled'] = False
+def new_staff_dept_defaults(**kwargs):
+  defaults = {}
+  if kwargs['end_date']:
+    defaults['visibility'] = 'Restricted'
+    defaults['profiled'] = False
   else:
-    transformed_job['end_date'] = None
     pure_new_staff_dept_defaults = (
       session.query(PureNewStaffDeptDefaults)
       .filter(and_(
-        PureNewStaffDeptDefaults.deptid == last_entry['deptid'],
-        PureNewStaffDeptDefaults.jobcode == last_entry['um_affil_relation'],
-        PureNewStaffDeptDefaults.jobcode_descr == last_entry['title'],
+        PureNewStaffDeptDefaults.deptid == kwargs['deptid'],
+        PureNewStaffDeptDefaults.jobcode == kwargs['jobcode'],
+        PureNewStaffDeptDefaults.jobcode_descr == kwargs['jobcode_descr'],
       ))
       .one_or_none()
     )
     if pure_new_staff_dept_defaults:
-      transformed_job['visibility'] = pure_new_staff_dept_defaults.default_visibility
+      defaults['visibility'] = pure_new_staff_dept_defaults.default_visibility
       if pure_new_staff_dept_defaults.default_profiled == 'true':
-        transformed_job['profiled'] = True
+        defaults['profiled'] = True
       else:
-        transformed_job['profiled'] = False
+        defaults['profiled'] = False
     else:
-      transformed_job['visibility'] = 'Restricted'
-      transformed_job['profiled'] = False
+      defaults['visibility'] = 'Restricted'
+      defaults['profiled'] = False
+  return defaults
 
-  # Default:
-  transformed_job['org_id'] = None
-  # Some old deptids include letters, but umn_dept_pure_org.umn_dept_id is a number.
-  # The old ones won't be in that table, anyway, so just skip those:
-  if re.match('^\d+$', last_entry['deptid']):
-    umn_dept_pure_org = (
-      session.query(UmnDeptPureOrg)
-      .filter(UmnDeptPureOrg.umn_dept_id == last_entry['deptid'])
-      .one_or_none()
-    )
-    if umn_dept_pure_org:
-      transformed_job['org_id'] = umn_dept_pure_org.pure_org_id
-
+def new_staff_position_defaults(jobcode):
+  defaults = {}
   pure_new_staff_pos_defaults = (
     session.query(PureNewStaffPosDefaults)
-    .filter(PureNewStaffPosDefaults.jobcode == last_entry['um_affil_relation'])
+    .filter(PureNewStaffPosDefaults.jobcode == jobcode)
     .one_or_none()
   )
   if pure_new_staff_pos_defaults:
-    transformed_job['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
-    transformed_job['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
+    defaults['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
+    defaults['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
   else:
-    transformed_job['employment_type'] = None
-    transformed_job['staff_type'] = None
+    defaults['employment_type'] = None
+    defaults['staff_type'] = None
+  return defaults
 
-  return transformed_job
+def org_id(deptid):
+  org_id = None
+  # Some old deptids include letters, but umn_dept_pure_org.umn_dept_id is a number.
+  # The old ones won't be in that table, anyway, so just skip those:
+  if re.match('^\d+$', deptid):
+    umn_dept_pure_org = (
+      session.query(UmnDeptPureOrg)
+      .filter(UmnDeptPureOrg.umn_dept_id == deptid)
+      .one_or_none()
+    )
+    if umn_dept_pure_org:
+      org_id = umn_dept_pure_org.pure_org_id
+  return org_id
 
-def transform_job_entries(entries):
-  job_stints = []
+def transform_entry_groups(entry_groups):
+  if len(entry_groups) == 0:
+    return []
+
+  jobs = []
+  for group in entry_groups:
+    last_entry = group['entries'][-1]
+
+    job = {
+      'deptid': group['deptid'],
+      'start_date': group['start_date'],
+      'job_title': last_entry['title'],
+    }
+
+    if last_entry['status'] not in active_states or last_entry['status_flg'] == 'H':
+      job['end_date'] = last_entry['effdt']
+    else:
+      job['end_date'] = None
+  
+    dept_defaults = new_staff_dept_defaults(
+      end_date=job['end_date'],
+      deptid=job['deptid'],
+      jobcode=group['um_affil_relation'],
+      jobcode_descr=job['job_title'],
+    )
+    job['visibility'] = dept_defaults['visibility']
+    job['profiled'] = dept_defaults['profiled']
+  
+    job['org_id'] = org_id(job['deptid'])
+  
+    position_defaults = new_staff_position_defaults(group['um_affil_relation'])
+    job['employment_type'] = position_defaults['employment_type']
+    job['staff_type'] = position_defaults['staff_type']
+
+    jobs.append(job)
+
+  return jobs
+
+def split_entries_into_stints(entries):
+  if len(entries) == 0:
+    return []
+
+  stints = []
   current_stint = []
   current_stint_ending = False
 
@@ -123,7 +146,7 @@ def transform_job_entries(entries):
     if current_stint_ending:
       if entry['status'] in active_states:
         # We've passed the end of the current stint, and this is a new stint in the same position.
-        job_stints.append(current_stint)
+        stints.append(current_stint)
         current_stint = []
         current_stint_ending = False
       current_stint.append(entry)
@@ -145,15 +168,43 @@ def transform_job_entries(entries):
       continue
 
   if len(current_stint) > 0:
-    job_stints.append(current_stint)
+    stints.append(current_stint)
 
-  return job_stints
+  return stints
 
-def group_by_deptid_um_affiliate_id_um_affil_relation(jobs):
-  jobs_by_deptid_um_affiliate_id_um_affil_relation = {}
-  for job in jobs:
-    key = job['deptid'] + '-'  + job['um_affiliate_id'] + '-' + job['um_affil_relation']
-    if key not in jobs_by_deptid_um_affiliate_id_um_affil_relation:
-      jobs_by_deptid_um_affiliate_id_um_affil_relation[key] = [] 
-    jobs_by_deptid_um_affiliate_id_um_affil_relation[key].append(job)
-  return jobs_by_deptid_um_affiliate_id_um_affil_relation
+def group_entries(entries):
+  if len(entries) == 0:
+    return []
+
+  df = pd.DataFrame(data=entries)
+  df_groups = df.groupby(['deptid','um_affiliate_id','um_affil_relation'])
+  
+  entry_groups = []
+  for key, rows in df_groups:
+    rows.sort_values(['effdt'])
+    dicts = df_to_dicts(rows)
+    stints = split_entries_into_stints(dicts)
+    for stint in stints:
+      entry_group = {
+        'deptid': key[0],
+        'um_affil_relation': key[2],
+        'start_date': stint[0]['effdt'],
+        'entries': stint,
+      }
+      entry_groups.append(entry_group)
+
+  return entry_groups
+
+def df_to_dicts(df):
+  dicts = df.to_dict('records')
+  for d in dicts:
+    for k, v in d.items():
+      if pd.isnull(v):
+        # Convert all Pandas NaN's, NaT's etc to None:
+        d[k] = None
+      if k not in ['effdt']:
+        # Skip anything that's not a datetime:
+        continue
+      if d[k] is not None:
+        d[k] = d[k].to_pydatetime()
+  return dicts
