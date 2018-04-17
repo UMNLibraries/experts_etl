@@ -19,7 +19,7 @@ def test_extract():
     'tenure_flag': 'N',
     'tenure_track_flag': 'Y',
     'primary_empl_rcdno': '0',
-    'timestamp': datetime.datetime(2018, 1, 22, 12, 6, 30),
+    'timestamp': datetime.datetime(2018,1,22,12,6,30),
   }
 
   assert person_dict == expected_person_dict
@@ -254,19 +254,6 @@ def test_extract_transform_serialize():
       <staffType>academic</staffType>
       <jobDescription><v3:text lang="en">Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
-    <staffOrganisationAssociation id="autoid:898-LBZUCPBF-Adjunct Associate Professor-adjunct_faculty-2015-04-06" managedInPure="false">
-      <employmentType>adjunct_faculty</employmentType>
-      <primaryAssociation>false</primaryAssociation>
-      <organisation>
-        <v3:source_id>LBZUCPBF</v3:source_id>
-      </organisation>
-      <period>
-        <v3:startDate>06-04-2015</v3:startDate>
-        <v3:endDate>12-01-2017</v3:endDate>
-      </period>
-      <staffType>nonacademic</staffType>
-      <jobDescription><v3:text lang="en">Adjunct Associate Professor</v3:text></jobDescription>
-    </staffOrganisationAssociation>
     <staffOrganisationAssociation id="autoid:898-CBIHJRCYWWAA-Adjunct Associate Professor-adjunct_faculty-2015-04-06" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
       <primaryAssociation>false</primaryAssociation>
@@ -279,14 +266,14 @@ def test_extract_transform_serialize():
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Adjunct Associate Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
-    <staffOrganisationAssociation id="autoid:898-SKDPLVKBRNWDZMQ-Adjunct Assistant Professor-adjunct_faculty-2015-04-06" managedInPure="false">
+    <staffOrganisationAssociation id="autoid:898-CBIHJRCYWWAA-Adjunct Assistant Professor-adjunct_faculty-2017-07-01" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
       <primaryAssociation>false</primaryAssociation>
       <organisation>
-        <v3:source_id>SKDPLVKBRNWDZMQ</v3:source_id>
+        <v3:source_id>CBIHJRCYWWAA</v3:source_id>
       </organisation>
       <period>
-        <v3:startDate>06-04-2015</v3:startDate>
+        <v3:startDate>01-07-2017</v3:startDate>
       </period>
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Adjunct Assistant Professor</v3:text></jobDescription>
@@ -303,14 +290,27 @@ def test_extract_transform_serialize():
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Adjunct Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
-    <staffOrganisationAssociation id="autoid:898-CBIHJRCYWWAA-Adjunct Assistant Professor-adjunct_faculty-2017-07-01" managedInPure="false">
+    <staffOrganisationAssociation id="autoid:898-LBZUCPBF-Adjunct Associate Professor-adjunct_faculty-2015-04-06" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
       <primaryAssociation>false</primaryAssociation>
       <organisation>
-        <v3:source_id>CBIHJRCYWWAA</v3:source_id>
+        <v3:source_id>LBZUCPBF</v3:source_id>
       </organisation>
       <period>
-        <v3:startDate>01-07-2017</v3:startDate>
+        <v3:startDate>06-04-2015</v3:startDate>
+        <v3:endDate>12-01-2017</v3:endDate>
+      </period>
+      <staffType>nonacademic</staffType>
+      <jobDescription><v3:text lang="en">Adjunct Associate Professor</v3:text></jobDescription>
+    </staffOrganisationAssociation>
+    <staffOrganisationAssociation id="autoid:898-SKDPLVKBRNWDZMQ-Adjunct Assistant Professor-adjunct_faculty-2015-04-06" managedInPure="false">
+      <employmentType>adjunct_faculty</employmentType>
+      <primaryAssociation>false</primaryAssociation>
+      <organisation>
+        <v3:source_id>SKDPLVKBRNWDZMQ</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>06-04-2015</v3:startDate>
       </period>
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Adjunct Assistant Professor</v3:text></jobDescription>

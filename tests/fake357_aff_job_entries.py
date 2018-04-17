@@ -25,6 +25,15 @@ entries = [
 
 stints = [entries]
 
+entry_groups = [
+  {
+    'deptid': '11735',
+    'um_affil_relation': '9403A',
+    'start_date': datetime.datetime(2015,4,6,0,0),
+    'entries': entries,
+  },
+]
+
 jobs = [
   {
    'deptid': '11735',
