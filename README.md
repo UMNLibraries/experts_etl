@@ -2,43 +2,102 @@
 
 Moves data from UMN to Pure (Experts@Minnesota), and vice versa.
 
-## High-level Data Flow
+## Usage
 
-* Create "all jobs new", by subtracting the "all jobs previous" snapshot from "all jobs current".
-  * Create "all jobs deferred", by subtracting from "all jobs new" any jobs where "dept id" exists in "pure internal orgs", i.e., the org already exists in Pure. (The org must exist before we can add the job to Pure.)
-    * Set "defer" to "Y", and "defer reason" to "Org with $deptid does not yet exist in Pure" in each corresponding "all jobs new" record.
-    * Add all emplids to "person changes deferred".
-    * Add all deptids to "orgs to be added to Pure".
-  * For all other "all jobs new", set "defer" to "N".
-* Create "emplids new", by subtracting the distinct emplids in the "all jobs previous" snapshot from the distinct emplids in "all jobs current".
-  * For "all jobs new" where emplid is in "emplids new", set "person change description" to "add".
-  * For all other "all jobs new", set "person change description" to "update".
-* Create "emplids removed", by subtracting the distinct emplids from "all jobs new" from the distinct emplids in the "all jobs previous" snapshot.
-  * For "all jobs previous" where emplid is in "emplids removed", add a record to "all jobs new", with a "person change description" of "remove".
-  * Not sure "remove" is the best language here, because we should never remove persons from Pure. The most we will do is discontinue refining their profiles.
-* Add "all jobs new" to the "all jobs history" table, along with a timestamp.
-* Add "all jobs new" emplids to "persons needing new Pure records", _except_ for those emplids in "person changes deferred".
-* Add "emplids new" to a list of "all emplids", along with a timestamp.
-* Create "demographics new", by subtracting the "demographics previous" snapshot from "demographics current", which queries demographics for "all emplids".
-  * For all emplids in "person changes deferred", set "defer" to "Y", and "defer reason" to "Org with $deptid does not yet exist in Pure". For all other "demographics new", set "defer" to "N".
-  * For all emplids in the "demographics history" table, set "change description" to "update". For all other emplids, set "change description" to "add".
-* Add "demographics new" to the "demographics history" table, along with a timestamp.
-* Add "demographics new" emplids to "persons needing new Pure records", if they're not already there, _and_ if they're not in "person changes deferred".
-* For all emplids in "persons needing new Pure records", generate new Pure records, using data from "all jobs current" and "demographics current".
+Please see `tests/test_*.py` for now. We freely admit this section of the documentation requires
+much improvement.
 
-## Possibly-problematic Situations
+## Pure API Versions
 
-Quotations below from section "4.3.2: Configuration area fields and buttons", in [Populating Pure in Bulk](https://experts.umn.edu/admin/services/import/documentation.pdf).
+Successfully tested against Pure API versions 5.10.x - 5.12.x.
+
+## Requirements and Recommendations
+
+### Python Versions
+
+experts_etl requires Python >= 3.
+
+### Environment Variables
+
+To connect to the Pure server, including when running `tests/test_client.py`, the
+`PURE_API_URL` and `PURE_API_KEY` environment variables must be set. To connect to
+the Experts@Minnesota Data Warehouse and the UMN OIT Data Warehouse, the environment
+variables `DB_USER`, `DB_PASS`, `DWE_DB_SERVICE_NAME`, and `HOTEL_DB_SERVICE_NAME`
+must be set.
+
+One option is to set these environment variables in a `.env` file. See `env.dist` for an example.
+
+### pyenv, venv, and poetry 
+
+To install and manage Python versions we use [pyenv](https://github.com/pyenv/pyenv), and to manage
+dependencies we use [poetry](https://poetry.eustace.io/). While alternative tools will work, we document
+here only the tools we use. We will document the use of other tools if demand arises.
+
+One way to set up all these tools to work together, for a new project, is to follow the workflow below.
+Note that we prefer to put virtual environments inside the project directory. Note also that we use the
+built-in `venv` module to create virtual environments, and we name their directories `.venv`, because
+that is what `poetry` does and expects.
+
+* Install pyenv.
+* `pyenv install $python_version`
+* `mkdir $project_dir; cd $project_dir`
+* Create a `.python-version` file, containing `$python_version`. 
+* `pip install poetry`
+* `poetry config settings.virtualenvs.in-project true`
+* `python -m venv ./.venv/`
+* `source ./.venv/bin/activate`
  
-* Rather than try to update "VISBILITY" according to any changes people may have made manually in Pure, set it to "Sync once". That way, we'll use the new staff defaults for their organisations for the first automated upload, but won't overwrite any changes people may have made in Pure after that. There is a different Pure option we can set to control visibility (or maybe just display?) and Profile Refinement Service (PRS) for people who have left UMN. So it's safe to ignore visibility in those cases, too.
-* How to handle organisations, like centers and institutes, that have no UMN deptid, and exist only in Pure?
-  * This is one reason we decided to maintain organisations in Pure, manually. Affiliations of persons to such organisations must also be maintained manually in Pure. 
-* Related: how to handle people who have jobs with those organisations, which also exist only in Pure? (Meaning neither of these exist in PS.)
-  * These people will always also have at least one job that is associated with a PS deptid. The PS job info we can automatically upload, but the other jobs will exist only in Pure, and must be maintained manually. So there are couple of things we need to do:
-    * We must set "PERSON_ORG_RELATION" > "Lock relation list" to "Do not lock", "to allow both synchronizations with an external data source and users working in the Pure interface to add relations from records synchronized by this job, so that the record in Pure may have additional changes that are not reflected in the external data source."
-    * A person's primary affiliation will always be with an org with a PS deptid, and we do not allow people to change that in Pure. So we set "PRIMARY_ASSOCIATION" to "Sync", "to update the field in Pure to the value from the external data source each time the job is run. Fields populated in this manner cannot be edited in the Pure interface."
-* Will any of the syncing options for Pure uploads overwrite that data that we created in Pure, if we're not careful?
-  * For data about which we're concerned, we should use the "Sync once" option, "to set the field in Pure to the value from the external data source the first time this field has content, but do not change the field's value on consequent runs. Once the field is populated it is maintained in the Pure interface, so it is no longer updated from the external data source."
-* Also, how do we handle cases where a person leaves UMN, but had a job at one of these organisations? Can we automatically alert center/insitute administrators about the situation?
-  * Any such jobs that exist only in Pure will require manual updates. We may be able to detect when associated persons leave UMN, though, because they will no longer have any affiliations with orgs that have PS deptid's. Maybe we can check Pure for these Pure-only jobs when people leave UMN, and create notifications of the need for manually updates. While these jobs remained unmodified in Pure, it will appear in Pure as if they are still with UMN.
+Now running commands like `poetry install` or `poetry update` should install packages into the virtual
+environment in `./.venv`. Don't forget to `deactivate` the virtual environment when finished using it.
+If the project virtual environment is not activated, `poetry run` and `poetry shell` will activate it.
+When using `poetry shell`, exit the shell to deactivate the virtual environment. 
 
+## Installing
+
+Add to `pyproject.toml`:
+
+```
+experts_etl = {git = "git://github.com/UMNLibraries/experts_etl.git"}
+```
+
+To specify a version, include the `tag` parameter:
+
+```
+experts_etl = {git = "git://github.com/UMNLibraries/experts_etl.git", tag = "1.0.0"}
+```
+
+To install, run `poetry install`.
+
+## Testing
+
+Run the following, either as arguments
+to `poetry run`, or after running `poetry shell`:
+
+```
+pytest tests/test_affiliate_job.py
+pytest tests/test_employee_job.py
+```
+
+Or to run all tests: `pytest`
+
+Note that many of these tests are integration tests that execute queries against UMN databases,
+so the environment variables described in
+[Requirements and Recommendations](#requirements-and-recommendations)
+must be set in order to run those tests.
+
+## Contributing
+
+### Include an updated `setup.py`.
+
+Python package managers, including poetry, will be unable to install a VCS-based package without a 
+`setup.py` file in the project root. To generate `setup.py`:
+
+```
+poetry build
+tar -zxf dist/experts_etl-0.0.0.tar.gz experts_etl-0.0.0/setup.py --strip-components 1
+```
+
+### Please commit `pyproject.lock`.
+
+Because experts_etl is an application, please commit `pyproject.lock` so that we can reproduce builds
+with exactly the same set of packages.
