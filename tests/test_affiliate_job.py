@@ -1,13 +1,17 @@
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
 import datetime, re
 import pytest
+from experts_dw import db
 from experts_etl import affiliate_job
 
-def test_extract():
+@pytest.fixture
+def session():
+  with db.session('hotel') as session:
+    yield session
+
+def test_extract(session):
   #emplid = '3367339' # Maybe use this later...
   emplid = '2585238'
-  entries = affiliate_job.extract(emplid)
+  entries = affiliate_job.extract(session, emplid)
 
   assert isinstance(entries, list)
   for entry in entries:
@@ -40,11 +44,11 @@ def test_split_entries_into_stints(job_entries):
   # deptid, um_affiliate_id, and um_affil_relation.
   assert affiliate_job.split_entries_into_stints(job_entries.entries) == job_entries.stints
 
-def test_transform(job_entries):
-  assert affiliate_job.transform(job_entries.entries) == job_entries.jobs
+def test_transform(session, job_entries):
+  assert affiliate_job.transform(session, job_entries.entries) == job_entries.jobs
 
-def test_extract_transform():
-  jobs = affiliate_job.extract_transform('1173706')
+def test_extract_transform(session):
+  jobs = affiliate_job.extract_transform(session, '1173706')
 
   expected_jobs = [
     {

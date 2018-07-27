@@ -1,11 +1,7 @@
 import re
 from sqlalchemy import func
-from experts_dw import db
-#from experts_dw.models import PureEligibleAffJob, PureEligibleAffJobNew, PureEligibleAffJobChngHst, PureEligibleEmpJob, PureEligibleEmpJobNew, PureEligibleEmpJobChngHst
 from experts_dw.models import Person, PureEligibleDemogChngHst
 from . import affiliate_job, employee_job
-
-session = db.session('hotel')
 
 from jinja2 import Environment, PackageLoader, Template, select_autoescape
 env = Environment(
@@ -13,10 +9,11 @@ env = Environment(
     autoescape=select_autoescape(['html', 'xml'])
 )
 
-def extract_transform_serialize(emplid):
-  return serialize(transform(extract(emplid)))
+def extract_transform_serialize(session, emplid):
+  person_dict = extract(session, emplid)
+  return serialize(transform(session, person_dict))
 
-def extract(emplid):
+def extract(session, emplid):
   subqry = session.query(func.max(PureEligibleDemogChngHst.timestamp)).filter(PureEligibleDemogChngHst.emplid == emplid)
 
   demog = (
@@ -38,7 +35,7 @@ def extract(emplid):
 
   return person_dict
 
-def transform(person_dict):
+def transform(session, person_dict):
   person_dict['person_id'] = transform_person_id(
     person_dict['emplid'],
     person_dict['scival_id']
@@ -49,8 +46,8 @@ def transform(person_dict):
     person_dict['middle_initial']
   )
 
-  employee_jobs = employee_job.extract_transform(person_dict['emplid'])
-  affiliate_jobs = affiliate_job.extract_transform(person_dict['emplid'])
+  employee_jobs = employee_job.extract_transform(session, person_dict['emplid'])
+  affiliate_jobs = affiliate_job.extract_transform(session, person_dict['emplid'])
   jobs = transform_primary_job(affiliate_jobs, employee_jobs, person_dict['primary_empl_rcdno'])  
   person_dict['jobs'] = transform_staff_org_assoc_id(jobs, person_dict['person_id'])
 

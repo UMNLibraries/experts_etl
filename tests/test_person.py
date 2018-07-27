@@ -1,10 +1,14 @@
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
 import datetime, pytest
+from experts_dw import db
 from experts_etl import person
 
-def test_extract():
-  person_dict = person.extract('5150075')
+@pytest.fixture
+def session():
+  with db.session('hotel') as session:
+    yield session
+
+def test_extract(session):
+  person_dict = person.extract(session, '5150075')
 
   expected_person_dict = {
     'scival_id': '8185',
@@ -62,7 +66,7 @@ def jobs_before_after_primary():
 def test_transform_primary_job(jobs_before_after_primary):
   assert person.transform_primary_job([], jobs_before_after_primary.jobs, '0') == jobs_before_after_primary.jobs_with_primary
 
-def test_transform():
+def test_transform(session):
   person_dict = {
     'scival_id': '8185',
     'emplid': '5150075',
@@ -77,7 +81,7 @@ def test_transform():
     'tenure_track_flag': 'Y',
     'primary_empl_rcdno': '0',
   }
-  transformed_person_dict = person.transform(person_dict)
+  transformed_person_dict = person.transform(session, person_dict)
   expected_transformed_person_dict = {
     'emplid': '5150075',
     'first_name': 'Maximiliano',
@@ -184,8 +188,8 @@ def test_serialize():
 
   assert person_xml == expected_person_xml
 
-def test_extract_transform_serialize():
-  person_xml = person.extract_transform_serialize('5150075')
+def test_extract_transform_serialize(session):
+  person_xml = person.extract_transform_serialize(session, '5150075')
 
   expected_person_xml = """<person id="8185">
   <name>
@@ -221,7 +225,7 @@ def test_extract_transform_serialize():
 
   assert person_xml == expected_person_xml
 
-  person_xml_2 = person.extract_transform_serialize('2585238')
+  person_xml_2 = person.extract_transform_serialize(session, '2585238')
 
   expected_person_xml_2 = """<person id="898">
   <name>
@@ -262,6 +266,7 @@ def test_extract_transform_serialize():
       </organisation>
       <period>
         <v3:startDate>06-04-2015</v3:startDate>
+        <v3:endDate>13-01-2017</v3:endDate>
       </period>
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Adjunct Associate Professor</v3:text></jobDescription>
@@ -274,6 +279,7 @@ def test_extract_transform_serialize():
       </organisation>
       <period>
         <v3:startDate>01-07-2017</v3:startDate>
+        <v3:endDate>02-07-2017</v3:endDate>
       </period>
       <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Adjunct Assistant Professor</v3:text></jobDescription>

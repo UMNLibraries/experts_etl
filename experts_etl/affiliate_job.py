@@ -1,15 +1,13 @@
 import pandas as pd
 import re
-from experts_dw import db
 from experts_dw.models import PureEligibleAffJob, PureNewStaffDeptDefaults, PureNewStaffPosDefaults, UmnDeptPureOrg
 from sqlalchemy import and_
 
-session = db.session('hotel')
+def extract_transform(session, emplid):
+  entries = extract(session, emplid)
+  return transform(session, entries)
 
-def extract_transform(emplid):
-  return transform(extract(emplid))
-
-def extract(emplid):
+def extract(session, emplid):
   entries = []
   for entry in session.query(PureEligibleAffJob).filter(PureEligibleAffJob.emplid == emplid).order_by(PureEligibleAffJob.effdt):
     entries.append(
@@ -30,14 +28,14 @@ I Inactive
 """
 active_states = ['A']
 
-def transform(entries):
+def transform(session, entries):
   jobs = []
 
   if len(entries) == 0:
     return jobs
 
   entry_groups = group_entries(entries)
-  jobs = transform_entry_groups(entry_groups)
+  jobs = transform_entry_groups(session, entry_groups)
       
   return jobs
 
@@ -47,6 +45,7 @@ def new_staff_dept_defaults(**kwargs):
     defaults['visibility'] = 'Restricted'
     defaults['profiled'] = False
   else:
+    session = kwargs['session']
     pure_new_staff_dept_defaults = (
       session.query(PureNewStaffDeptDefaults)
       .filter(and_(
@@ -67,7 +66,7 @@ def new_staff_dept_defaults(**kwargs):
       defaults['profiled'] = False
   return defaults
 
-def new_staff_position_defaults(jobcode):
+def new_staff_position_defaults(session, jobcode):
   defaults = {}
   pure_new_staff_pos_defaults = (
     session.query(PureNewStaffPosDefaults)
@@ -82,7 +81,7 @@ def new_staff_position_defaults(jobcode):
     defaults['staff_type'] = None
   return defaults
 
-def org_id(deptid):
+def org_id(session, deptid):
   org_id = None
   # Some old deptids include letters, but umn_dept_pure_org.umn_dept_id is a number.
   # The old ones won't be in that table, anyway, so just skip those:
@@ -96,7 +95,7 @@ def org_id(deptid):
       org_id = umn_dept_pure_org.pure_org_id
   return org_id
 
-def transform_entry_groups(entry_groups):
+def transform_entry_groups(session, entry_groups):
   if len(entry_groups) == 0:
     return []
 
@@ -116,6 +115,7 @@ def transform_entry_groups(entry_groups):
       job['end_date'] = None
   
     dept_defaults = new_staff_dept_defaults(
+      session=session,
       end_date=job['end_date'],
       deptid=job['deptid'],
       jobcode=group['um_affil_relation'],
@@ -124,9 +124,9 @@ def transform_entry_groups(entry_groups):
     job['visibility'] = dept_defaults['visibility']
     job['profiled'] = dept_defaults['profiled']
   
-    job['org_id'] = org_id(job['deptid'])
+    job['org_id'] = org_id(session, job['deptid'])
   
-    position_defaults = new_staff_position_defaults(group['um_affil_relation'])
+    position_defaults = new_staff_position_defaults(session, group['um_affil_relation'])
     job['employment_type'] = position_defaults['employment_type']
     job['staff_type'] = position_defaults['staff_type']
 

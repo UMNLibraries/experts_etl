@@ -1,15 +1,13 @@
 import pandas as pd
 import re
-from experts_dw import db
 from experts_dw.models import PureEligibleEmpJob, PureNewStaffDeptDefaults, PureNewStaffPosDefaults, UmnDeptPureOrg
 from sqlalchemy import and_
 
-session = db.session('hotel')
+def extract_transform(session, emplid):
+  entries = extract(session, emplid)
+  return transform(session, entries)
 
-def extract_transform(emplid):
-  return transform(extract(emplid))
-
-def extract(emplid):
+def extract(session, emplid):
   entries = []
   for entry in session.query(PureEligibleEmpJob).filter(PureEligibleEmpJob.emplid == emplid).order_by(PureEligibleEmpJob.effdt, PureEligibleEmpJob.effseq):
     entries.append(
@@ -41,14 +39,14 @@ X Retired-Pension Administration
 #active_states = ['A', 'L', 'S', 'W']
 active_states = ['A', 'L', 'P', 'W']
 
-def transform(entries):
+def transform(session, entries):
   jobs = []
 
   if len(entries) == 0:
     return jobs
 
   entry_groups = group_entries(entries)
-  jobs = transform_entry_groups(entry_groups)
+  jobs = transform_entry_groups(session, entry_groups)
       
   return jobs
 
@@ -58,6 +56,7 @@ def new_staff_dept_defaults(**kwargs):
     defaults['visibility'] = 'Restricted'
     defaults['profiled'] = False
   else:
+    session = kwargs['session']
     pure_new_staff_dept_defaults = (
       session.query(PureNewStaffDeptDefaults)
       .filter(and_(
@@ -78,7 +77,7 @@ def new_staff_dept_defaults(**kwargs):
       defaults['profiled'] = False
   return defaults
 
-def new_staff_position_defaults(jobcode):
+def new_staff_position_defaults(session, jobcode):
   defaults = {}
   pure_new_staff_pos_defaults = (
     session.query(PureNewStaffPosDefaults)
@@ -93,7 +92,7 @@ def new_staff_position_defaults(jobcode):
     defaults['staff_type'] = None
   return defaults
 
-def org_id(deptid):
+def org_id(session, deptid):
   org_id = None
   # Some old deptids include letters, but umn_dept_pure_org.umn_dept_id is a number.
   # The old ones won't be in that table, anyway, so just skip those:
@@ -116,7 +115,7 @@ def neighborhood(iterable):
     prev_item, curr_item = curr_item, next_item
   yield (prev_item, curr_item, None)
 
-def transform_entry_groups(entry_groups):
+def transform_entry_groups(session, entry_groups):
   if len(entry_groups) == 0:
     return []
 
@@ -168,6 +167,7 @@ def transform_entry_groups(entry_groups):
     job['empl_rcdno'] = reference_entry['empl_rcdno']
 
     dept_defaults = new_staff_dept_defaults(
+      session=session,
       end_date=job['end_date'],
       deptid=reference_entry['deptid'],
       jobcode=reference_entry['jobcode'],
@@ -176,9 +176,9 @@ def transform_entry_groups(entry_groups):
     job['visibility'] = dept_defaults['visibility']
     job['profiled'] = dept_defaults['profiled']
   
-    job['org_id'] = org_id(reference_entry['deptid'])
+    job['org_id'] = org_id(session, reference_entry['deptid'])
   
-    position_defaults = new_staff_position_defaults(reference_entry['jobcode'])
+    position_defaults = new_staff_position_defaults(session, reference_entry['jobcode'])
     job['employment_type'] = position_defaults['employment_type']
     job['staff_type'] = position_defaults['staff_type']
 

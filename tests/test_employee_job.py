@@ -1,13 +1,17 @@
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
 import datetime, re
 import pandas as pd
 import pytest
+from experts_dw import db
 from experts_etl import employee_job
 
-def test_extract():
+@pytest.fixture
+def session():
+  with db.session('hotel') as session:
+    yield session
+
+def test_extract(session):
   emplid = '5150075'
-  entries = employee_job.extract(emplid)
+  entries = employee_job.extract(session, emplid)
 
   assert isinstance(entries, list)
   for entry in entries:
@@ -58,13 +62,13 @@ def entry_groups(request):
   entries_set = entries_sets[request.param]
   yield entries_set
 
-def test_transform_entry_groups(entry_groups):
-  assert employee_job.transform_entry_groups(entry_groups.entry_groups) == entry_groups.jobs
-  assert employee_job.transform_entry_groups([]) == []
+def test_transform_entry_groups(session, entry_groups):
+  assert employee_job.transform_entry_groups(session, entry_groups.entry_groups) == entry_groups.jobs
+  assert employee_job.transform_entry_groups(session, []) == []
 
-def test_transform(entry_groups):
-  assert employee_job.transform(entry_groups.entries) == entry_groups.jobs
-  assert employee_job.transform([]) == []
+def test_transform(session, entry_groups):
+  assert employee_job.transform(session, entry_groups.entries) == entry_groups.jobs
+  assert employee_job.transform(session, []) == []
 
 #def test_extract_transform():
 #  transformed_jobs = employee_job.extract_transform('1082441')
