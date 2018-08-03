@@ -3,10 +3,9 @@ import datetime
 import re
 from sqlalchemy import and_, func
 from experts_dw import db
-from experts_dw.models import PureApiExternalPerson, PureApiExternalPersonHst, PureApiChange, PureApiChangeHst, Person, PubPerson, PubPersonPureOrg, PersonPureOrg, PersonScopusId
-from . import transformers
+from experts_dw.models import PureApiInternalPerson, PureApiInternalPersonHst, PureApiChange, PureApiChangeHst, Person, PubPerson, PubPersonPureOrg, PersonPureOrg, PersonScopusId, UmnPersonPureOrg
+from experts_etl import transformers
 from pureapi import client, response
-from pureapi.exceptions import PureAPIClientRequestException
 
 # defaults:
 
@@ -24,36 +23,36 @@ def extract_api_changes(session):
       sq,
       and_(PureApiChange.uuid==sq.c.uuid, PureApiChange.version==sq.c.version)
     )
-    .filter(PureApiChange.family_system_name=='ExternalPerson')
+    .filter(PureApiChange.family_system_name=='Person')
     .all()
   ):
     yield change
 
 # functions:
 
-def api_external_person_exists_in_db(session, api_external_person):
-  api_external_person_modified = transformers.iso_8601_string_to_datetime(api_external_person.info.modifiedDate)
+def api_internal_person_exists_in_db(session, api_internal_person):
+  api_internal_person_modified = transformers.iso_8601_string_to_datetime(api_internal_person.info.modifiedDate)
 
-  db_api_external_person_hst = (
-    session.query(PureApiExternalPersonHst)
+  db_api_internal_person_hst = (
+    session.query(PureApiInternalPersonHst)
     .filter(and_(
-      PureApiExternalPersonHst.uuid == api_external_person.uuid,
-      PureApiExternalPersonHst.modified == api_external_person_modified,
+      PureApiInternalPersonHst.uuid == api_internal_person.uuid,
+      PureApiInternalPersonHst.modified == api_internal_person_modified,
     ))
     .one_or_none()
   )
-  if db_api_external_person_hst:
+  if db_api_internal_person_hst:
     return True
 
-  db_api_external_person = (
-    session.query(PureApiExternalPerson)
+  db_api_internal_person = (
+    session.query(PureApiInternalPerson)
     .filter(and_(
-      PureApiExternalPerson.uuid == api_external_person.uuid,
-      PureApiExternalPerson.modified == api_external_person_modified,
+      PureApiInternalPerson.uuid == api_internal_person.uuid,
+      PureApiInternalPerson.modified == api_internal_person_modified,
     ))
     .one_or_none()
   )
-  if db_api_external_person:
+  if db_api_internal_person:
     return True
 
   return False
@@ -80,6 +79,10 @@ def delete_db_person(session, db_person):
     PersonPureOrg.person_uuid == db_person.uuid
   ).delete(synchronize_session=False)
 
+  session.query(UmnPersonPureOrg).filter(
+    UmnPersonPureOrg.person_uuid == db_person.uuid
+  ).delete(synchronize_session=False)
+
   session.query(PersonScopusId).filter(
     PersonScopusId.person_uuid == db_person.uuid
   ).delete(synchronize_session=False)
@@ -95,13 +98,13 @@ def db_person_newer_than_api_person(session, api_person):
     return True
   return False
 
-def load_api_external_person(session, api_external_person, raw_json):
-  db_api_external_person = PureApiExternalPerson(
-    uuid=api_external_person.uuid,
+def load_api_internal_person(session, api_internal_person, raw_json):
+  db_api_internal_person = PureApiInternalPerson(
+    uuid=api_internal_person.uuid,
     json=raw_json,
-    modified=transformers.iso_8601_string_to_datetime(api_external_person.info.modifiedDate)
+    modified=transformers.iso_8601_string_to_datetime(api_internal_person.info.modifiedDate)
   )
-  session.add(db_api_external_person)
+  session.add(db_api_internal_person)
 
 def mark_api_changes_as_processed(session, processed_api_change_uuids):
   marked_uuids = []
@@ -157,18 +160,18 @@ def run(
 
       r = None
       try:
-        r = client.get('external-persons/' + api_change.uuid)
+        r = client.get('persons/' + api_change.uuid)
       except PureAPIClientRequestException:
         # This is probably a 404, due to the record being deleted. For now, just skip it.
         continue
       except Exception:
         raise
-      api_external_person = response.transform('external-persons', r.json())
-      if db_person_newer_than_api_person(session, api_external_person):
+      api_internal_person = response.transform('persons', r.json())
+      if db_person_newer_than_api_person(session, api_internal_person):
         continue
-      if api_external_person_exists_in_db(session, api_external_person):
+      if api_internal_person_exists_in_db(session, api_internal_person):
         continue
-      load_api_external_person(session, api_external_person, r.text)
+      load_api_internal_person(session, api_internal_person, r.text)
   
       if (len(processed_api_change_uuids) % transaction_record_limit) == 0:
         session.commit()

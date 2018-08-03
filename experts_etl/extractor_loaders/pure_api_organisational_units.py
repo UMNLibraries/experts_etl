@@ -3,8 +3,8 @@ import datetime
 import re
 from sqlalchemy import and_, func
 from experts_dw import db
-from experts_dw.models import PureApiExternalOrg, PureApiExternalOrgHst, PureApiChange, PureApiChangeHst, PureOrg, PersonPureOrg, PubPersonPureOrg, Pub
-from . import transformers
+from experts_dw.models import PureApiInternalOrg, PureApiInternalOrgHst, PureApiChange, PureApiChangeHst, PureOrg, PersonPureOrg, PubPersonPureOrg, Pub, UmnPersonPureOrg, UmnDeptPureOrg, PureInternalOrg
+from experts_etl import transformers
 from pureapi import client, response
 from pureapi.exceptions import PureAPIClientRequestException
 
@@ -24,36 +24,37 @@ def extract_api_changes(session):
       sq,
       and_(PureApiChange.uuid==sq.c.uuid, PureApiChange.version==sq.c.version)
     )
-    .filter(PureApiChange.family_system_name=='ExternalOrganisation')
+    # Is this family_system_name correct?
+    .filter(PureApiChange.family_system_name=='Organisation')
     .all()
   ):
     yield change
 
 # functions:
 
-def api_external_org_exists_in_db(session, api_external_org):
-  api_external_org_modified = transformers.iso_8601_string_to_datetime(api_external_org.info.modifiedDate)
+def api_internal_org_exists_in_db(session, api_internal_org):
+  api_internal_org_modified = transformers.iso_8601_string_to_datetime(api_internal_org.info.modifiedDate)
 
-  db_api_external_org_hst = (
-    session.query(PureApiExternalOrgHst)
+  db_api_internal_org_hst = (
+    session.query(PureApiInternalOrgHst)
     .filter(and_(
-      PureApiExternalOrgHst.uuid == api_external_org.uuid,
-      PureApiExternalOrgHst.modified == api_external_org_modified,
+      PureApiInternalOrgHst.uuid == api_internal_org.uuid,
+      PureApiInternalOrgHst.modified == api_internal_org_modified,
     ))
     .one_or_none()
   )
-  if db_api_external_org_hst:
+  if db_api_internal_org_hst:
     return True
 
-  db_api_external_org = (
-    session.query(PureApiExternalOrg)
+  db_api_internal_org = (
+    session.query(PureApiInternalOrg)
     .filter(and_(
-      PureApiExternalOrg.uuid == api_external_org.uuid,
-      PureApiExternalOrg.modified == api_external_org_modified,
+      PureApiInternalOrg.uuid == api_internal_org.uuid,
+      PureApiInternalOrg.modified == api_internal_org_modified,
     ))
     .one_or_none()
   )
-  if db_api_external_org:
+  if db_api_internal_org:
     return True
 
   return False
@@ -84,6 +85,16 @@ def delete_db_org(session, db_org):
     PersonPureOrg.pure_org_uuid == db_org.pure_uuid
   ).delete(synchronize_session=False)
 
+  session.query(UmnPersonPureOrg).filter(
+    UmnPersonPureOrg.pure_org_uuid == db_org.pure_uuid
+  ).delete(synchronize_session=False)
+
+  session.query(UmnDeptPureOrg).filter(
+    UmnDeptPureOrg.pure_org_uuid == db_org.pure_uuid
+  ).delete(synchronize_session=False)
+
+  # How to delete from PureInternalOrg?
+
   session.delete(db_org)
 
 def db_org_newer_than_api_org(session, api_org):
@@ -95,13 +106,13 @@ def db_org_newer_than_api_org(session, api_org):
     return True
   return False
 
-def load_api_external_org(session, api_external_org, raw_json):
-  db_api_external_org = PureApiExternalOrg(
-    uuid=api_external_org.uuid,
+def load_api_internal_org(session, api_internal_org, raw_json):
+  db_api_internal_org = PureApiInternalOrg(
+    uuid=api_internal_org.uuid,
     json=raw_json,
-    modified=transformers.iso_8601_string_to_datetime(api_external_org.info.modifiedDate)
+    modified=transformers.iso_8601_string_to_datetime(api_internal_org.info.modifiedDate)
   )
-  session.add(db_api_external_org)
+  session.add(db_api_internal_org)
 
 def mark_api_changes_as_processed(session, processed_api_change_uuids):
   marked_uuids = []
@@ -162,18 +173,18 @@ def run(
 
       r = None
       try:
-        r = client.get('external-organisations/' + api_change.uuid)
+        r = client.get('organisations/' + api_change.uuid)
       except PureAPIClientRequestException:
         # This is probably a 404, due to the record being deleted. For now, just skip it.
         continue
       except Exception:
         raise
-      api_external_org = response.transform('external-organisations', r.json())
+      api_internal_org = response.transform('organisations', r.json())
       if db_org_newer_than_api_org(session, api_external_org):
         continue
-      if api_external_org_exists_in_db(session, api_external_org):
+      if api_internal_org_exists_in_db(session, api_internal_org):
         continue
-      load_api_external_org(session, api_external_org, r.text)
+      load_api_internal_org(session, api_internal_org, r.text)
   
       if (len(processed_api_change_uuids) % transaction_record_limit) == 0:
         session.commit()
