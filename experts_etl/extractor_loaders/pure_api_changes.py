@@ -75,7 +75,7 @@ def run(
   startdate_str=None, # yyyy-MM-dd or yyyy-MM-dd_HH-mm-ss format
   db_name=db_name,
   family_system_names=family_system_names,
-  transacton_record_limit=transaction_record_limit
+  transaction_record_limit=transaction_record_limit
 ):
   with db.session(db_name) as session:
     record_count = 0

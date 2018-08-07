@@ -97,11 +97,8 @@ def load_api_pub(session, api_pub, raw_json):
   session.add(db_api_pub)
 
 def mark_api_changes_as_processed(session, processed_api_change_uuids):
-  marked_uuids = []
   for uuid in processed_api_change_uuids:
     for change in session.query(PureApiChange).filter(PureApiChange.uuid==uuid).all():
-
-      marked_uuids.append(change.uuid)
 
       change_hst = (
         session.query(PureApiChangeHst)
@@ -124,23 +121,17 @@ def mark_api_changes_as_processed(session, processed_api_change_uuids):
 
       session.delete(change)
 
-      if (len(marked_uuids) % transaction_record_limit) == 0:
-        session.commit()
-  session.commit()
-
 # entry point/public api:
 
 def run(
   # Do we need other default functions here?
   extract_api_changes=extract_api_changes,
   db_name=db_name,
-  transacton_record_limit=transaction_record_limit
+  transaction_record_limit=transaction_record_limit
 ):
   with db.session(db_name) as session:
     processed_api_change_uuids = []
     for api_change in extract_api_changes(session):
-
-      processed_api_change_uuids.append(api_change.uuid)
 
       # We delete here and continue, because there will be no record
       # to download from the Pure API when it has been deleted.
@@ -148,27 +139,36 @@ def run(
         db_pub = get_db_pub(session, api_change.uuid)
         if db_pub:
           delete_db_pub(session, db_pub)
+        processed_api_change_uuids.append(api_change.uuid)
         continue
 
       r = None
       try:
         r = client.get('research-outputs/' + api_change.uuid)
       except PureAPIClientRequestException:
-        # This is probably a 404, due to the record being deleted. For now, just skip it.
+        # This is probably a 404, due to the record being deleted. For now, just load it.
+        processed_api_change_uuids.append(api_change.uuid)
         continue
       except Exception:
         raise
       api_pub = response.transform('research-outputs', r.json())
+
+      load = True
       if api_pub.type[0].value not in supported_material_types:
-        continue
+        load = False
       if db_pub_newer_than_api_pub(session, api_pub):
-        continue
+        load = False
       if api_pub_exists_in_db(session, api_pub):
-        continue
-      load_api_pub(session, api_pub, r.text)
-  
-      if (len(processed_api_change_uuids) % transaction_record_limit) == 0:
+        load = False
+      if load:
+        load_api_pub(session, api_pub, r.text)
+
+      processed_api_change_uuids.append(api_change.uuid)
+      if len(processed_api_change_uuids) >= transaction_record_limit:
+        mark_api_changes_as_processed(session, processed_api_change_uuids)
+        processed_api_change_uuids = []
         session.commit()
+
+    mark_api_changes_as_processed(session, processed_api_change_uuids)
     session.commit()
   
-    mark_api_changes_as_processed(session, processed_api_change_uuids)

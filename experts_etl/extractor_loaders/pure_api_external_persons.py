@@ -104,11 +104,8 @@ def load_api_external_person(session, api_external_person, raw_json):
   session.add(db_api_external_person)
 
 def mark_api_changes_as_processed(session, processed_api_change_uuids):
-  marked_uuids = []
   for uuid in processed_api_change_uuids:
     for change in session.query(PureApiChange).filter(PureApiChange.uuid==uuid).all():
-
-      marked_uuids.append(change.uuid)
 
       change_hst = (
         session.query(PureApiChangeHst)
@@ -131,28 +128,23 @@ def mark_api_changes_as_processed(session, processed_api_change_uuids):
 
       session.delete(change)
 
-      if (len(marked_uuids) % transaction_record_limit) == 0:
-        session.commit()
-  session.commit()
-
 # entry point/public api:
 
 def run(
   # Do we need other default functions here?
   extract_api_changes=extract_api_changes,
   db_name=db_name,
-  transacton_record_limit=transaction_record_limit
+  transaction_record_limit=transaction_record_limit
 ):
   with db.session(db_name) as session:
     processed_api_change_uuids = []
     for api_change in extract_api_changes(session):
 
-      processed_api_change_uuids.append(api_change.uuid)
-
       if api_change.change_type == 'DELETE':
         db_person = get_db_person(session, api_change.uuid)
         if db_person:
           delete_db_person(session, db_person)
+        processed_api_change_uuids.append(api_change.uuid)
         continue
 
       r = None
@@ -160,18 +152,25 @@ def run(
         r = client.get('external-persons/' + api_change.uuid)
       except PureAPIClientRequestException:
         # This is probably a 404, due to the record being deleted. For now, just skip it.
+        processed_api_change_uuids.append(api_change.uuid)
         continue
       except Exception:
         raise
       api_external_person = response.transform('external-persons', r.json())
+
+      load = True
       if db_person_newer_than_api_person(session, api_external_person):
-        continue
+        load = False
       if api_external_person_exists_in_db(session, api_external_person):
-        continue
-      load_api_external_person(session, api_external_person, r.text)
+        load = False
+      if load:
+        load_api_external_person(session, api_external_person, r.text)
   
-      if (len(processed_api_change_uuids) % transaction_record_limit) == 0:
+      processed_api_change_uuids.append(api_change.uuid)
+      if len(processed_api_change_uuids) >= transaction_record_limit:
+        mark_api_changes_as_processed(session, processed_api_change_uuids)
+        processed_api_change_uuids = []
         session.commit()
-    session.commit()
   
     mark_api_changes_as_processed(session, processed_api_change_uuids)
+    session.commit()
