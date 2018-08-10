@@ -1,6 +1,3 @@
-import json
-import datetime
-import re
 from sqlalchemy import and_, func
 from experts_dw import db
 from experts_dw.models import PureApiExternalPerson, PureApiExternalPersonHst, PureApiChange, PureApiChangeHst, Person, PubPerson, PubPersonPureOrg, PersonPureOrg, PersonScopusId

@@ -1,11 +1,9 @@
-import json
-import datetime
-import re
 from sqlalchemy import and_, func
 from experts_dw import db
 from experts_dw.models import PureApiPub, PureApiPubHst, PureApiChange, PureApiChangeHst, Pub, PubPerson, PubPersonPureOrg
 from experts_etl import transformers
 from pureapi import client, response
+from pureapi.exceptions import PureAPIClientRequestException
 
 # defaults:
 
