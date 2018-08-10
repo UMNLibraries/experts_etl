@@ -1,3 +1,6 @@
+# experts_etl
+*.log*
+
 # Temporary output files and other data:
 data/
 .emplid_map
