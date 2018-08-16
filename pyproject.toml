@@ -14,6 +14,7 @@ pandas = "*"
 pureapi = {git = "git://github.com/UMNLibraries/pureapi.git"}
 python-daemon = "*"
 python_dotenv = "*"
+python-json-logger = "*"
 schedule = "*"
 
 [tool.poetry.dev-dependencies]

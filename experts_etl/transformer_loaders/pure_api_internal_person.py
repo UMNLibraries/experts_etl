@@ -13,7 +13,9 @@ from pureapi import response
 
 db_name = 'hotel'
 transaction_record_limit = 100 
-pure_api_record_logger = loggers.pure_api_record_logger(name='persons')
+# Named for the Pure API endpoint:
+pure_api_record_type = 'persons'
+pure_api_record_logger = loggers.pure_api_record_logger(type=pure_api_record_type)
 experts_etl_logger = loggers.experts_etl_logger()
 
 def extract_api_persons(session):
@@ -96,22 +98,24 @@ def run(
   pure_api_record_logger=pure_api_record_logger,
   experts_etl_logger=experts_etl_logger
 ):
+  experts_etl_logger.info('Starting {} processing...'.format(pure_api_record_type))
+
   with db.session(db_name) as session:
     processed_api_person_uuids = []
     for db_api_person in extract_api_persons(session):
-      api_person = response.transform('persons', json.loads(db_api_person.json))      
+      api_person = response.transform(pure_api_record_type, json.loads(db_api_person.json))      
 
       person_ids = get_person_ids(api_person)
       # Not sure that we should be requiring either of these in EDW, but we do for now,
       # in umn_person_pure_org, at least:
       if person_ids['emplid'] is None:
         experts_etl_logger.info(
-          'Skipping updates for person with pure pure uuid {}: missing emplid.'.format(api_person.uuid)
+          'Skipping updates for person: missing emplid.', extra={'pure_uuid': api_person.uuid}
         )
         continue
       if api_person.externalId is None:
         experts_etl_logger.info(
-          'Skipping updates for person with pure pure uuid {}: missing pure id.'.format(api_person.uuid)
+          'Skipping updates for person: missing pure id.', extra={'pure_uuid': api_person.uuid}
         )
         continue
 
@@ -166,7 +170,9 @@ def run(
           PureOrg.pure_uuid.in_(api_only_org_uuids)
         ).all()
         if len(api_only_org_uuids) > len(api_only_orgs_in_db):
-          experts_etl_logger.info('Skipping updates for person with pure uuid {}: some associated orgs do not exist in EDW.'.format(api_person.uuid))
+          experts_etl_logger.info(
+            'Skipping updates for person: some associated orgs do not exist in EDW.', extra={'pure_uuid': api_person.uuid}
+          )
           continue
 
       ## umn person pure orgs aka staff organisation associations aka jobs
@@ -191,10 +197,11 @@ def run(
         ])
         if umn_person_pure_org_primary_keys in all_umn_person_pure_org_primary_keys:
           experts_etl_logger.info(
-            'Duplicate job with primary keys {} found for person with pure uuid {}.'.format(
-              umn_person_pure_org_primary_keys,
-              api_person.uuid
-            )
+            'Duplicate job found for person.',
+            extra={
+              'umn_person_pure_org_primary_keys': umn_person_pure_org_primary_keys,
+              'pure_uuid': api_person.uuid,
+            }
           )
           continue
         all_umn_person_pure_org_primary_keys.add(umn_person_pure_org_primary_keys)
@@ -232,7 +239,8 @@ def run(
     
       if found_missing_job_description:
         experts_etl_logger.info(
-	  'Skipping updates for person with pure uuid {}: one or more org associations are missing job descriptions.'.format(api_person.uuid)
+	  'Skipping updates for person: one or more org associations are missing job descriptions.',
+          extra={'pure_uuid': api_person.uuid}
 	)
         continue
 
@@ -293,3 +301,4 @@ def run(
     session.commit()
 
   loggers.rollover(pure_api_record_logger)
+  experts_etl_logger.info('Ending {} processing...'.format(pure_api_record_type))

@@ -5,11 +5,16 @@ from sqlalchemy import and_, func
 from experts_dw import db
 from experts_dw.models import PureApiChange, PureApiChangeHst
 from pureapi import client, response
+from experts_etl import loggers
 
 # defaults:
 
 db_name = 'hotel'
 transaction_record_limit = 100 
+# Named for the Pure API endpoint:
+pure_api_record_type = 'changes'
+experts_etl_logger = loggers.experts_etl_logger()
+
 family_system_names = [
   'Person',
   'ExternalPerson',
@@ -75,8 +80,11 @@ def run(
   startdate_str=None, # yyyy-MM-dd or yyyy-MM-dd_HH-mm-ss format
   db_name=db_name,
   family_system_names=family_system_names,
-  transaction_record_limit=transaction_record_limit
+  transaction_record_limit=transaction_record_limit,
+  experts_etl_logger=experts_etl_logger
 ):
+  experts_etl_logger.info('Starting {} extracting/loading...'.format(pure_api_record_type))
+
   with db.session(db_name) as session:
     record_count = 0
     if startdate_str is None:
@@ -94,3 +102,5 @@ def run(
       record_count += 1
       if record_count > transaction_record_limit:
         session.commit()
+
+  experts_etl_logger.info('Ending {} extracting/loading...'.format(pure_api_record_type))

@@ -5,11 +5,15 @@ from experts_dw.models import PureApiExternalOrg, PureApiExternalOrgHst, PureApi
 from experts_etl import transformers
 from pureapi import client, response
 from pureapi.exceptions import PureAPIClientRequestException
+from experts_etl import loggers
 
 # defaults:
 
 db_name = 'hotel'
 transaction_record_limit = 100 
+# Named for the Pure API endpoint:
+pure_api_record_type = 'external-organisations'
+experts_etl_logger = loggers.experts_etl_logger()
 
 def extract_api_changes(session):
   sq = session.query(
@@ -132,8 +136,11 @@ def run(
   # Do we need other default functions here?
   extract_api_changes=extract_api_changes,
   db_name=db_name,
-  transaction_record_limit=transaction_record_limit
+  transaction_record_limit=transaction_record_limit,
+  experts_etl_logger=experts_etl_logger
 ):
+  experts_etl_logger.info('Starting {} extracting/loading...'.format(pure_api_record_type))
+
   with db.session(db_name) as session:
     processed_api_change_uuids = []
     for api_change in extract_api_changes(session):
@@ -152,14 +159,14 @@ def run(
 
       r = None
       try:
-        r = client.get('external-organisations/' + api_change.uuid)
+        r = client.get(pure_api_record_type + '/' + api_change.uuid)
       except PureAPIClientRequestException:
         # This is probably a 404, due to the record being deleted. For now, just skip it.
         processed_api_change_uuids.append(api_change.uuid)
         continue
       except Exception:
         raise
-      api_external_org = response.transform('external-organisations', r.json())
+      api_external_org = response.transform(pure_api_record_type, r.json())
 
       load = True
       if db_org_newer_than_api_org(session, api_external_org):
@@ -177,3 +184,5 @@ def run(
 
     mark_api_changes_as_processed(session, processed_api_change_uuids)
     session.commit()
+
+  experts_etl_logger.info('Ending {} extracting/loading...'.format(pure_api_record_type))

@@ -11,7 +11,10 @@ from pureapi import response
 
 db_name = 'hotel'
 transaction_record_limit = 100 
-pure_api_record_logger = loggers.pure_api_record_logger()
+# Named for the Pure API endpoint:
+pure_api_record_type = 'external-organisations'
+pure_api_record_logger = loggers.pure_api_record_logger(type=pure_api_record_type)
+experts_etl_logger = loggers.experts_etl_logger()
 
 def extract_api_orgs(session):
   sq = session.query(
@@ -71,12 +74,15 @@ def run(
   extract_api_orgs=extract_api_orgs,
   db_name=db_name,
   transaction_record_limit=transaction_record_limit,
-  pure_api_record_logger=pure_api_record_logger
+  pure_api_record_logger=pure_api_record_logger,
+  experts_etl_logger=experts_etl_logger
 ):
+  experts_etl_logger.info('Starting {} processing...'.format(pure_api_record_type))
+
   with db.session(db_name) as session:
     processed_api_org_uuids = []
     for db_api_org in extract_api_orgs(session):
-      api_org = response.transform('external-organisations', json.loads(db_api_org.json))      
+      api_org = response.transform(pure_api_record_type, json.loads(db_api_org.json))      
       db_org = get_db_org(session, db_api_org.uuid)
       if db_org:
         if db_org.pure_modified and db_org.pure_modified >= db_api_org.modified:
@@ -99,3 +105,6 @@ def run(
 
     mark_api_orgs_as_processed(session, pure_api_record_logger, processed_api_org_uuids)
     session.commit()
+
+  loggers.rollover(pure_api_record_logger)
+  experts_etl_logger.info('Ending {} processing...'.format(pure_api_record_type))

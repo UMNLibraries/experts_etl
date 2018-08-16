@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import logging
 from logging.handlers import TimedRotatingFileHandler
@@ -5,7 +6,13 @@ import os
 import shutil
 import gzip
 
+from pythonjsonlogger import jsonlogger
+
+# defaults
+
 dirname = os.path.dirname(os.path.realpath(__file__ + '/..'))
+
+# formatters 
 
 class PureApiRecordFormatter(logging.Formatter):
   def format(self, record):
@@ -14,6 +21,13 @@ class PureApiRecordFormatter(logging.Formatter):
       return json.dumps(json.loads(record.msg))
     elif isinstance(record.msg, dict):
       return json.dumps(record.msg)
+
+class ExpertsEtlFormatter(jsonlogger.JsonFormatter):
+  def add_fields(self, log_record, record, message_dict):
+    super(ExpertsEtlFormatter, self).add_fields(log_record, record, message_dict)
+    if not log_record.get('timestamp'):
+      # This doesn't use record.created, so it will be slightly off.
+      log_record['timestamp'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
 def namer(name):
   return name + '.gz'
@@ -24,15 +38,8 @@ def rotator(source, dest):
       shutil.copyfileobj(sf, df)
   os.remove(source)
 
-def serialize_pure_api_record(record):
-  if isinstance(record, str):
-    # Ensure we get a single-line record by loading and then dumping:
-    return json.dumps(json.loads(record))
-  elif isinstance(record, dict):
-    return json.dumps(record)
-
-def pure_api_record_logger(name='pure_api_record', dirname=dirname):
-  path = dirname + '/' + name + '.log'
+def pure_api_record_logger(name='pure_api_record', dirname=dirname, type='pure-api-record-type'):
+  path = dirname + '/' + type + '.log'
   logger = logging.getLogger('experts_etl.' + name)
   logger.setLevel(logging.INFO)
    
@@ -60,9 +67,11 @@ def experts_etl_logger(name='experts_etl', dirname=dirname):
     interval=1,
     backupCount=365
   )
+  handler.setFormatter(ExpertsEtlFormatter(
+    '(timestamp) (levelname) (name) (message) (pathname) (funcName) (lineno)'
+  ))
   handler.rotator = rotator
   handler.namer = namer
-   
 
   logger.addHandler(handler)
 

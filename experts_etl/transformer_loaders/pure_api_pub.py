@@ -14,7 +14,9 @@ from pureapi import response
 
 db_name = 'hotel'
 transaction_record_limit = 100 
-pure_api_record_logger = loggers.pure_api_record_logger(name='research_outputs')
+# Named for the Pure API endpoint:
+pure_api_record_type = 'research-outputs'
+pure_api_record_logger = loggers.pure_api_record_logger(type=pure_api_record_type)
 experts_etl_logger = loggers.experts_etl_logger()
 
 def extract_api_pubs(session):
@@ -104,10 +106,12 @@ def run(
   pure_api_record_logger=pure_api_record_logger,
   experts_etl_logger=experts_etl_logger
 ):
+  experts_etl_logger.info('Starting {} processing...'.format(pure_api_record_type))
+
   with db.session(db_name) as session:
     processed_api_pub_uuids = []
     for db_api_pub in extract_api_pubs(session):
-      api_pub = response.transform('research-outputs', json.loads(db_api_pub.json))      
+      api_pub = response.transform(pure_api_record_type, json.loads(db_api_pub.json))      
       db_pub = get_db_pub(session, db_api_pub.uuid)
       db_pub_previously_existed = False
       if db_pub:
@@ -162,14 +166,16 @@ def run(
         ).one_or_none()
         if owner_pure_org == None:
           experts_etl_logger.info(
-            'Skipping updates for research output with pure uuid {}: owner pure org does not exist in EDW.'.format(api_pub.uuid)
+            'Skipping updates for research output: owner pure org does not exist in EDW.',
+            extra={'pure_uuid': api_pub.uuid}
           )
           continue
         db_pub.owner_pure_org_uuid = owner_pure_org_uuid
       else:
         # TODO: We do this because currently owner_pure_org_uuid is not null. We may want to change that.
         experts_etl_logger.info(
-          'Skipping updates for research output with pure uuid {}: no owner pure org.'.format(api_pub.uuid)
+          'Skipping updates for research output: no owner pure org.',
+          extra={'pure_uuid': api_pub.uuid}
         )
         continue
 
@@ -249,19 +255,22 @@ def run(
     
       if missing_person:
         experts_etl_logger.info(
-          'Skipping updates for research output with pure uuid {}: one or more associated persons do not exist in EDW.'.format(api_pub.uuid)
+          'Skipping updates for research output: one or more associated persons do not exist in EDW.',
+          extra={'pure_uuid': api_pub.uuid}
         )
         continue
     
       if missing_person_pure_uuid:
         experts_etl_logger.info(
-          'Skipping updates for research output with pure uuid {}: one or more associated persons has no pure uuid.'.format(api_pub.uuid)
+          'Skipping updates for research output: one or more associated persons has no pure uuid.',
+          extra={'pure_uuid': api_pub.uuid}
         )
         continue
     
       if missing_org:
         experts_etl_logger.info(
-          'Skipping updates for research output with pure uuid {}: one or more associated orgs do not exist in EDW.'.format(api_pub.uuid)
+          'Skipping updates for research output: one or more associated orgs do not exist in EDW.',
+          extra={'pure_uuid': api_pub.uuid}
         )
         continue
 
@@ -293,3 +302,4 @@ def run(
     session.commit()
 
   loggers.rollover(pure_api_record_logger)
+  experts_etl_logger.info('Ending {} processing...'.format(pure_api_record_type))

@@ -12,7 +12,9 @@ from pureapi import response
 
 db_name = 'hotel'
 transaction_record_limit = 100 
-pure_api_record_logger = loggers.pure_api_record_logger(name='external_persons')
+# Named for the Pure API endpoint:
+pure_api_record_type = 'external-persons'
+pure_api_record_logger = loggers.pure_api_record_logger(type=pure_api_record_type)
 experts_etl_logger = loggers.experts_etl_logger()
 
 def extract_api_persons(session):
@@ -84,10 +86,12 @@ def run(
   pure_api_record_logger=pure_api_record_logger,
   experts_etl_logger=experts_etl_logger
 ):
+  experts_etl_logger.info('Starting {} processing...'.format(pure_api_record_type))
+
   with db.session(db_name) as session:
     processed_api_person_uuids = []
     for db_api_person in extract_api_persons(session):
-      api_person = response.transform('external-persons', json.loads(db_api_person.json))      
+      api_person = response.transform(pure_api_record_type, json.loads(db_api_person.json))      
       db_person = get_db_person(session, db_api_person.uuid)
       db_person_previously_existed = False
       if db_person:
@@ -129,7 +133,7 @@ def run(
           PureOrg.pure_uuid.in_(api_only_org_uuids)
         ).all()
         if len(api_only_org_uuids) > len(api_only_orgs_in_db):
-          experts_etl_logger.info('Skipping updates for person with pure uuid {}: some associated orgs do not exist in EDW.'.format(api_person.uuid))
+          experts_etl_logger.info('Skipping updates for external person: some associated orgs do not exist in EDW.', extra={'pure_uuid': api_person.uuid})
           continue
 
       # Now we can add the person to the session, because there are no other
@@ -182,3 +186,4 @@ def run(
     session.commit()
 
   loggers.rollover(pure_api_record_logger)
+  experts_etl_logger.info('Ending {} processing...'.format(pure_api_record_type))
