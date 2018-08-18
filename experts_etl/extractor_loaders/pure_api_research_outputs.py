@@ -12,7 +12,6 @@ db_name = 'hotel'
 transaction_record_limit = 100 
 # Named for the Pure API endpoint:
 pure_api_record_type = 'research-outputs'
-experts_etl_logger = loggers.experts_etl_logger()
 
 # We support only journal articles for now:
 supported_material_types = [
@@ -131,9 +130,11 @@ def run(
   extract_api_changes=extract_api_changes,
   db_name=db_name,
   transaction_record_limit=transaction_record_limit,
-  experts_etl_logger=experts_etl_logger
+  experts_etl_logger=None
 ):
-  experts_etl_logger.info('Starting {} extracting/loading...'.format(pure_api_record_type))
+  if experts_etl_logger is None:
+    experts_etl_logger = loggers.experts_etl_logger()
+  experts_etl_logger.info('starting: {} extracting/loading'.format(pure_api_record_type))
 
   with db.session(db_name) as session:
     processed_api_change_uuids = []
@@ -178,4 +179,4 @@ def run(
     mark_api_changes_as_processed(session, processed_api_change_uuids)
     session.commit()
 
-  experts_etl_logger.info('Ending {} extracting/loading...'.format(pure_api_record_type))
+  experts_etl_logger.info('ending: {} extracting/loading'.format(pure_api_record_type))

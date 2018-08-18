@@ -13,7 +13,6 @@ db_name = 'hotel'
 transaction_record_limit = 100 
 # Named for the Pure API endpoint:
 pure_api_record_type = 'changes'
-experts_etl_logger = loggers.experts_etl_logger()
 
 family_system_names = [
   'Person',
@@ -81,9 +80,11 @@ def run(
   db_name=db_name,
   family_system_names=family_system_names,
   transaction_record_limit=transaction_record_limit,
-  experts_etl_logger=experts_etl_logger
+  experts_etl_logger=None
 ):
-  experts_etl_logger.info('Starting {} extracting/loading...'.format(pure_api_record_type))
+  if experts_etl_logger is None:
+    experts_etl_logger = loggers.experts_etl_logger()
+  experts_etl_logger.info('starting: {} extracting/loading'.format(pure_api_record_type))
 
   with db.session(db_name) as session:
     record_count = 0
@@ -103,4 +104,4 @@ def run(
       if record_count > transaction_record_limit:
         session.commit()
 
-  experts_etl_logger.info('Ending {} extracting/loading...'.format(pure_api_record_type))
+  experts_etl_logger.info('ending: {} extracting/loading'.format(pure_api_record_type))

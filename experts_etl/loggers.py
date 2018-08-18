@@ -11,6 +11,8 @@ from pythonjsonlogger import jsonlogger
 # defaults
 
 dirname = os.path.dirname(os.path.realpath(__file__ + '/..'))
+if 'EXPERTS_ETL_LOG_DIR' in os.environ:
+  dirname = os.environ['EXPERTS_ETL_LOG_DIR']
 
 # formatters 
 
@@ -45,8 +47,8 @@ def pure_api_record_logger(name='pure_api_record', dirname=dirname, type='pure-a
    
   handler = TimedRotatingFileHandler(
     path,
-    when='d',
-    interval=1,
+    when='S',
+    interval=86400, # seconds/day
     backupCount=365
   )
   handler.setFormatter(PureApiRecordFormatter())
@@ -63,8 +65,8 @@ def experts_etl_logger(name='experts_etl', dirname=dirname):
    
   handler = TimedRotatingFileHandler(
     path,
-    when='d',
-    interval=1,
+    when='S',
+    interval=86400, # seconds/day
     backupCount=365
   )
   handler.setFormatter(ExpertsEtlFormatter(

@@ -4,6 +4,7 @@ from experts_dw.models import PureApiInternalOrg, PureApiInternalOrgHst, PureApi
 from experts_etl import transformers
 from pureapi import client, response
 from pureapi.exceptions import PureAPIClientRequestException
+from experts_etl import loggers
 
 # defaults:
 
@@ -11,7 +12,6 @@ db_name = 'hotel'
 transaction_record_limit = 100 
 # Named for the Pure API endpoint:
 pure_api_record_type = 'organisational-units'
-experts_etl_logger = loggers.experts_etl_logger()
 
 def extract_api_changes(session):
   sq = session.query(
@@ -146,9 +146,11 @@ def run(
   extract_api_changes=extract_api_changes,
   db_name=db_name,
   transaction_record_limit=transaction_record_limit,
-  experts_etl_logger=experts_etl_logger
+  experts_etl_logger=None
 ):
-  experts_etl_logger.info('Starting {} extracting/loading...'.format(pure_api_record_type))
+  if experts_etl_logger is None:
+    experts_etl_logger = loggers.experts_etl_logger()
+  experts_etl_logger.info('starting: {} extracting/loading'.format(pure_api_record_type))
 
   with db.session(db_name) as session:
     processed_api_change_uuids = []
@@ -156,9 +158,9 @@ def run(
 
       db_org = get_db_org(session, api_change.uuid)
       if db_org and db_org_owns_pubs(session, db_org):
-	# There is at least pub pointing to this org. The pub will probably be
-	# updated or deleted, but we'll wait to delete the org until that happens.
-	continue
+        # There is at least pub pointing to this org. The pub will probably be
+        # updated or deleted, but we'll wait to delete the org until that happens.
+        continue
 
       if api_change.change_type == 'DELETE':
         if db_org:
@@ -194,4 +196,4 @@ def run(
     mark_api_changes_as_processed(session, processed_api_change_uuids)
     session.commit()
 
-  experts_etl_logger.info('Ending {} extracting/loading...'.format(pure_api_record_type))
+  experts_etl_logger.info('ending: {} extracting/loading'.format(pure_api_record_type))
