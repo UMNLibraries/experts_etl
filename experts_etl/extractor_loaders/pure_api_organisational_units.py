@@ -158,7 +158,7 @@ def run(
 
       db_org = get_db_org(session, api_change.uuid)
       if db_org and db_org_owns_pubs(session, db_org):
-        # There is at least pub pointing to this org. The pub will probably be
+        # There is at least one pub pointing to this org. The pub will probably be
         # updated or deleted, but we'll wait to delete the org until that happens.
         continue
 
@@ -180,7 +180,7 @@ def run(
       api_internal_org = response.transform(pure_api_record_type, r.json())
 
       load = True
-      if db_org_newer_than_api_org(session, api_external_org):
+      if db_org_newer_than_api_org(session, api_internal_org):
         load = False
       if api_internal_org_exists_in_db(session, api_internal_org):
         load = False
