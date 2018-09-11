@@ -87,7 +87,7 @@ def run(
 ):
   if experts_etl_logger is None:
     experts_etl_logger = loggers.experts_etl_logger()
-  experts_etl_logger.info('starting: {} processing'.format(pure_api_record_type))
+  experts_etl_logger.info('starting: transforming/loading', extra={'pure_api_record_type': pure_api_record_type})
 
   with db.session(db_name) as session:
     processed_api_person_uuids = []
@@ -134,7 +134,7 @@ def run(
           PureOrg.pure_uuid.in_(api_only_org_uuids)
         ).all()
         if len(api_only_org_uuids) > len(api_only_orgs_in_db):
-          experts_etl_logger.info('Skipping updates for external person: some associated orgs do not exist in EDW.', extra={'pure_uuid': api_person.uuid})
+          experts_etl_logger.info('skipping updates: some associated orgs do not exist in EDW.', extra={'pure_uuid': api_person.uuid, 'pure_api_record_type': pure_api_record_type})
           continue
 
       # Now we can add the person to the session, because there are no other
@@ -187,4 +187,4 @@ def run(
     session.commit()
 
   loggers.rollover(pure_api_record_logger)
-  experts_etl_logger.info('ending: {} processing'.format(pure_api_record_type))
+  experts_etl_logger.info('ending: transforming/loading', extra={'pure_api_record_type': pure_api_record_type})

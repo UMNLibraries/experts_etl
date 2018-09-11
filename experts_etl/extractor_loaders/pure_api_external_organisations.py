@@ -140,7 +140,7 @@ def run(
 ):
   if experts_etl_logger is None:
     experts_etl_logger = loggers.experts_etl_logger()
-  experts_etl_logger.info('starting: {} extracting/loading'.format(pure_api_record_type))
+  experts_etl_logger.info('starting: extracting/loading', extra={'pure_api_record_type': pure_api_record_type})
 
   with db.session(db_name) as session:
     processed_api_change_uuids = []
@@ -186,4 +186,4 @@ def run(
     mark_api_changes_as_processed(session, processed_api_change_uuids)
     session.commit()
 
-  experts_etl_logger.info('ending: {} extracting/loading'.format(pure_api_record_type))
+  experts_etl_logger.info('ending: extracting/loading', extra={'pure_api_record_type': pure_api_record_type})

@@ -78,7 +78,7 @@ def run(
 ):
   if experts_etl_logger is None:
     experts_etl_logger = loggers.experts_etl_logger()
-  experts_etl_logger.info('starting: {} processing'.format(pure_api_record_type))
+  experts_etl_logger.info('starting: transforming/loading', extra={'pure_api_record_type': pure_api_record_type})
 
   with db.session(db_name) as session:
     processed_api_org_uuids = []
@@ -114,4 +114,4 @@ def run(
     session.commit()
 
   loggers.rollover(pure_api_record_logger)
-  experts_etl_logger.info('ending: {} processing'.format(pure_api_record_type))
+  experts_etl_logger.info('ending: transforming/loading', extra={'pure_api_record_type': pure_api_record_type})
