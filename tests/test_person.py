@@ -47,8 +47,8 @@ def test_transform_first_name():
 
 @pytest.fixture
 def jobs():
-  from . import fake312_employee_jobs
-  return fake312_employee_jobs
+  from . import employee_jobs_1217312
+  return employee_jobs_1217312
 
 def test_transform_staff_org_assoc_id(jobs):
   # Trouble-shooting queries:
@@ -60,8 +60,8 @@ def test_transform_staff_org_assoc_id(jobs):
 
 @pytest.fixture
 def jobs_before_after_primary():
-  from . import fake567_employee_jobs
-  return fake567_employee_jobs
+  from . import employee_jobs_2110507
+  return employee_jobs_2110507
 
 def test_transform_primary_job(jobs_before_after_primary):
   assert person.transform_primary_job([], jobs_before_after_primary.jobs, '0') == jobs_before_after_primary.jobs_with_primary
