@@ -239,7 +239,7 @@ def transform_primary_job(affiliate_jobs, employee_jobs, primary_empl_rcdno):
     raise RuntimeError('failed to set a primary association')
 
   transformed_jobs = active_emp_jobs
-  transformed_jobs.extend(active_emp_jobs)
+  transformed_jobs.extend(inactive_emp_jobs)
   transformed_jobs.extend(transformed_aff_jobs)
 
   return transformed_jobs

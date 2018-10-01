@@ -22,8 +22,9 @@ def test_extract(session):
     assert isinstance(entry['effdt'], datetime.datetime)
     assert isinstance(entry['effseq'], int)
 
-@pytest.fixture(params=['1082441','3262322','5150075','1717940','1217312','2110507'])
+@pytest.fixture(params=['4604830','1082441','3262322','5150075','1717940','1217312','2110507'])
 def entries_to_group(request):
+  from . import emp_job_entries_4604830
   from . import emp_job_entries_1082441
   from . import emp_job_entries_3262322
   from . import emp_job_entries_5150075
@@ -31,6 +32,7 @@ def entries_to_group(request):
   from . import employee_jobs_1217312
   from . import employee_jobs_2110507
   entries_sets = {
+    '4604830': emp_job_entries_4604830,
     '1082441': emp_job_entries_1082441,
     '3262322': emp_job_entries_3262322,
     '5150075': emp_job_entries_5150075,
@@ -45,14 +47,16 @@ def test_group_entries(entries_to_group):
   assert employee_job.group_entries(entries_to_group.entries) == entries_to_group.entry_groups
   assert employee_job.group_entries([]) == []
 
-@pytest.fixture(params=['1082441','3262322','5150075','1217312','2110507'])
+@pytest.fixture(params=['4604830','1082441','3262322','5150075','1217312','2110507'])
 def entry_groups(request):
+  from . import emp_job_entries_4604830
   from . import emp_job_entries_1082441
   from . import emp_job_entries_3262322
   from . import emp_job_entries_5150075
   from . import employee_jobs_1217312
   from . import employee_jobs_2110507
   entries_sets = {
+    '4604830': emp_job_entries_4604830,
     '1082441': emp_job_entries_1082441,
     '3262322': emp_job_entries_3262322,
     '5150075': emp_job_entries_5150075,

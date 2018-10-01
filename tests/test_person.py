@@ -58,10 +58,16 @@ def test_transform_staff_org_assoc_id(jobs):
   # select * from pure_eligible_emp_job where emplid = '8003946' order by effdt, effseq;
   assert person.transform_staff_org_assoc_id(jobs.jobs_with_primary, '6030') == jobs.jobs_with_staff_org_assoc_id
 
-@pytest.fixture
-def jobs_before_after_primary():
+@pytest.fixture(params=['4604830','2110507'])
+def jobs_before_after_primary(request):
+  from . import emp_job_entries_4604830
   from . import employee_jobs_2110507
-  return employee_jobs_2110507
+  job_sets = {
+    '4604830': emp_job_entries_4604830,
+    '2110507': employee_jobs_2110507,
+  }
+  job_set = job_sets[request.param]
+  yield job_set
 
 def test_transform_primary_job(jobs_before_after_primary):
   assert person.transform_primary_job([], jobs_before_after_primary.jobs, '0') == jobs_before_after_primary.jobs_with_primary
@@ -257,6 +263,19 @@ def test_extract_transform_serialize(session):
       </period>
       <staffType>academic</staffType>
       <jobDescription><v3:text lang="en">Professor</v3:text></jobDescription>
+    </staffOrganisationAssociation>
+    <staffOrganisationAssociation id="autoid:898-RQHKJLUF-Associate Professor-faculty-2012-05-28" managedInPure="false">
+      <employmentType>faculty</employmentType>
+      <primaryAssociation>false</primaryAssociation>
+      <organisation>
+        <v3:source_id>RQHKJLUF</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>28-05-2012</v3:startDate>
+        <v3:endDate>31-08-2015</v3:endDate>
+      </period>
+      <staffType>academic</staffType>
+      <jobDescription><v3:text lang="en">Associate Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
     <staffOrganisationAssociation id="autoid:898-CBIHJRCYWWAA-Adjunct Associate Professor-adjunct_faculty-2015-04-06" managedInPure="false">
       <employmentType>adjunct_faculty</employmentType>
