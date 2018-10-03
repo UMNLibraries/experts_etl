@@ -160,7 +160,7 @@ def run(
       uuids_to_download.append(api_change.uuid)
 
     try:
-      for r in filter_all_by_uuid(pure_api_record_type, uuids=uuids_to_download):
+      for r in client.filter_all_by_uuid(pure_api_record_type, uuids=uuids_to_download):
         d = r.json()
         for api_pub_orig in d['items']:
           api_pub = response.transform(pure_api_record_type, api_pub_orig)
