@@ -1,3 +1,4 @@
+import json
 from sqlalchemy import and_, func
 from experts_dw import db
 from experts_dw.models import PureApiPub, PureApiPubHst, PureApiChange, PureApiChangeHst, Pub, PubPerson, PubPersonPureOrg
@@ -9,6 +10,7 @@ from experts_etl import loggers
 # defaults:
 
 db_name = 'hotel'
+download_record_limit = 100 
 transaction_record_limit = 100 
 # Named for the Pure API endpoint:
 pure_api_record_type = 'research-outputs'
@@ -129,6 +131,7 @@ def run(
   # Do we need other default functions here?
   extract_api_changes=extract_api_changes,
   db_name=db_name,
+  download_record_limit=download_record_limit,
   transaction_record_limit=transaction_record_limit,
   experts_etl_logger=None
 ):
@@ -137,6 +140,7 @@ def run(
   experts_etl_logger.info('starting: extracting/loading', extra={'pure_api_record_type': pure_api_record_type})
 
   with db.session(db_name) as session:
+    uuids_to_download = []
     processed_api_change_uuids = []
     for api_change in extract_api_changes(session):
 
@@ -147,34 +151,38 @@ def run(
         if db_pub:
           delete_db_pub(session, db_pub)
         processed_api_change_uuids.append(api_change.uuid)
+        if len(processed_api_change_uuids) >= transaction_record_limit:
+          mark_api_changes_as_processed(session, processed_api_change_uuids)
+          processed_api_change_uuids = []
+          session.commit()
         continue
 
-      r = None
-      try:
-        r = client.get(pure_api_record_type + '/' + api_change.uuid)
-      except PureAPIClientRequestException:
-        # This is probably a 404, due to the record being deleted. For now, just load it.
-        processed_api_change_uuids.append(api_change.uuid)
-        continue
-      except Exception:
-        raise
-      api_pub = response.transform(pure_api_record_type, r.json())
+      uuids_to_download.append(api_change.uuid)
 
-      load = True
-      if api_pub.type[0].value not in supported_material_types:
-        load = False
-      if db_pub_newer_than_api_pub(session, api_pub):
-        load = False
-      if api_pub_exists_in_db(session, api_pub):
-        load = False
-      if load:
-        load_api_pub(session, api_pub, r.text)
+    try:
+      for r in filter_all_by_uuid(pure_api_record_type, uuids=uuids_to_download):
+        d = r.json()
+        for api_pub_orig in d['items']:
+          api_pub = response.transform(pure_api_record_type, api_pub_orig)
 
-      processed_api_change_uuids.append(api_change.uuid)
-      if len(processed_api_change_uuids) >= transaction_record_limit:
-        mark_api_changes_as_processed(session, processed_api_change_uuids)
-        processed_api_change_uuids = []
-        session.commit()
+          load = True
+          if api_pub.type[0].value not in supported_material_types:
+            load = False
+          if db_pub_newer_than_api_pub(session, api_pub):
+            load = False
+          if api_pub_exists_in_db(session, api_pub):
+            load = False
+          if load:
+            load_api_pub(session, api_pub, json.dumps(api_pub_orig))
+
+          processed_api_change_uuids.append(api_pub.uuid)
+          if len(processed_api_change_uuids) >= transaction_record_limit:
+            mark_api_changes_as_processed(session, processed_api_change_uuids)
+            processed_api_change_uuids = []
+            session.commit()
+    
+    except Exception as e:
+      experts_etl_logger.exception(str(e))
 
     mark_api_changes_as_processed(session, processed_api_change_uuids)
     session.commit()
