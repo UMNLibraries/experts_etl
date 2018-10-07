@@ -10,7 +10,6 @@ from experts_etl import loggers
 # defaults:
 
 db_name = 'hotel'
-download_record_limit = 100 
 transaction_record_limit = 100 
 # Named for the Pure API endpoint:
 pure_api_record_type = 'research-outputs'
@@ -131,7 +130,6 @@ def run(
   # Do we need other default functions here?
   extract_api_changes=extract_api_changes,
   db_name=db_name,
-  download_record_limit=download_record_limit,
   transaction_record_limit=transaction_record_limit,
   experts_etl_logger=None
 ):
