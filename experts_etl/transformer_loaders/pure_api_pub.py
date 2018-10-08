@@ -129,9 +129,15 @@ def run(
       db_pub.pmid = pub_ids['pmid']
       db_pub.doi = pub_ids['doi']
     
-      # Hard-coded for now:
-      db_pub.type = 'article-journal'
+      # Commented out for now, because we will rely more on pure types and subtypes (below):
+      #db_pub.type = 'article-journal'
     
+      type_uri_parts = api_pub.type[0].uri.split('/')
+      type_uri_parts.reverse()
+      pure_subtype, pure_type, pure_parent_type = type_uri_parts[0:3]
+      db_pub.pure_type = pure_type
+      db_pub.pure_subtype = pure_subtype
+
       db_pub.title = api_pub.title
     
       db_pub.container_title = api_pub.journalAssociation.title.value

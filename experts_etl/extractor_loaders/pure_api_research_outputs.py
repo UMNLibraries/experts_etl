@@ -14,10 +14,18 @@ transaction_record_limit = 100
 # Named for the Pure API endpoint:
 pure_api_record_type = 'research-outputs'
 
-# We support only journal articles for now:
-supported_material_types = [
-  'Article',
-]
+# contributiontobookanthology
+# contributiontomemorandum
+# contributiontoconference
+# contributiontoperiodical
+# contributiontojournal
+
+supported_pure_types = {
+  'contributiontojournal': [
+    'article',
+    'systematicreview',
+  ],
+}
 
 def extract_api_changes(session):
   sq = session.query(
@@ -163,8 +171,12 @@ def run(
         for api_pub_orig in d['items']:
           api_pub = response.transform(pure_api_record_type, api_pub_orig)
 
+          type_uri_parts = api_pub.type[0].uri.split('/')
+          type_uri_parts.reverse()
+          pure_subtype, pure_type, pure_parent_type = type_uri_parts[0:3]
+
           load = True
-          if api_pub.type[0].value not in supported_material_types:
+          if pure_type not in supported_pure_types or pure_subtype not in supported_pure_types[pure_type]:
             load = False
           if db_pub_newer_than_api_pub(session, api_pub):
             load = False
