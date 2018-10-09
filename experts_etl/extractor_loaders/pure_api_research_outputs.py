@@ -23,6 +23,7 @@ pure_api_record_type = 'research-outputs'
 supported_pure_types = {
   'contributiontojournal': [
     'article',
+    'comment',
     'systematicreview',
   ],
 }
