@@ -22,9 +22,17 @@ pure_api_record_type = 'research-outputs'
 
 supported_pure_types = {
   'contributiontojournal': [
-    'article',
-    'comment',
-    'systematicreview',
+    'article', # Article: A presentation of new research with other scientists as primary audience.
+    'letter', # Letter: A short description of new, important research results.
+    'comment', # Comment/debate: Short commentary/contribution to debate in a scientific publication, often about former printed articles.
+    'book', # Book/Film/Article review: Review of a book/film/article, published in a journal.
+    'scientific', # Literature review: A critical review and evaluation of a (scientific) publication
+    'editorial', # Editorial: An article-like text with the official opinion about a subject, from a journal's point of view.
+    'special', # Special issue: A specific journal issue with focus on a special theme or subject.
+    'abstract', # Meeting Abstract
+    'systematicreview', # Review article: An article that review previous research on a topic and provides a summarization of the current understanding of the topic.
+    'shortsurvey', # Short survey: A short survey is a mini-review of previous research on a topic, including a summarization of the current understanding of the topic. It is generally shorter than systematic review articles and contains a less extensive bibliography.
+    'conferencearticle', # Conference article: An article that has been presented at a conference and published in a journal
   ],
 }
 
