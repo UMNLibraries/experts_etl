@@ -186,6 +186,11 @@ def run(
 
           load = True
           if pure_type not in supported_pure_types or pure_subtype not in supported_pure_types[pure_type]:
+            # Check whether we previously loaded this research output: its type(/subtype)
+            # may have changed to a type(/subtype) we do not support. If so, delete:
+            db_pub = get_db_pub(session, api_pub.uuid)
+            if db_pub:
+              delete_db_pub(session, db_pub)
             load = False
           if db_pub_newer_than_api_pub(session, api_pub):
             load = False
