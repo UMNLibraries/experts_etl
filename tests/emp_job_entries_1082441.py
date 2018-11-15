@@ -256,8 +256,8 @@ jobs = [
    'start_date': datetime.datetime(2014,12,15,0,0),
    #'end_date': datetime.datetime(2015,8,24,0,0),
    'end_date': datetime.datetime(2015,5,24,0,0),
-   'visibility': 'Restricted',
-   'profiled': False,
+   'visibility': 'Public',
+   'profiled': True,
   },
   {
    'deptid': '11945',
@@ -272,3 +272,11 @@ jobs = [
    'profiled': True,
   },
 ]
+
+jobs_with_primary = []
+jobs_with_primary.append({**jobs[0], **{'primary': False}})
+jobs_with_primary.append({**jobs[1], **{'primary': True}})
+
+# Set according to the primary job:
+transformed_profiled = True
+

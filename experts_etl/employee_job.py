@@ -51,29 +51,24 @@ def transform(session, entries):
   return jobs
 
 def new_staff_dept_defaults(**kwargs):
-  defaults = {}
-  if kwargs['end_date']:
-    defaults['visibility'] = 'Restricted'
-    defaults['profiled'] = False
-  else:
-    session = kwargs['session']
-    pure_new_staff_dept_defaults = (
-      session.query(PureNewStaffDeptDefaults)
-      .filter(and_(
-        PureNewStaffDeptDefaults.deptid == kwargs['deptid'],
-        PureNewStaffDeptDefaults.jobcode == kwargs['jobcode'],
-        PureNewStaffDeptDefaults.jobcode_descr == kwargs['jobcode_descr'],
-      ))
-      .one_or_none()
-    )
-    if pure_new_staff_dept_defaults:
-      defaults['visibility'] = pure_new_staff_dept_defaults.default_visibility
-      if pure_new_staff_dept_defaults.default_profiled == 'true':
-        defaults['profiled'] = True
-      else:
-        defaults['profiled'] = False
+  defaults = {
+    'visibility': None,
+    'profiled': None,
+  }
+  session = kwargs['session']
+  pure_new_staff_dept_defaults = (
+    session.query(PureNewStaffDeptDefaults)
+    .filter(and_(
+      PureNewStaffDeptDefaults.deptid == kwargs['deptid'],
+      PureNewStaffDeptDefaults.jobcode == kwargs['jobcode'],
+    ))
+    .first()
+  )
+  if pure_new_staff_dept_defaults:
+    defaults['visibility'] = pure_new_staff_dept_defaults.default_visibility
+    if pure_new_staff_dept_defaults.default_profiled == 'true':
+      defaults['profiled'] = True
     else:
-      defaults['visibility'] = 'Restricted'
       defaults['profiled'] = False
   return defaults
 
@@ -94,16 +89,13 @@ def new_staff_position_defaults(session, jobcode):
 
 def org_id(session, deptid):
   org_id = None
-  # Some old deptids include letters, but umn_dept_pure_org.umn_dept_id is a number.
-  # The old ones won't be in that table, anyway, so just skip those:
-  if re.match('^\d+$', deptid):
-    umn_dept_pure_org = (
-      session.query(UmnDeptPureOrg)
-      .filter(UmnDeptPureOrg.umn_dept_id == deptid)
-      .one_or_none()
-    )
-    if umn_dept_pure_org:
-      org_id = umn_dept_pure_org.pure_org_id
+  umn_dept_pure_org = (
+    session.query(UmnDeptPureOrg)
+    .filter(UmnDeptPureOrg.deptid == deptid)
+    .one_or_none()
+  )
+  if umn_dept_pure_org:
+    org_id = umn_dept_pure_org.pure_org_id
   return org_id
 
 def neighborhood(iterable):
@@ -172,6 +164,8 @@ def transform_entry_groups(session, entry_groups):
       deptid=reference_entry['deptid'],
       jobcode=reference_entry['jobcode'],
       jobcode_descr=reference_entry['jobcode_descr'],
+      #um_college=reference_entry['um_college'],
+      #um_college_descr=reference_entry['um_college_descr'],
     )
     job['visibility'] = dept_defaults['visibility']
     job['profiled'] = dept_defaults['profiled']

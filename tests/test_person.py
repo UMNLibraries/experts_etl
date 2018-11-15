@@ -72,6 +72,36 @@ def jobs_before_after_primary(request):
 def test_transform_primary_job(jobs_before_after_primary):
   assert person.transform_primary_job([], jobs_before_after_primary.jobs, '0') == jobs_before_after_primary.jobs_with_primary
 
+@pytest.fixture(params=['1217312','2110507'])
+def jobs_with_transformed_staff_type(request):
+  from . import employee_jobs_1217312
+  from . import employee_jobs_2110507
+  job_sets = {
+    '1217312': employee_jobs_1217312,
+    '2110507': employee_jobs_2110507,
+  }
+  job_set = job_sets[request.param]
+  yield job_set
+
+def test_transform_staff_type(jobs_with_transformed_staff_type):
+  assert person.transform_staff_type(jobs_with_transformed_staff_type.jobs_with_primary) == jobs_with_transformed_staff_type.jobs_with_transformed_staff_type
+
+@pytest.fixture(params=['1217312','2110507'])
+def jobs_with_transformed_profiled(request):
+  from . import employee_jobs_1217312
+  from . import employee_jobs_2110507
+  from . import emp_job_entries_1082441
+  job_sets = {
+    '1217312': employee_jobs_1217312,
+    '2110507': employee_jobs_2110507,
+    '1082441': emp_job_entries_1082441,
+  }
+  job_set = job_sets[request.param]
+  yield job_set
+
+def test_transform_profiled(jobs_with_transformed_profiled):
+  assert person.transform_profiled(jobs_with_transformed_profiled.jobs_with_primary) == jobs_with_transformed_profiled.transformed_profiled
+
 def test_transform(session):
   person_dict = {
     'scival_id': '8185',
@@ -261,7 +291,7 @@ def test_extract_transform_serialize(session):
       <period>
         <v3:startDate>31-08-2015</v3:startDate>
       </period>
-      <staffType>academic</staffType>
+      <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
     <staffOrganisationAssociation id="autoid:898-RQHKJLUF-Associate Professor-faculty-2012-05-28" managedInPure="false">
@@ -274,7 +304,7 @@ def test_extract_transform_serialize(session):
         <v3:startDate>28-05-2012</v3:startDate>
         <v3:endDate>31-08-2015</v3:endDate>
       </period>
-      <staffType>academic</staffType>
+      <staffType>nonacademic</staffType>
       <jobDescription><v3:text lang="en">Associate Professor</v3:text></jobDescription>
     </staffOrganisationAssociation>
     <staffOrganisationAssociation id="autoid:898-CBIHJRCYWWAA-Adjunct Associate Professor-adjunct_faculty-2015-04-06" managedInPure="false">
@@ -350,7 +380,7 @@ def test_extract_transform_serialize(session):
     <v3:id type="umn" id="autoid:898-umn-agewirtz">agewirtz</v3:id>
   </personIds>
   <visibility>Public</visibility>
-  <profiled>true</profiled>
+  <profiled>false</profiled>
 </person>"""
 
   assert person_xml_2 == expected_person_xml_2

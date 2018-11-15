@@ -39,30 +39,28 @@ def transform(session, entries):
       
   return jobs
 
+# Currently unused:
 def new_staff_dept_defaults(**kwargs):
-  defaults = {}
-  if kwargs['end_date']:
-    defaults['visibility'] = 'Restricted'
-    defaults['profiled'] = False
-  else:
-    session = kwargs['session']
-    pure_new_staff_dept_defaults = (
-      session.query(PureNewStaffDeptDefaults)
-      .filter(and_(
-        PureNewStaffDeptDefaults.deptid == kwargs['deptid'],
-        PureNewStaffDeptDefaults.jobcode == kwargs['jobcode'],
-        PureNewStaffDeptDefaults.jobcode_descr == kwargs['jobcode_descr'],
-      ))
-      .one_or_none()
-    )
-    if pure_new_staff_dept_defaults:
-      defaults['visibility'] = pure_new_staff_dept_defaults.default_visibility
-      if pure_new_staff_dept_defaults.default_profiled == 'true':
-        defaults['profiled'] = True
-      else:
-        defaults['profiled'] = False
+  defaults = {
+    'visibility': None,
+    'profiled': None,
+  }
+  session = kwargs['session']
+  pure_new_staff_dept_defaults = (
+    session.query(PureNewStaffDeptDefaults)
+    .filter(and_(
+      PureNewStaffDeptDefaults.deptid == kwargs['deptid'],
+      PureNewStaffDeptDefaults.jobcode == kwargs['jobcode'],
+      #PureNewStaffDeptDefaults.jobcode_descr == kwargs['jobcode_descr'],
+    ))
+    #.one_or_none()
+    .first()
+  )
+  if pure_new_staff_dept_defaults:
+    defaults['visibility'] = pure_new_staff_dept_defaults.default_visibility
+    if pure_new_staff_dept_defaults.default_profiled == 'true':
+      defaults['profiled'] = True
     else:
-      defaults['visibility'] = 'Restricted'
       defaults['profiled'] = False
   return defaults
 
@@ -83,16 +81,13 @@ def new_staff_position_defaults(session, jobcode):
 
 def org_id(session, deptid):
   org_id = None
-  # Some old deptids include letters, but umn_dept_pure_org.umn_dept_id is a number.
-  # The old ones won't be in that table, anyway, so just skip those:
-  if re.match('^\d+$', deptid):
-    umn_dept_pure_org = (
-      session.query(UmnDeptPureOrg)
-      .filter(UmnDeptPureOrg.umn_dept_id == deptid)
-      .one_or_none()
-    )
-    if umn_dept_pure_org:
-      org_id = umn_dept_pure_org.pure_org_id
+  umn_dept_pure_org = (
+    session.query(UmnDeptPureOrg)
+    .filter(UmnDeptPureOrg.deptid == deptid)
+    .one_or_none()
+  )
+  if umn_dept_pure_org:
+    org_id = umn_dept_pure_org.pure_org_id
   return org_id
 
 def transform_entry_groups(session, entry_groups):
@@ -114,21 +109,27 @@ def transform_entry_groups(session, entry_groups):
     else:
       job['end_date'] = None
   
-    dept_defaults = new_staff_dept_defaults(
-      session=session,
-      end_date=job['end_date'],
-      deptid=job['deptid'],
-      jobcode=group['um_affil_relation'],
-      jobcode_descr=job['job_title'],
-    )
-    job['visibility'] = dept_defaults['visibility']
-    job['profiled'] = dept_defaults['profiled']
+# We now set visibility = 'Restricted' and 'profiled' = False for all affiliate jobs:
+#    dept_defaults = new_staff_dept_defaults(
+#      session=session,
+#      end_date=job['end_date'],
+#      deptid=job['deptid'],
+#      jobcode=group['um_affil_relation'],
+#      jobcode_descr=job['job_title'],
+#    )
+#    job['visibility'] = dept_defaults['visibility']
+#    job['profiled'] = dept_defaults['profiled']
+    job['visibility'] = 'Restricted'
+    job['profiled'] = False
   
     job['org_id'] = org_id(session, job['deptid'])
   
     position_defaults = new_staff_position_defaults(session, group['um_affil_relation'])
     job['employment_type'] = position_defaults['employment_type']
-    job['staff_type'] = position_defaults['staff_type']
+
+    # We now set staff_type = 'nonacademic' for all affiliate jobs:
+    #job['staff_type'] = position_defaults['staff_type']
+    job['staff_type'] = 'nonacademic'
 
     jobs.append(job)
 

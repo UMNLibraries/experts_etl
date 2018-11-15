@@ -143,8 +143,7 @@ jobs = [
    #'start_date': datetime.datetime(2011,9,28,0,0), # Maybe this should be the start_date?
    'start_date': datetime.datetime(2015,9,7,0,0),
    'end_date': datetime.datetime(2015,9,7,0,0),
-   #'visibility': 'Public',
-   'visibility': 'Restricted', # Should be 'Public'!
+   'visibility': 'Public',
    'profiled': False,
   },
   {
@@ -186,8 +185,7 @@ jobs_with_primary = [
    #'start_date': datetime.datetime(2011,9,28,0,0), # Maybe this should be the start_date?
    'start_date': datetime.datetime(2015,9,7,0,0),
    'end_date': datetime.datetime(2015,9,7,0,0),
-   #'visibility': 'Public',
-   'visibility': 'Restricted', # Should be 'Public'!
+   'visibility': 'Public',
    'profiled': False,
    'primary': False,
   },

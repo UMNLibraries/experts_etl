@@ -215,14 +215,19 @@ jobs = [
     'staff_type': 'academic',
     'start_date': datetime.datetime(2006,8,28,0,0),
     'end_date': datetime.datetime(2016,9,4,0,0),
-    'visibility': 'Restricted',
-    'profiled': False,
+    'visibility': 'Public',
+    'profiled': True,
   },
 ]
 
 jobs_with_primary = [
   {**jobs[0], **{'primary': True}}
 ]
+
+# Set according to the primary job:
+transformed_profiled = False
+
+jobs_with_transformed_staff_type = jobs_with_primary
 
 jobs_with_staff_org_assoc_id = [
   {**jobs_with_primary[0], **{'staff_org_assoc_id': 'autoid:3021-OTQFKMQEJM-Professor-faculty-2006-08-28'}}

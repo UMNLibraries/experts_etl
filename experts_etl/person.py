@@ -48,16 +48,23 @@ def transform(session, person_dict):
 
   employee_jobs = employee_job.extract_transform(session, person_dict['emplid'])
   affiliate_jobs = affiliate_job.extract_transform(session, person_dict['emplid'])
-  jobs = transform_primary_job(affiliate_jobs, employee_jobs, person_dict['primary_empl_rcdno'])  
-  person_dict['jobs'] = transform_staff_org_assoc_id(jobs, person_dict['person_id'])
+  jobs_with_primary = transform_primary_job(
+    affiliate_jobs,
+    employee_jobs,
+    person_dict['primary_empl_rcdno']
+  )  
 
-  person_dict['visibility'] = 'Restricted'
-  person_dict['profiled'] = False
-  for job in jobs:
-    if job['visibility'] == 'Public':
-      person_dict['visibility'] = 'Public'
-    if job['profiled']:
-      person_dict['profiled'] = True
+  if len(jobs_with_primary) > 0:
+    jobs = transform_staff_type(jobs_with_primary)
+    person_dict['profiled'] = transform_profiled(jobs)
+    person_dict['jobs'] = transform_staff_org_assoc_id(jobs, person_dict['person_id'])
+  
+    person_dict['visibility'] = 'Restricted'
+    for job in jobs:
+      if job['visibility'] == 'Public':
+        person_dict['visibility'] = 'Public'
+  else:
+    person_dict['jobs'] = []
 
   return person_dict
 
@@ -142,6 +149,11 @@ def transform_primary_job(affiliate_jobs, employee_jobs, primary_empl_rcdno):
   if primary_job_set:
     transformed_jobs.extend(transformed_emp_jobs)
     transformed_jobs.extend(transformed_aff_jobs)
+
+    primary_job = next((job for job in transformed_jobs if job['primary'] is True), None)
+    if primary_job is None:
+      raise RuntimeError('failed to set a primary association')
+
     return transformed_jobs
 
   # End of the easy cases.
@@ -242,7 +254,29 @@ def transform_primary_job(affiliate_jobs, employee_jobs, primary_empl_rcdno):
   transformed_jobs.extend(inactive_emp_jobs)
   transformed_jobs.extend(transformed_aff_jobs)
 
+  # This is redundant, but is a better check than what we were doing previously.
+  primary_job = next((job for job in transformed_jobs if job['primary'] is True), None)
+  if primary_job is None:
+    raise RuntimeError('failed to set a primary association')
+
   return transformed_jobs
+
+def transform_staff_type(jobs_with_primary):
+  primary_job = next((job for job in jobs_with_primary if job['primary'] is True), None)
+  if primary_job['staff_type'] == 'academic':
+    return jobs_with_primary
+
+  transformed_jobs = jobs_with_primary.copy()
+  for job in transformed_jobs:
+    job['staff_type'] = 'nonacademic'
+  return transformed_jobs
+
+def transform_profiled(jobs):
+  primary_job = next((job for job in jobs if job['primary'] is True), None)
+  if primary_job['profiled'] is True and primary_job['end_date'] is None:
+    return True
+  else:
+    return False
 
 def transform_person_id(emplid, scival_id):
   # The Pure person id from most persons will be the emplid, but for some

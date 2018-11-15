@@ -78,8 +78,8 @@ jobs = [
    'staff_type': 'academic',
    'start_date': datetime.datetime(2017,8,31,0,0),
    'end_date': datetime.datetime(2018,3,12,0,0),
-   'visibility': 'Restricted',
-   'profiled': False,
+   'visibility': 'Public',
+   'profiled': True,
   },
   {
    'deptid': '11030',
