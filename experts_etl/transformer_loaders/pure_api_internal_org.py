@@ -5,7 +5,7 @@ from experts_dw import db
 from sqlalchemy import and_, func
 from experts_dw.models import PureApiInternalOrg, PureApiInternalOrgHst, PureOrg
 from experts_etl import loggers
-from pureapi import response
+from pureapi import client, response
 
 # defaults:
 
@@ -68,6 +68,26 @@ def create_db_org(api_org):
     pure_internal = 'Y',
   )
 
+def get_pure_org(pure_org_uuid):
+  pure_org = None
+  try:
+    r = client.get(pure_api_record_type + '/' + pure_org_uuid)
+    pure_org = response.transform(pure_api_record_type, json.loads(r.json()))      
+  except Exception:
+    pass
+  return pure_org
+
+def get_pure_id(api_org):
+  pure_id = None
+  if api_org.externalId is not None:
+    pure_id = api_org.externalId
+  else:
+    pure_id = next(
+      (id_ for id_ in api_org.ids if id_.typeUri =='/dk/atira/pure/organisation/organisationsources/organisationid'),
+      None
+    )
+  return pure_id
+
 def run(
   # Do we need other default functions here?
   extract_api_orgs=extract_api_orgs,
@@ -93,13 +113,18 @@ def run(
       else:   
         db_org = create_db_org(api_org)
 
-      # Skipping for now, because we can't get it directly from the API. We'll load it 
-      # from the Experts DW later instead.
-      #db_org.parent_pure_id = 
+      # TODO: This needs work! Fix pureapi.response.
+      parent_pure_id = None
+      if api_org.parents[0].uuid is not None:
+        parent_pure_uuid = api_org.parents[0].uuid
+        parent_pure_org = get_pure_org(parent_pure_uuid)
+        if parent_pure_org is not None:
+          parent_pure_id = get_pure_id(parent_pure_org)
+      db_org.parent_pure_id = parent_pure_id
 
       db_org.name_en = api_org.name[0].value
       db_org.parent_pure_uuid = api_org.parents[0].uuid
-      db_org.pure_id = api_org.externalId
+      db_org.pure_id = get_pure_id(api_org)
       db_org.type = api_org.type[0].value.lower()
       db_org.pure_modified = db_api_org.modified
       session.add(db_org)
