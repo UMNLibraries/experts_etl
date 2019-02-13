@@ -1,0 +1,128 @@
+{%- autoescape true -%}
+<organisation managedInPure="false">
+    <organisationId>{{ organisation_id }}</organisationId>
+    <type>{{ type }}</type>
+    <name>
+        <v3:text lang="en" country="US">{{ name }}</v3:text>
+    </name>
+    <startDate>{{ start_date.strftime('%Y-%m-%d') }}</startDate>
+    {%- if end_date is not none %}
+    <endDate>{{ end_date.strftime('%Y-%m-%d') }}</endDate>
+    {%- endif %}
+    <visibility>{{ visibility }}</visibility>
+    {%- if parent_organisation_id is not none %}
+    <parentOrganisationId>{{ parent_organisation_id }}</parentOrganisationId>
+    {%- endif %}
+    {%- if name_variants|length > 0 %}
+    <nameVariants>
+    {%- for name_variant in name_variants %}
+        <nameVariant>
+            <type>{{ name_variant.type }}</type>
+            <name>
+                <v3:text lang="en" country="US">{{ name_variant.value }}</v3:text>
+            </name>
+        </nameVariant>
+    {%- endfor %}
+    </nameVariants>
+    {%- endif %}
+    {%- if profile_infos|length > 0 %}
+    <profileInfos>
+    {%- for profile_info in profile_infos %}
+        <profileInfo>
+            <type>{{ profile_info.type }}</type>
+            <profileInfo>
+                <v3:text lang="en" country="US">
+                  {%- autoescape false %}
+                  <![CDATA[{{ profile_info.value }}]]>
+                  {%- endautoescape %}
+                </v3:text>
+            </profileInfo>
+        </profileInfo>
+    {%- endfor %}
+    </profileInfos>
+    {%- endif %}
+    {%- if photos|length > 0 %}
+    <photos>
+    {%- for photo in photos %}
+        <photo>
+            <type>{{ photo.type }}</type>
+            <photoValue>{{ photo.value }}</photoValue>
+            <photoProtocol>http</photoProtocol>
+        </photo>
+    {%- endfor %}
+    </photos>
+    {%- endif %}
+    {%- if phone_numbers|length > 0 %}
+    <phoneNumbers>
+    {%- for phone_number in phone_numbers %}
+        <phoneNumber>
+            <type>{{ phone_number.type }}</type>
+            <phoneNumber>{{ phone_number.value }}</phoneNumber>
+        </phoneNumber>
+    {%- endfor %}
+    </phoneNumbers>
+    {%- endif %}
+    {%- if emails|length > 0 %}
+    <emails>
+    {%- for email in emails %}
+        <email>
+            <type>{{ email.type }}</type>
+            <email>{{ email.value }}</email>
+        </email>
+    {%- endfor %}
+    </emails>
+    {%- endif %}
+    {%- if web_addresses|length > 0 %}
+    <webAddresses>
+    {%- for web_address in web_addresses %}
+        <webAddress>
+            <type>{{ web_address.type }}</type>
+            <webAddress>
+                <v3:text lang="en" country="US">{{ web_address.value }}</v3:text>
+            </webAddress>
+        </webAddress>
+    {%- endfor %}
+    </webAddresses>
+    {%- endif %}
+    {%- if addresses|length > 0 %}
+    <addresses>
+    {%- for address in addresses %}
+        <address>
+            <type>{{ address.type }}</type>
+            {%- if address.city is not none %}
+            <city>{{ address.city }}</city>
+            {%- endif %}
+            {%- if address.postalcode is not none %}
+            <postalCode>{{ address.postalcode }}</postalCode>
+            {%- endif %}
+            {%- if address.street is not none %}
+            <street>{{ address.street }}</street>
+            {%- endif %}
+            {%- if address.building is not none %}
+            <building>{{ address.building }}</building>
+            {%- endif %}
+            {%- if address.country is not none %}
+            <country>{{ address.country }}</country>
+            {%- endif %}
+            {%- if address.subdivision is not none %}
+            <subdivision>{{ address.subdivision }}</subdivision>
+            {%- endif %}
+            {%- if address.geospatial_point is not none %}
+            <geospatialPoint>{{ address.geospatial_point }}</geospatialPoint>
+            {%- endif %}
+        </address>
+    {%- endfor %}
+    </addresses>
+    {%- endif %}
+    {%- if ids|length > 0 %}
+    <ids>
+    {%- for id in ids %}
+        <id>
+            <idSource>{{ id.type }}</idSource>
+            <id>{{ id.value }}</id>
+        </id>
+    {%- endfor %}
+    </ids>
+    {%- endif %}
+</organisation>
+{%- endautoescape %}
