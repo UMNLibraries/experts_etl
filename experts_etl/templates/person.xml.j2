@@ -1,3 +1,4 @@
+{% autoescape true %}
 <person id="{{ person_id }}">
   <name>
     <v3:firstname>{{ first_name }}</v3:firstname>
@@ -48,3 +49,4 @@
   <visibility>{{ visibility }}</visibility>
   <profiled>{% if profiled %}true{% else %}false{% endif %}</profiled>
 </person>
+{% endautoescape %}
