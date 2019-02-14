@@ -22,7 +22,7 @@ def test_extract(session):
     assert isinstance(entry['effdt'], datetime.datetime)
     assert isinstance(entry['effseq'], int)
 
-@pytest.fixture(params=['4604830','1082441','3262322','5150075','1717940','1217312','2110507'])
+@pytest.fixture(params=['4604830','1082441','3262322','5150075','1717940','1217312','2110507','8000397'])
 def entries_to_group(request):
   from . import emp_job_entries_4604830
   from . import emp_job_entries_1082441
@@ -31,6 +31,7 @@ def entries_to_group(request):
   from . import employee_jobs_1717940
   from . import employee_jobs_1217312
   from . import employee_jobs_2110507
+  from . import employee_jobs_8000397
   entries_sets = {
     '4604830': emp_job_entries_4604830,
     '1082441': emp_job_entries_1082441,
@@ -39,6 +40,7 @@ def entries_to_group(request):
     '1717940': employee_jobs_1717940,
     '1217312': employee_jobs_1217312,
     '2110507': employee_jobs_2110507,
+    '8000397': employee_jobs_8000397,
   }
   entries_set = entries_sets[request.param]
   yield entries_set
@@ -47,7 +49,7 @@ def test_group_entries(entries_to_group):
   assert employee_job.group_entries(entries_to_group.entries) == entries_to_group.entry_groups
   assert employee_job.group_entries([]) == []
 
-@pytest.fixture(params=['4604830','1082441','3262322','5150075','1217312','2110507'])
+@pytest.fixture(params=['4604830','1082441','3262322','5150075','1217312','2110507','8000397'])
 def entry_groups(request):
   from . import emp_job_entries_4604830
   from . import emp_job_entries_1082441
@@ -55,6 +57,7 @@ def entry_groups(request):
   from . import emp_job_entries_5150075
   from . import employee_jobs_1217312
   from . import employee_jobs_2110507
+  from . import employee_jobs_8000397
   entries_sets = {
     '4604830': emp_job_entries_4604830,
     '1082441': emp_job_entries_1082441,
@@ -62,6 +65,7 @@ def entry_groups(request):
     '5150075': emp_job_entries_5150075,
     '1217312': employee_jobs_1217312,
     '2110507': employee_jobs_2110507,
+    '8000397': employee_jobs_8000397,
   }
   entries_set = entries_sets[request.param]
   yield entries_set
