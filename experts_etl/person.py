@@ -18,7 +18,10 @@ def extract(session, emplid):
 
   demog = (
     session.query(PureEligibleDemogChngHst)
-    .filter(PureEligibleDemogChngHst.emplid == emplid, PureEligibleDemogChngHst.timestamp == subqry)
+    .filter(
+        PureEligibleDemogChngHst.emplid == emplid,
+        PureEligibleDemogChngHst.timestamp == subqry
+    )
     .one_or_none()
   )
   person_dict = {c.name: getattr(demog, c.name) for c in demog.__table__.columns}

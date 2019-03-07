@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-from experts_dw.models import PureEligibleAffJob, PureNewStaffDeptDefaults, PureNewStaffPosDefaults, UmnDeptPureOrg
+from experts_dw.models import PureEligibleAffiliateJob, PureEligibleJobcode, UmnDeptPureOrg
 from sqlalchemy import and_
 
 def extract_transform(session, emplid):
@@ -9,11 +9,10 @@ def extract_transform(session, emplid):
 
 def extract(session, emplid):
   entries = []
-  for entry in session.query(PureEligibleAffJob).filter(PureEligibleAffJob.emplid == emplid).order_by(PureEligibleAffJob.effdt):
+  for entry in session.query(PureEligibleAffJob).filter(PureEligibleAffiliateJob.emplid == emplid).order_by(PureEligibleAffiliateJob.effdt):
     entries.append(
       {c.name: getattr(entry, c.name) for c in entry.__table__.columns}
     )
-
   return entries
 
 """
@@ -39,31 +38,6 @@ def transform(session, entries):
       
   return jobs
 
-# Currently unused:
-def new_staff_dept_defaults(**kwargs):
-  defaults = {
-    'visibility': None,
-    'profiled': None,
-  }
-  session = kwargs['session']
-  pure_new_staff_dept_defaults = (
-    session.query(PureNewStaffDeptDefaults)
-    .filter(and_(
-      PureNewStaffDeptDefaults.deptid == kwargs['deptid'],
-      PureNewStaffDeptDefaults.jobcode == kwargs['jobcode'],
-      #PureNewStaffDeptDefaults.jobcode_descr == kwargs['jobcode_descr'],
-    ))
-    #.one_or_none()
-    .first()
-  )
-  if pure_new_staff_dept_defaults:
-    defaults['visibility'] = pure_new_staff_dept_defaults.default_visibility
-    if pure_new_staff_dept_defaults.default_profiled == 'true':
-      defaults['profiled'] = True
-    else:
-      defaults['profiled'] = False
-  return defaults
-
 def new_staff_position_defaults(session, jobcode):
   defaults = {}
   pure_new_staff_pos_defaults = (
@@ -78,6 +52,18 @@ def new_staff_position_defaults(session, jobcode):
     defaults['employment_type'] = None
     defaults['staff_type'] = None
   return defaults
+
+def employed_as(session, jobcode):
+  pure_eligible_jobcode = (
+    session.query(PureEligibleJobcode)
+    .filter(PureEligibleJobcode.jobcode == jobcode)
+    .one_or_none()
+  )
+  if pure_eligible_jobcode:
+    return pure_eligible_jobcode.default_employed_as
+  else:
+    # Should never happen! Should probably throw an exception here...
+    pass
 
 def org_id(session, deptid):
   org_id = None
@@ -109,27 +95,15 @@ def transform_entry_groups(session, entry_groups):
     else:
       job['end_date'] = None
   
-# We now set visibility = 'Restricted' and 'profiled' = False for all affiliate jobs:
-#    dept_defaults = new_staff_dept_defaults(
-#      session=session,
-#      end_date=job['end_date'],
-#      deptid=job['deptid'],
-#      jobcode=group['um_affil_relation'],
-#      jobcode_descr=job['job_title'],
-#    )
-#    job['visibility'] = dept_defaults['visibility']
-#    job['profiled'] = dept_defaults['profiled']
+    # We now set visibility = 'Restricted' and 'profiled' = False for all affiliate jobs:
     job['visibility'] = 'Restricted'
     job['profiled'] = False
   
-    job['org_id'] = org_id(session, job['deptid'])
-  
-    position_defaults = new_staff_position_defaults(session, group['um_affil_relation'])
-    job['employment_type'] = position_defaults['employment_type']
-
     # We now set staff_type = 'nonacademic' for all affiliate jobs:
-    #job['staff_type'] = position_defaults['staff_type']
     job['staff_type'] = 'nonacademic'
+
+    job['org_id'] = org_id(session, job['deptid'])
+    job['employment_type'] = employed_as(session, group['um_affil_relation'])
 
     jobs.append(job)
 

@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-from experts_dw.models import PureEligibleEmpJob, PureNewStaffDeptDefaults, PureNewStaffPosDefaults, UmnDeptPureOrg
+from experts_dw.models import PureEligibleEmployeeJob, PureEligibleJobcode, PureJobcodeDefaultOverride, KnownOverrideableJobcodeDept, UmnDeptPureOrg
 from sqlalchemy import and_
 
 def extract_transform(session, emplid):
@@ -9,7 +9,7 @@ def extract_transform(session, emplid):
 
 def extract(session, emplid):
   entries = []
-  for entry in session.query(PureEligibleEmpJob).filter(PureEligibleEmpJob.emplid == emplid).order_by(PureEligibleEmpJob.effdt, PureEligibleEmpJob.effseq):
+  for entry in session.query(PureEligibleEmployeeJob).filter(PureEligibleEmployeeJob.emplid == emplid).order_by(PureEligibleEmployeeJob.effdt, PureEligibleEmployeeJob.effseq):
     entries.append(
       {c.name: getattr(entry, c.name) for c in entry.__table__.columns}
     )
@@ -36,7 +36,6 @@ V Terminated Pension Pay Out
 W Short Work Break 
 X Retired-Pension Administration
 """
-#active_states = ['A', 'L', 'S', 'W']
 active_states = ['A', 'L', 'P', 'W']
 
 def transform(session, entries):
