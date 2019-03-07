@@ -111,7 +111,7 @@ def db_org_depth_first_search(session, parent_org, visited={}):
         for child_org in session.query(PureOrg).filter(
             PureOrg.parent_pure_id == parent_org.pure_id, PureOrg.type != 'peoplesoft deptid'
         ).all():
-            org_tree(session, child_org, visited)
+            db_org_depth_first_search(session, child_org, visited)
     return visited
 
 def update_internal_org_tree(session):
