@@ -93,8 +93,6 @@ def delete_db_org(session, db_org):
     UmnDeptPureOrg.pure_org_uuid == db_org.pure_uuid
   ).delete(synchronize_session=False)
 
-  # How to delete from PureInternalOrg?
-
   session.delete(db_org)
 
 def db_org_newer_than_api_org(session, api_org):
