@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 from experts_dw.models import PureEligibleAffiliateJob, PureEligibleJobcode, UmnDeptPureOrg
+from experts_etl.umn_data_error import report_unknown_dept_errors
 from sqlalchemy import and_
 
 def extract_transform(session, emplid):
@@ -9,7 +10,7 @@ def extract_transform(session, emplid):
 
 def extract(session, emplid):
   entries = []
-  for entry in session.query(PureEligibleAffJob).filter(PureEligibleAffiliateJob.emplid == emplid).order_by(PureEligibleAffiliateJob.effdt):
+  for entry in session.query(PureEligibleAffiliateJob).filter(PureEligibleAffiliateJob.emplid == emplid).order_by(PureEligibleAffiliateJob.effdt):
     entries.append(
       {c.name: getattr(entry, c.name) for c in entry.__table__.columns}
     )
@@ -38,34 +39,7 @@ def transform(session, entries):
       
   return jobs
 
-def new_staff_position_defaults(session, jobcode):
-  defaults = {}
-  pure_new_staff_pos_defaults = (
-    session.query(PureNewStaffPosDefaults)
-    .filter(PureNewStaffPosDefaults.jobcode == jobcode)
-    .one_or_none()
-  )
-  if pure_new_staff_pos_defaults:
-    defaults['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
-    defaults['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
-  else:
-    defaults['employment_type'] = None
-    defaults['staff_type'] = None
-  return defaults
-
-def employed_as(session, jobcode):
-  pure_eligible_jobcode = (
-    session.query(PureEligibleJobcode)
-    .filter(PureEligibleJobcode.jobcode == jobcode)
-    .one_or_none()
-  )
-  if pure_eligible_jobcode:
-    return pure_eligible_jobcode.default_employed_as
-  else:
-    # Should never happen! Should probably throw an exception here...
-    pass
-
-def org_id(session, deptid):
+def get_org_id(session, deptid):
   org_id = None
   umn_dept_pure_org = (
     session.query(UmnDeptPureOrg)
@@ -85,10 +59,23 @@ def transform_entry_groups(session, entry_groups):
     last_entry = group['entries'][-1]
 
     job = {
+      'affiliation_id': group['um_affil_relation'], # jobcode
       'deptid': group['deptid'],
+      'um_campus': last_entry['um_campus'],
       'start_date': group['start_date'],
       'job_title': last_entry['title'],
     }
+
+    org_id = get_org_id(session, job['deptid'])
+    if org_id is None:
+        report_unknown_dept_errors(
+            session=session,
+            jobcode=group['um_affil_relation'],
+            deptid=group['deptid'],
+            emplid=last_entry['emplid'],
+        )
+        continue
+    job['org_id'] = org_id
 
     if last_entry['status'] not in active_states or last_entry['status_flg'] == 'H':
       job['end_date'] = last_entry['effdt']
@@ -102,8 +89,11 @@ def transform_entry_groups(session, entry_groups):
     # We now set staff_type = 'nonacademic' for all affiliate jobs:
     job['staff_type'] = 'nonacademic'
 
-    job['org_id'] = org_id(session, job['deptid'])
-    job['employment_type'] = employed_as(session, group['um_affil_relation'])
+    jobcode_defaults = session.query(PureEligibleJobcode).filter(
+        PureEligibleJobcode.jobcode == group['um_affil_relation']
+    ).one()
+    job['job_description'] = jobcode_defaults.pure_job_description
+    job['employment_type'] = jobcode_defaults.default_employed_as
 
     jobs.append(job)
 

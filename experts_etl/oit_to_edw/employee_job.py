@@ -1,6 +1,8 @@
 import pandas as pd
 import re
+from datetime import datetime
 from experts_dw.models import PureEligibleEmployeeJob, PureEligibleJobcode, PureJobcodeDefaultOverride, KnownOverrideableJobcodeDept, UmnDeptPureOrg
+from experts_etl.umn_data_error import report_unknown_dept_errors, report_unknown_jobcode_deptid_errors
 from sqlalchemy import and_
 
 def extract_transform(session, emplid):
@@ -49,44 +51,7 @@ def transform(session, entries):
       
   return jobs
 
-def new_staff_dept_defaults(**kwargs):
-  defaults = {
-    'visibility': None,
-    'profiled': None,
-  }
-  session = kwargs['session']
-  pure_new_staff_dept_defaults = (
-    session.query(PureNewStaffDeptDefaults)
-    .filter(and_(
-      PureNewStaffDeptDefaults.deptid == kwargs['deptid'],
-      PureNewStaffDeptDefaults.jobcode == kwargs['jobcode'],
-    ))
-    .first()
-  )
-  if pure_new_staff_dept_defaults:
-    defaults['visibility'] = pure_new_staff_dept_defaults.default_visibility
-    if pure_new_staff_dept_defaults.default_profiled == 'true':
-      defaults['profiled'] = True
-    else:
-      defaults['profiled'] = False
-  return defaults
-
-def new_staff_position_defaults(session, jobcode):
-  defaults = {}
-  pure_new_staff_pos_defaults = (
-    session.query(PureNewStaffPosDefaults)
-    .filter(PureNewStaffPosDefaults.jobcode == jobcode)
-    .one_or_none()
-  )
-  if pure_new_staff_pos_defaults:
-    defaults['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
-    defaults['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
-  else:
-    defaults['employment_type'] = None
-    defaults['staff_type'] = None
-  return defaults
-
-def org_id(session, deptid):
+def get_org_id(session, deptid):
   org_id = None
   umn_dept_pure_org = (
     session.query(UmnDeptPureOrg)
@@ -113,6 +78,7 @@ def transform_entry_groups(session, entry_groups):
   jobs = []
   for prev_group, curr_group, next_group in neighborhood(entry_groups):
     job = {
+      'affiliation_id': curr_group['jobcode'],
       'start_date': curr_group['job_entry_dt'],
       'end_date': None, # Default for current/active job.
       'deptid': curr_group['deptid'],
@@ -148,6 +114,19 @@ def transform_entry_groups(session, entry_groups):
       ):
         job['end_date'] = next_group['job_entry_dt']
 
+    org_id = get_org_id(session, reference_entry['deptid'])
+    if org_id is None:
+        report_unknown_dept_errors(
+            session=session,
+            jobcode=reference_entry['jobcode'],
+            deptid=reference_entry['deptid'],
+            emplid=reference_entry['emplid'],
+        )
+        continue
+    job['org_id'] = org_id
+
+    job['um_campus'] = reference_entry['um_campus']
+
     if not job_is_active and job['end_date'] is None:   
       if last_date_worked_df.empty:
         job['end_date'] = reference_entry['effdt']
@@ -157,24 +136,43 @@ def transform_entry_groups(session, entry_groups):
     job['job_title'] = reference_entry['jobcode_descr']
     job['empl_rcdno'] = reference_entry['empl_rcdno']
 
-    dept_defaults = new_staff_dept_defaults(
-      session=session,
-      end_date=job['end_date'],
-      deptid=reference_entry['deptid'],
-      jobcode=reference_entry['jobcode'],
-      jobcode_descr=reference_entry['jobcode_descr'],
-      #um_college=reference_entry['um_college'],
-      #um_college_descr=reference_entry['um_college_descr'],
-    )
-    job['visibility'] = dept_defaults['visibility']
-    job['profiled'] = dept_defaults['profiled']
-  
-    job['org_id'] = org_id(session, reference_entry['deptid'])
-  
-    position_defaults = new_staff_position_defaults(session, reference_entry['jobcode'])
-    job['employment_type'] = position_defaults['employment_type']
-    job['staff_type'] = position_defaults['staff_type']
+    jobcode_defaults = session.query(PureEligibleJobcode).filter(
+        PureEligibleJobcode.jobcode == reference_entry['jobcode']
+    ).one()
+    job['job_description'] = jobcode_defaults.pure_job_description
+    job['employment_type'] = jobcode_defaults.default_employed_as
+    if job['end_date'] is not None:
+        job['staff_type'] = 'nonacademic'
+    else:
+        job['staff_type'] = jobcode_defaults.default_staff_type
 
+    job['visibility'] = 'Restricted'
+    if job['end_date'] is None and job['um_campus'] in ['TXXX','DXXX']:
+        job['visibility'] = jobcode_defaults.default_visibility
+
+    job['profiled'] = False
+    if job['end_date'] is None:
+        job['profiled'] = jobcode_defaults.default_profiled
+        if jobcode_defaults.default_profiled_overrideable:
+            known_jobcode_dept = session.query(KnownOverrideableJobcodeDept).filter(
+                KnownOverrideableJobcodeDept.jobcode == reference_entry['jobcode'],
+                KnownOverrideableJobcodeDept.deptid == reference_entry['deptid']
+            ).one_or_none()
+            if known_jobcode_dept:
+                jobcode_default_overrides = session.query(PureJobcodeDefaultOverride).filter(
+                    PureJobcodeDefaultOverride.jobcode == reference_entry['jobcode'],
+                    PureJobcodeDefaultOverride.deptid == reference_entry['deptid']
+                ).one_or_none()
+                if jobcode_default_overrides:
+                    job['profiled'] = jobcode_default_overrides.profiled
+            else:
+                report_unknown_jobcode_deptid_errors(
+                    session=session,
+                    jobcode=reference_entry['jobcode'],
+                    deptid=reference_entry['deptid'],
+                    emplid=reference_entry['emplid'],
+                )
+  
     jobs.append(job)
 
   return jobs

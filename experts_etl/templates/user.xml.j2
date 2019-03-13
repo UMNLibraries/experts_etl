@@ -1,0 +1,10 @@
+{% autoescape true %}
+<user id="{{ person_id }} ">
+  <userName>{{ user_name }}@umn.edu</userName>
+  <email>{{ email }}@umn.edu</email>
+  <name>
+    <v3:firstname>{{ first_name }}</v3:firstname>
+    <v3:lastname>{{ last_name }}</v3:lastname>
+  </name>
+</user>
+{% endautoescape %}
