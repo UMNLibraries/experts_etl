@@ -1,13 +1,180 @@
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+import json
 import re
-from sqlalchemy import func
-from experts_dw.models import Person, PureEligibleDemogChngHst
+import uuid
+from experts_dw import db
+from sqlalchemy import and_, func, text
+from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonData, PureSyncStaffOrgAssociation, PureSyncUserData
+from experts_etl import loggers, transformers
+from experts_etl.umn_data_error import report_person_no_job_data_error
 from . import affiliate_job, employee_job
 
-from jinja2 import Environment, PackageLoader, Template, select_autoescape
-env = Environment(
-    loader=PackageLoader('experts_etl', 'templates'),
-    autoescape=select_autoescape(['html', 'xml'])
+# defaults:
+
+db_name = 'hotel'
+transaction_record_limit = 100 
+
+def run(
+    # Do we need other default functions here?
+    #extract_api_persons=extract_api_persons,
+    db_name=db_name,
+    transaction_record_limit=transaction_record_limit,
+    experts_etl_logger=None
+):
+    if experts_etl_logger is None:
+        experts_etl_logger = loggers.experts_etl_logger()
+        experts_etl_logger.info('starting: oit -> edw', extra={'pure_sync_job': 'person'})
+
+    engine = db.engine(db_name)
+    prepare_destination_tables(engine)
+
+    with db.session(db_name) as session:
+        prepare_source_tables(engine, session)
+
+        load_count = 0
+        for demog in session.query(PureEligibleDemogChngHst.emplid).distinct().all():
+            # Stop-gap prevention of unique key constraint violation:
+            if demog.emplid == '8004768':
+                continue
+            person_dict = transform(session, extract(session, demog.emplid))
+            if len(person_dict['jobs']) == 0:
+                report_person_no_job_data_error(session=session, emplid=demog.emplid)
+                continue
+            load(session, person_dict)
+            load_count += 1
+            if load_count >= transaction_record_limit:
+                session.commit()
+                load_count = 0
+        session.commit()
+
+    experts_etl_logger.info('ending: oit -> edw', extra={'pure_sync_job': 'person'})
+
+def load(session, person_dict):
+    pure_sync_person_data = PureSyncPersonData(
+        person_id=person_dict['person_id'],
+        first_name=person_dict['first_name'],
+        last_name=person_dict['last_name'],
+        visibility=person_dict['visibility'],
+        profiled=person_dict['profiled'],
+        emplid=person_dict['emplid'],
+        internet_id=person_dict['internet_id'],
+        postnominal=person_dict['name_suffix'],
+    )
+    session.add(pure_sync_person_data)
+
+    for job in person_dict['jobs']:
+        pure_sync_staff_org_association = PureSyncStaffOrgAssociation(
+            affiliation_id=job['affiliation_id'],
+            staff_org_association_id=job['staff_org_assoc_id'],
+            person_id=person_dict['person_id'],
+            period_start_date=job['start_date'],
+            period_end_date=job['end_date'],
+            org_id=job['org_id'],
+            employment_type=job['employment_type'],
+            staff_type=job['staff_type'],
+            visibility=job['visibility'],
+            primary_association=job['primary'],
+            job_description=job['job_description'],
+        )
+        session.add(pure_sync_staff_org_association)
+
+    if person_dict['internet_id'] is not None:
+        pure_sync_user_data = PureSyncUserData(
+            person_id=person_dict['person_id'],
+            first_name=person_dict['first_name'],
+            last_name=person_dict['last_name'],
+            user_name=person_dict['internet_id'],
+            email=person_dict['internet_id'] + '@umn.edu',
+        )
+        session.add(pure_sync_user_data)
+
+def prepare_destination_tables(engine):
+    engine.execute('delete pure_sync_user_data')
+    engine.execute('delete pure_sync_staff_org_association')
+    engine.execute('delete pure_sync_person_data')
+
+def prepare_source_tables(engine, session):
+    update_pure_eligible_persons(engine, session)
+    update_pure_eligible_demographics(engine, session)
+
+def update_pure_eligible_persons(engine, session):
+    engine.execute('truncate table pure_eligible_person_new')
+    engine.execute('''
+insert into pure_eligible_person_new (emplid)
+select emplid from pure_eligible_person
+minus
+select emplid from pure_eligible_person_chng_hst
+    ''')
+    for person_new in session.query(PureEligiblePersonNew).all():
+        person = PureEligiblePersonChngHst(emplid = person_new.emplid)
+        session.add(person)
+    session.commit()
+
+def update_pure_eligible_demographics(engine, session):
+    engine.execute('truncate table pure_eligible_demog_new')
+    engine.execute('''
+insert into pure_eligible_demog_new (
+  emplid,
+  internet_id,
+  name,
+  last_name,
+  first_name,
+  middle_initial,
+  name_suffix,
+  instl_email_addr,
+  tenure_flag,
+  tenure_track_flag,
+  primary_empl_rcdno
 )
+select
+  emplid,
+  internet_id,
+  name,
+  last_name,
+  first_name,
+  middle_initial,
+  name_suffix,
+  instl_email_addr,
+  tenure_flag,
+  tenure_track_flag,
+  to_char(primary_empl_rcdno)
+from pure_eligible_demog
+minus
+select
+  emplid,
+  internet_id,
+  name,
+  last_name,
+  first_name,
+  middle_initial,
+  name_suffix,
+  instl_email_addr,
+  tenure_flag,
+  tenure_track_flag,
+  primary_empl_rcdno
+from pure_eligible_demog_chng_hst
+    ''')
+    count = 0
+    for demog_new in session.query(PureEligibleDemogNew).all():
+        demog = PureEligibleDemogChngHst(
+            emplid = demog_new.emplid,
+            internet_id = demog_new.internet_id,
+            name = demog_new.name,
+            last_name = demog_new.last_name,
+            first_name = demog_new.first_name,
+            middle_initial = demog_new.middle_initial,
+            name_suffix = demog_new.name_suffix,
+            instl_email_addr = demog_new.instl_email_addr,
+            tenure_flag = demog_new.tenure_flag,
+            tenure_track_flag = demog_new.tenure_track_flag,
+            primary_empl_rcdno = demog_new.primary_empl_rcdno
+        )
+        session.add(demog)
+        count += 1
+        if not count % 100:
+            session.commit()
+    session.commit()
 
 def extract_transform_serialize(session, emplid):
   person_dict = extract(session, emplid)
@@ -18,7 +185,10 @@ def extract(session, emplid):
 
   demog = (
     session.query(PureEligibleDemogChngHst)
-    .filter(PureEligibleDemogChngHst.emplid == emplid, PureEligibleDemogChngHst.timestamp == subqry)
+    .filter(
+        PureEligibleDemogChngHst.emplid == emplid,
+        PureEligibleDemogChngHst.timestamp == subqry
+    )
     .one_or_none()
   )
   person_dict = {c.name: getattr(demog, c.name) for c in demog.__table__.columns}

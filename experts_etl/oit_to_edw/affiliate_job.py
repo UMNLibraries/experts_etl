@@ -1,6 +1,7 @@
 import pandas as pd
 import re
-from experts_dw.models import PureEligibleAffJob, PureNewStaffDeptDefaults, PureNewStaffPosDefaults, UmnDeptPureOrg
+from experts_dw.models import PureEligibleAffiliateJob, PureEligibleJobcode, UmnDeptPureOrg
+from experts_etl.umn_data_error import report_unknown_dept_errors
 from sqlalchemy import and_
 
 def extract_transform(session, emplid):
@@ -9,11 +10,10 @@ def extract_transform(session, emplid):
 
 def extract(session, emplid):
   entries = []
-  for entry in session.query(PureEligibleAffJob).filter(PureEligibleAffJob.emplid == emplid).order_by(PureEligibleAffJob.effdt):
+  for entry in session.query(PureEligibleAffiliateJob).filter(PureEligibleAffiliateJob.emplid == emplid).order_by(PureEligibleAffiliateJob.effdt):
     entries.append(
       {c.name: getattr(entry, c.name) for c in entry.__table__.columns}
     )
-
   return entries
 
 """
@@ -39,47 +39,7 @@ def transform(session, entries):
       
   return jobs
 
-# Currently unused:
-def new_staff_dept_defaults(**kwargs):
-  defaults = {
-    'visibility': None,
-    'profiled': None,
-  }
-  session = kwargs['session']
-  pure_new_staff_dept_defaults = (
-    session.query(PureNewStaffDeptDefaults)
-    .filter(and_(
-      PureNewStaffDeptDefaults.deptid == kwargs['deptid'],
-      PureNewStaffDeptDefaults.jobcode == kwargs['jobcode'],
-      #PureNewStaffDeptDefaults.jobcode_descr == kwargs['jobcode_descr'],
-    ))
-    #.one_or_none()
-    .first()
-  )
-  if pure_new_staff_dept_defaults:
-    defaults['visibility'] = pure_new_staff_dept_defaults.default_visibility
-    if pure_new_staff_dept_defaults.default_profiled == 'true':
-      defaults['profiled'] = True
-    else:
-      defaults['profiled'] = False
-  return defaults
-
-def new_staff_position_defaults(session, jobcode):
-  defaults = {}
-  pure_new_staff_pos_defaults = (
-    session.query(PureNewStaffPosDefaults)
-    .filter(PureNewStaffPosDefaults.jobcode == jobcode)
-    .one_or_none()
-  )
-  if pure_new_staff_pos_defaults:
-    defaults['employment_type'] = pure_new_staff_pos_defaults.default_employed_as
-    defaults['staff_type'] = pure_new_staff_pos_defaults.default_staff_type
-  else:
-    defaults['employment_type'] = None
-    defaults['staff_type'] = None
-  return defaults
-
-def org_id(session, deptid):
+def get_org_id(session, deptid):
   org_id = None
   umn_dept_pure_org = (
     session.query(UmnDeptPureOrg)
@@ -99,37 +59,41 @@ def transform_entry_groups(session, entry_groups):
     last_entry = group['entries'][-1]
 
     job = {
+      'affiliation_id': group['um_affil_relation'], # jobcode
       'deptid': group['deptid'],
+      'um_campus': last_entry['um_campus'],
       'start_date': group['start_date'],
       'job_title': last_entry['title'],
     }
+
+    org_id = get_org_id(session, job['deptid'])
+    if org_id is None:
+        report_unknown_dept_errors(
+            session=session,
+            jobcode=group['um_affil_relation'],
+            deptid=group['deptid'],
+            emplid=last_entry['emplid'],
+        )
+        continue
+    job['org_id'] = org_id
 
     if last_entry['status'] not in active_states or last_entry['status_flg'] == 'H':
       job['end_date'] = last_entry['effdt']
     else:
       job['end_date'] = None
   
-# We now set visibility = 'Restricted' and 'profiled' = False for all affiliate jobs:
-#    dept_defaults = new_staff_dept_defaults(
-#      session=session,
-#      end_date=job['end_date'],
-#      deptid=job['deptid'],
-#      jobcode=group['um_affil_relation'],
-#      jobcode_descr=job['job_title'],
-#    )
-#    job['visibility'] = dept_defaults['visibility']
-#    job['profiled'] = dept_defaults['profiled']
+    # We now set visibility = 'Restricted' and 'profiled' = False for all affiliate jobs:
     job['visibility'] = 'Restricted'
     job['profiled'] = False
   
-    job['org_id'] = org_id(session, job['deptid'])
-  
-    position_defaults = new_staff_position_defaults(session, group['um_affil_relation'])
-    job['employment_type'] = position_defaults['employment_type']
-
     # We now set staff_type = 'nonacademic' for all affiliate jobs:
-    #job['staff_type'] = position_defaults['staff_type']
     job['staff_type'] = 'nonacademic'
+
+    jobcode_defaults = session.query(PureEligibleJobcode).filter(
+        PureEligibleJobcode.jobcode == group['um_affil_relation']
+    ).one()
+    job['job_description'] = jobcode_defaults.pure_job_description
+    job['employment_type'] = jobcode_defaults.default_employed_as
 
     jobs.append(job)
 

@@ -4,12 +4,12 @@
     <v3:firstname>{{ first_name }}</v3:firstname>
     <v3:lastname>{{ last_name }}</v3:lastname>
   </name>
-  {%- if name_suffix %}
+  {%- if postnominal %}
   <titles>
     <title id="{{ emplid }}">
       <typeClassification>postnominal</typeClassification>
       <value>
-        <v3:text lang="en" country="US">{{ name_suffix }}</v3:text>
+        <v3:text lang="en" country="US">{{ postnominal }}</v3:text>
       </value>
     </title>
   </titles>
@@ -17,20 +17,21 @@
   <gender>unknown</gender>
   <organisationAssociations>
     {%- for job in jobs %}
-    <staffOrganisationAssociation id="{{ job.staff_org_assoc_id }}" managedInPure="false">
+    <staffOrganisationAssociation id="{{ job.staff_org_association_id }}" managedInPure="false">
+      <affiliationId>{{ job.affiliation_id }}</affiliationId>
       <employmentType>{{ job.employment_type }}</employmentType>
-      <primaryAssociation>{% if job.primary %}true{% else %}false{% endif %}</primaryAssociation>
+      <primaryAssociation>{% if job.primary_association %}true{% else %}false{% endif %}</primaryAssociation>
       <organisation>
         <v3:source_id>{{ job.org_id }}</v3:source_id>
       </organisation>
       <period>
-        <v3:startDate>{{ job.start_date.strftime('%d-%m-%Y') }}</v3:startDate>
-        {%- if job.end_date %}
-        <v3:endDate>{{ job.end_date.strftime('%d-%m-%Y') }}</v3:endDate>
+        <v3:startDate>{{ job.period_start_date.strftime('%d-%m-%Y') }}</v3:startDate>
+        {%- if job.period_end_date %}
+        <v3:endDate>{{ job.period_end_date.strftime('%d-%m-%Y') }}</v3:endDate>
         {%- endif %}
       </period>
       <staffType>{{ job.staff_type }}</staffType>
-      <jobDescription><v3:text lang="en">{{ job.job_title }}</v3:text></jobDescription>
+      <jobDescription><v3:text lang="en">{{ job.job_description }}</v3:text></jobDescription>
     </staffOrganisationAssociation>
     {%- endfor %}
   </organisationAssociations>
