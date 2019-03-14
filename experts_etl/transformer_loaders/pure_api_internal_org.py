@@ -69,21 +69,26 @@ def create_db_org(api_org):
   )
 
 def load_db_dept_orgs(session, api_org):
-  # Rather than try to reconcile any existing rows with any new ones,
-  # just delete and re-create:
-  session.query(UmnDeptPureOrg).filter(
-    UmnDeptPureOrg.pure_org_uuid == api_org.uuid
-  ).delete(synchronize_session=False)
-
-  for _id in api_org.ids:
-      if _id.typeUri.split('/')[-1] != 'peoplesoft_deptid':
-          continue
-      db_dept_org = UmnDeptPureOrg(
-        pure_org_id = get_pure_id(api_org),
-        pure_org_uuid = api_org.uuid,
+    for _id in api_org.ids:
+        if _id.typeUri.split('/')[-1] != 'peoplesoft_deptid':
+            continue
+  
         deptid = _id.value
-      )
-      session.add(db_dept_org)
+        pure_org_id = get_pure_id(api_org)
+  
+        db_dept_org = session.query(UmnDeptPureOrg).filter(
+            UmnDeptPureOrg.deptid == deptid
+        ).one_or_none()
+        if db_dept_org is None:
+            db_dept_org = UmnDeptPureOrg(
+                pure_org_id = pure_org_id,
+                pure_org_uuid = api_org.uuid,
+                deptid = deptid
+            )
+        else:
+            db_dept_org.pure_org_uuid = api_org.uuid
+            db_dept_org.pure_org_id = pure_org_id
+        session.add(db_dept_org)
 
 def get_pure_org(pure_org_uuid):
   pure_org = None
