@@ -110,81 +110,88 @@ def get_pure_id(api_org):
     )
   return pure_id
 
-def db_org_depth_first_search(session, parent_org, visited={}):
-    if parent_org.pure_uuid not in visited:
-        visited[parent_org.pure_uuid] = parent_org
-        for child_org in session.query(PureOrg).filter(
-            PureOrg.parent_pure_id == parent_org.pure_id, PureOrg.type != 'peoplesoft deptid'
-        ).all():
-            db_org_depth_first_search(session, child_org, visited)
-    return visited
+def db_org_depth_first_search(session, parent_org):
+    yield parent_org
+    visited = set()
+    visited.add(parent_org.pure_uuid)
+    children = db_org_children(session, parent_org)
+    while children:
+        child_org = children.pop()
+        if child_org.pure_uuid not in visited:
+            yield child_org
+            visited.add(child_org.pure_uuid)
+            children.extend(db_org_children(session, child_org))
 
-def update_internal_org_tree(session):
-    # Unviersity of Minnesota org. There's probably a better way to do this...
-    root_org = session.query(PureOrg).filter(PureOrg.pure_id == 'GLSGXMKPL').one()
+def db_org_children(session, parent_org):
+    return session.query(PureOrg).filter(
+            PureOrg.pure_internal == 'Y',
+            PureOrg.parent_pure_id == parent_org.pure_id,
+            PureOrg.type != 'peoplesoft deptid'
+        ).all()
 
-    for pure_uuid, pure_org in db_org_depth_first_search(session, root_org).items():
-        pure_org_immediate_children = {
-            org.pure_uuid:org for org in
-            session.query(PureOrg).filter(
-                PureOrg.parent_pure_uuid == pure_uuid,
-                PureOrg.type != 'peoplesoft deptid'
-            ).all()
-        }
-        pure_internal_org = session.query(PureInternalOrg).filter(PureInternalOrg.pure_uuid == pure_uuid).one_or_none()
-        parent_pure_internal_org = session.query(PureInternalOrg).filter(PureInternalOrg.pure_uuid == pure_org.parent_pure_uuid).one_or_none()
-        if pure_internal_org is None:
-            if parent_pure_internal_org:
-                pure_internal_org = PureInternalOrg(
-                    parent_id=parent_pure_internal_org.id,
-                    pure_id=pure_org.pure_id,
-                    name_en=pure_org.name_en,
-                    pure_uuid=pure_uuid
+def update_db_mptt_orgs(session):
+    root_db_mptt_org = session.query(PureInternalOrg).filter(PureInternalOrg.left == 1).one()
+    root_db_org = session.query(PureOrg).filter(PureOrg.pure_id == root_db_mptt_org.pure_id).one()
+
+    for db_org in db_org_depth_first_search(session, root_db_org):
+        db_mptt_org = session.query(PureInternalOrg).filter(
+            PureInternalOrg.pure_uuid == db_org.pure_uuid
+        ).one_or_none()
+        parent_db_mptt_org = session.query(PureInternalOrg).filter(
+            PureInternalOrg.pure_uuid == db_org.parent_pure_uuid
+        ).one_or_none()
+        if db_mptt_org is None:
+            if parent_db_mptt_org:
+                db_mptt_org = PureInternalOrg(
+                    parent_id=parent_db_mptt_org.id,
+                    pure_id=db_org.pure_id,
+                    name_en=db_org.name_en,
+                    pure_uuid=db_org.pure_uuid
                 )
-                session.add(pure_internal_org)
-                session.commit()
+                session.add(db_mptt_org)
             else:
                 experts_etl_logger.warning(
                     'cannot create pure_internal_org: no parent with pure_org.pure_uuid',
                     extra={
                         'pure_api_record_type': pure_api_record_type,
-                        'pure_uuid': pure_uuid,
-                        'pure_id': pure_org.pure_id,
-                        'name_en': pure_org.name_en,
+                        'pure_uuid': db_org.pure_uuid,
+                        'pure_id': db_org.pure_id,
+                        'name_en': db_org.name_en,
                     }
                 )
-        if pure_internal_org:
-            pure_internal_org_immediate_children = {
+        else:
+            db_mptt_org_immediate_children = {
                 org.pure_uuid:org for org in
-                session.query(PureInternalOrg).filter(PureInternalOrg.parent_id == pure_internal_org.id).all()
+                session.query(PureInternalOrg).filter(PureInternalOrg.parent_id == db_mptt_org.id).all()
             }
-            for child_pure_uuid, child_pure_org in pure_org_immediate_children.items():
-                if child_pure_org.pure_uuid in pure_internal_org_immediate_children:
-                    child_pure_internal_org = pure_internal_org_immediate_children[child_pure_uuid]
-                    child_pure_internal_org.pure_id = child_pure_org.pure_id
-                    child_pure_internal_org.name_en = child_pure_org.name_en
+            for child_db_org in db_org_children(session, db_org):
+                child_pure_uuid = child_db_org.pure_uuid
+                if child_pure_uuid in db_mptt_org_immediate_children:
+                    child_db_mptt_org = db_mptt_org_immediate_children[child_pure_uuid]
+                    child_db_mptt_org.pure_id = child_db_org.pure_id
+                    child_db_mptt_org.name_en = child_db_org.name_en
                 else:
-                    child_pure_internal_org = session.query(PureInternalOrg).filter(PureInternalOrg.pure_uuid == child_pure_uuid).one_or_none()
-                    if child_pure_internal_org:
-                        child_pure_internal_org.parent_id = pure_internal_org.id
-                        child_pure_internal_org.pure_id = child_pure_org.pure_id
-                        child_pure_internal_org.name_en = child_pure_org.name_en
+                    child_db_mptt_org = session.query(PureInternalOrg).filter(PureInternalOrg.pure_uuid == child_pure_uuid).one_or_none()
+                    if child_db_mptt_org:
+                        child_db_mptt_org.parent_id = db_mptt_org.id
+                        child_db_mptt_org.pure_id = child_db_org.pure_id
+                        child_db_mptt_org.name_en = child_db_org.name_en
                     else:
                         max_id = session.query(func.max(PureInternalOrg.id)).scalar()
-                        child_pure_internal_org = PureInternalOrg(
+                        child_db_mptt_org = PureInternalOrg(
                             id=max_id+1,
-                            parent_id=pure_internal_org.id,
-                            pure_id=child_pure_org.pure_id,
-                            name_en=child_pure_org.name_en,
+                            parent_id=db_mptt_org.id,
+                            pure_id=child_db_org.pure_id,
+                            name_en=child_db_org.name_en,
                             pure_uuid=child_pure_uuid
                         )
-                session.add(child_pure_internal_org)
-                session.commit()
+                session.add(child_db_mptt_org)
 
     # Delete any internal orgs that no longer exist in PureOrg:
     session.query(PureInternalOrg).filter(
         ~session.query(PureOrg).filter(PureOrg.pure_uuid == PureInternalOrg.pure_uuid).exists()
     ).delete(synchronize_session=False)
+
     session.commit()
 
 def run(
@@ -239,7 +246,7 @@ def run(
     mark_api_orgs_as_processed(session, pure_api_record_logger, processed_api_org_uuids)
     session.commit()
 
-    update_internal_org_tree(session)
+    update_db_mptt_orgs(session)
 
   loggers.rollover(pure_api_record_logger)
   experts_etl_logger.info('ending: transforming/loading', extra={'pure_api_record_type': pure_api_record_type})
