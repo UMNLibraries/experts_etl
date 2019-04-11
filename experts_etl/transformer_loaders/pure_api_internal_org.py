@@ -125,7 +125,7 @@ def db_org_depth_first_search(session, parent_org):
 def db_org_children(session, parent_org):
     return session.query(PureOrg).filter(
             PureOrg.pure_internal == 'Y',
-            PureOrg.parent_pure_id == parent_org.pure_id,
+            PureOrg.parent_pure_uuid == parent_org.pure_uuid,
             PureOrg.type != 'peoplesoft deptid'
         ).all()
 
