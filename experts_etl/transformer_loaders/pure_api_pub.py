@@ -206,7 +206,7 @@ def run(
           author_collab_assoc = author_assoc
           author_collab_pure_uuid = author_collab_assoc.authorCollaboration.uuid
 
-          db_author_collab = session.query(AuthorCollaboraion).filter(
+          db_author_collab = session.query(AuthorCollaboration).filter(
             AuthorCollaboration.pure_uuid == author_collab_pure_uuid
           ).one_or_none()
           if db_author_collab is None:
