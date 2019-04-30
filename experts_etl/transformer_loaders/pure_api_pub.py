@@ -6,7 +6,7 @@ import itertools
 import uuid
 from experts_dw import db
 from sqlalchemy import and_, func
-from experts_dw.models import PureApiPub, PureApiPubHst, Pub, Person, PubPerson, PureOrg, PubPersonPureOrg
+from experts_dw.models import PureApiPub, PureApiPubHst, Pub, Person, PubPerson, PureOrg, PubPersonPureOrg, AuthorCollaboration, PubAuthorCollaboration
 from experts_etl import loggers
 from pureapi import response
 
@@ -188,15 +188,51 @@ def run(
 
       ## associations
     
+      author_ordinal = 0
       missing_person = False
       missing_person_pure_uuid = False
       missing_org = False
-      person_ordinal = 0
       all_person_uuids = set()
+      pub_author_collabs = []
       pub_persons = []
       pub_person_pure_orgs = []
     
-      for person_assoc in api_pub.personAssociations:
+      # personAssociations can contain authorCollaboration's, which are not persons at all,
+      # so we call this variable author_assoc, to be more accurate here:
+      for author_assoc in api_pub.personAssociations:
+        author_ordinal += 1
+
+        if 'authorCollaboration' in author_assoc:
+          author_collab_assoc = author_assoc
+          author_collab_pure_uuid = author_collab_assoc.authorCollaboration.uuid
+
+          db_author_collab = session.query(AuthorCollaboraion).filter(
+            AuthorCollaboration.pure_uuid == author_collab_pure_uuid
+          ).one_or_none()
+          if db_author_collab is None:
+            db_author_collab = AuthorCollaboration(
+              uuid = str(uuid.uuid4()),
+              pure_uuid = author_collab_pure_uuid,
+            )
+          # This is less than ideal, but for now we just update the author collaboration
+          # name with whatever value this record includes:
+          db_author_collab.name = author_collab_assoc.name[0].value
+          session.add(db_author_collab)
+
+          pub_author_collab = PubAuthorCollaboration(
+            pub_uuid = db_pub.uuid,
+            author_collaboration_uuid = db_author_collab.uuid,
+            author_ordinal = author_ordinal,
+
+            # TODO: This needs work. We may have tried mapping these to CSL values at
+            # one point, but now we're just taking what Pure gives us.
+            author_role = author_collab_assoc.personRole[0].value.lower(),
+          )
+          pub_author_collabs.append(pub_author_collab)
+
+          continue
+
+        person_assoc = author_assoc
         person_pure_uuid = None
         if 'person' in person_assoc:
           person_pure_uuid = person_assoc.person.uuid
@@ -204,7 +240,7 @@ def run(
         if 'externalPerson' in person_assoc:
           person_pure_uuid = person_assoc.externalPerson.uuid
           person_pure_internal = 'N'
-        if person_pure_uuid == None:
+        if person_assoc is not None and person_pure_uuid is None:
           missing_person_pure_uuid = True
           break
     
@@ -215,13 +251,11 @@ def run(
           missing_person = True
           break
     
-        person_ordinal += 1
-    
         if db_person.uuid not in all_person_uuids:
           pub_person = PubPerson(
             pub_uuid = db_pub.uuid,
             person_uuid = db_person.uuid,
-            person_ordinal = person_ordinal,
+            person_ordinal = author_ordinal,
       
             # TODO: This needs work. We may have tried mapping these to CSL values at
             # one point, but now we're just taking what Pure gives us.
@@ -287,6 +321,12 @@ def run(
 
       # Now we can also delete and re-create the associations for this research output:
 
+      session.query(PubAuthorCollaboration).filter(
+        PubAuthorCollaboration.pub_uuid == db_pub.uuid
+      ).delete(synchronize_session=False)
+      for pub_author_collab in pub_author_collabs:
+        session.add(pub_author_collab)
+    
       session.query(PubPerson).filter(
         PubPerson.pub_uuid == db_pub.uuid
       ).delete(synchronize_session=False)
