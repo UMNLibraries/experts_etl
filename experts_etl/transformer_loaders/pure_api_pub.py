@@ -192,8 +192,9 @@ def run(
       missing_person = False
       missing_person_pure_uuid = False
       missing_org = False
-      all_person_uuids = set()
       pub_author_collabs = []
+      all_author_collab_uuids = set()
+      all_person_uuids = set()
       pub_persons = []
       pub_person_pure_orgs = []
     
@@ -206,6 +207,11 @@ def run(
           author_collab_assoc = author_assoc
           author_collab_pure_uuid = author_collab_assoc.authorCollaboration.uuid
 
+          # Sometimes Pure records contain duplicate author collaborations. Grrr...
+          if author_collab_pure_uuid in all_author_collab_uuids:
+            continue
+          all_author_collab_uuids.add(author_collab_pure_uuid)
+
           db_author_collab = session.query(AuthorCollaboration).filter(
             AuthorCollaboration.pure_uuid == author_collab_pure_uuid
           ).one_or_none()
@@ -216,7 +222,7 @@ def run(
             )
           # This is less than ideal, but for now we just update the author collaboration
           # name with whatever value this record includes:
-          db_author_collab.name = author_collab_assoc.name[0].value
+          db_author_collab.name = author_collab_assoc.authorCollaboration.name[0].value
           session.add(db_author_collab)
 
           pub_author_collab = PubAuthorCollaboration(
