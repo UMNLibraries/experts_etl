@@ -10,7 +10,7 @@ class ExpertsEtlUmnDataError(ExpertsEtlError):
         for attr in ['jobcode','deptid','emplid']:
           if attr in kwargs:
             self.__dict__[attr] = kwargs[attr]
-        self.message = json.dumps({'message': message, **kwargs})
+        self.message = message
         super().__init__(
             self.message
         )
