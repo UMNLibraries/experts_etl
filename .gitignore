@@ -1,5 +1,9 @@
 # experts_etl
+*.csv
 *.log*
+*.tsv
+*.txt
+*.xml
 
 # Temporary output files and other data:
 data/
