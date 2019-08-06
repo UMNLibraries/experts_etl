@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 from experts_dw.models import PureEligibleAffiliateJob, PureEligibleJobcode, UmnDeptPureOrg
-from experts_etl.umn_data_error import report_unknown_dept_errors
+from experts_etl.umn_data_error import record_unknown_dept_errors
 from sqlalchemy import and_
 
 def extract_transform(session, emplid):
@@ -68,11 +68,17 @@ def transform_entry_groups(session, entry_groups):
 
     org_id = get_org_id(session, job['deptid'])
     if org_id is None:
-        report_unknown_dept_errors(
+        record_unknown_dept_errors(
             session=session,
-            jobcode=group['um_affil_relation'],
-            deptid=group['deptid'],
             emplid=last_entry['emplid'],
+            jobcode=group['um_affil_relation'],
+            jobcode_descr=last_entry['title'],
+            deptid=group['deptid'],
+            deptid_descr=last_entry['deptid_descr'],
+            um_college=last_entry['um_college'],
+            um_college_descr=last_entry['um_college_descr'],
+            um_campus=last_entry['um_campus'],
+            um_campus_descr=last_entry['um_campus_descr'],
         )
         continue
     job['org_id'] = org_id

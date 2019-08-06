@@ -32,6 +32,16 @@ transformer_loaders = list(map(
   ]
 ))
 
+syncers = list(map(
+  lambda x: 'experts_etl.' + x, 
+  [
+    'oit_to_edw.person',
+    'edw_to_pure.person',
+    'edw_to_pure.user',
+    'umn_data_error',
+  ]
+))
+
 def subprocess(module_name):
   module = importlib.import_module(module_name)
 
@@ -73,7 +83,7 @@ def run():
     }
   )
 
-  for module_name in extractor_loaders + transformer_loaders:
+  for module_name in extractor_loaders + transformer_loaders + syncers: 
     try:
       # Must include a comma after a single arg, or multiprocessing seems to
       # get confused and think we're passing multiple arguments:

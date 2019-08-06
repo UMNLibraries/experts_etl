@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from experts_dw import db
 from experts_dw.models import PureSyncPersonData, PureSyncStaffOrgAssociation
+from experts_etl import loggers
 
 from jinja2 import Environment, PackageLoader, Template, select_autoescape
 env = Environment(

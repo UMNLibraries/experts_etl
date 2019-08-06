@@ -2,7 +2,7 @@ import pandas as pd
 import re
 from datetime import datetime
 from experts_dw.models import PureEligibleEmployeeJob, PureEligibleJobcode, PureJobcodeDefaultOverride, KnownOverrideableJobcodeDept, UmnDeptPureOrg
-from experts_etl.umn_data_error import report_unknown_dept_errors, report_unknown_jobcode_deptid_errors
+from experts_etl.umn_data_error import record_unknown_dept_errors, record_unknown_jobcode_deptid_errors
 from sqlalchemy import and_
 
 def extract_transform(session, emplid):
@@ -116,11 +116,17 @@ def transform_entry_groups(session, entry_groups):
 
     org_id = get_org_id(session, reference_entry['deptid'])
     if org_id is None:
-        report_unknown_dept_errors(
+        record_unknown_dept_errors(
             session=session,
-            jobcode=reference_entry['jobcode'],
-            deptid=reference_entry['deptid'],
             emplid=reference_entry['emplid'],
+            jobcode=reference_entry['jobcode'],
+            jobcode_descr=reference_entry['jobcode_descr'],
+            deptid=reference_entry['deptid'],
+            deptid_descr=reference_entry['deptid_descr'],
+            um_college=reference_entry['um_college'],
+            um_college_descr=reference_entry['um_college_descr'],
+            um_campus=reference_entry['um_campus'],
+            um_campus_descr=reference_entry['um_campus_descr'],
         )
         continue
     job['org_id'] = org_id
@@ -166,11 +172,17 @@ def transform_entry_groups(session, entry_groups):
                 if jobcode_default_overrides:
                     job['profiled'] = jobcode_default_overrides.profiled
             else:
-                report_unknown_jobcode_deptid_errors(
+                record_unknown_jobcode_deptid_errors(
                     session=session,
-                    jobcode=reference_entry['jobcode'],
-                    deptid=reference_entry['deptid'],
                     emplid=reference_entry['emplid'],
+                    jobcode=reference_entry['jobcode'],
+                    jobcode_descr=reference_entry['jobcode_descr'],
+                    deptid=reference_entry['deptid'],
+                    deptid_descr=reference_entry['deptid_descr'],
+                    um_college=reference_entry['um_college'],
+                    um_college_descr=reference_entry['um_college_descr'],
+                    um_campus=reference_entry['um_campus'],
+                    um_campus_descr=reference_entry['um_campus_descr'],
                 )
   
     jobs.append(job)

@@ -5,40 +5,152 @@ class ExpertsEtlError(Exception):
     pass
 
 class ExpertsEtlUmnDataError(ExpertsEtlError):
+    ids = []
+    attrs = [
+      'emplid',
+      'jobcode',
+      'jobcode_descr',
+      'deptid',
+      'deptid_descr',
+      'persons_in_dept',
+      'um_college',
+      'um_college_descr',
+      'um_campus',
+      'um_campus_descr',
+    ]
     def __init__(self, message, **kwargs):
         self.id = self.generate_id(**kwargs)
-        for attr in ['jobcode','deptid','emplid']:
-          if attr in kwargs:
-            self.__dict__[attr] = kwargs[attr]
+        for attr in self.attrs:
+            self.__dict__[attr] = kwargs[attr] if attr in kwargs else None
         self.message = message
         super().__init__(
             self.message
         )
 
     def generate_id(self, **kwargs):
-        ids = {'exception': type(self).__name__, **kwargs}
+        ids = {k: kwargs[k] for k in filter(lambda k: k in self.ids, kwargs.keys())}
+        ids['exception'] = type(self).__name__
         return hashlib.sha1(
             json.dumps(sorted(ids.items())).encode()
         ).hexdigest()
 
 class ExpertsEtlUnknownDept(ExpertsEtlUmnDataError):
-    def __init__(self, deptid):
-        super().__init__('unknown department', **{'deptid':deptid})
+    ids = ['deptid']
+    def __init__(
+        self,
+        *,
+        deptid,
+        deptid_descr=None,
+        persons_in_dept=None,
+        um_college=None,
+        um_college_descr=None,
+        um_campus=None,
+        um_campus_descr=None,
+    ):
+        super().__init__(
+            'unknown department',
+            **{
+                'deptid': deptid,
+                'deptid_descr': deptid_descr,
+                'persons_in_dept': persons_in_dept,
+                'um_college': um_college,
+                'um_college_descr': um_college_descr,
+                'um_campus': um_campus,
+                'um_campus_descr': um_campus_descr,
+            }
+        )
 
 class ExpertsEtlJobWithUnknownDept(ExpertsEtlUmnDataError):
-    def __init__(self, jobcode, deptid, emplid):
-        super().__init__('job with unknown department', **{'jobcode':jobcode, 'deptid':deptid, 'emplid':emplid})
+    ids = ['jobcode','deptid','emplid']
+    def __init__(
+        self,
+        *,
+        emplid,
+        jobcode,
+        jobcode_descr=None,
+        deptid,
+        deptid_descr=None,
+        um_college=None,
+        um_college_descr=None,
+        um_campus=None,
+        um_campus_descr=None,
+    ):
+        super().__init__(
+            'job with unknown department',
+            **{
+                'emplid':emplid,
+                'jobcode':jobcode,
+                'jobcode_descr': jobcode_descr,
+                'deptid':deptid,
+                'deptid_descr': deptid_descr,
+                'um_college': um_college,
+                'um_college_descr': um_college_descr,
+                'um_campus': um_campus,
+                'um_campus_descr': um_campus_descr,
+            }
+        )
 
 class ExpertsEtlUnknownJobcodeDeptid(ExpertsEtlUmnDataError):
-    def __init__(self, jobcode, deptid):
-        super().__init__('unknown overrideable jobcode/deptid pair', **{'jobcode': jobcode, 'deptid':deptid})
+    ids = ['jobcode','deptid']
+    def __init__(
+        self,
+        *,
+        jobcode,
+        jobcode_descr=None,
+        deptid,
+        deptid_descr=None,
+        um_college=None,
+        um_college_descr=None,
+        um_campus=None,
+        um_campus_descr=None,
+    ):
+        super().__init__(
+            'unknown overrideable jobcode/deptid pair',
+            **{
+                'jobcode': jobcode,
+                'jobcode_descr': jobcode_descr,
+                'deptid':deptid,
+                'deptid_descr': deptid_descr,
+                'um_college': um_college,
+                'um_college_descr': um_college_descr,
+                'um_campus': um_campus,
+                'um_campus_descr': um_campus_descr,
+            }
+        )
 
 class ExpertsEtlJobWithUnknownJobcodeDeptid(ExpertsEtlUmnDataError):
-    def __init__(self, jobcode, deptid, emplid):
-        super().__init__('job with unknown overrideable jobcode/deptid pair', **{'jobcode':jobcode, 'deptid':deptid, 'emplid':emplid})
+    ids = ['jobcode','deptid','emplid']
+    def __init__(
+        self,
+        *,
+        emplid,
+        jobcode,
+        jobcode_descr=None,
+        deptid,
+        deptid_descr=None,
+        um_college=None,
+        um_college_descr=None,
+        um_campus=None,
+        um_campus_descr=None,
+    ):
+        super().__init__(
+            'job with unknown overrideable jobcode/deptid pair',
+            **{
+                'emplid':emplid,
+                'jobcode':jobcode,
+                'jobcode_descr': jobcode_descr,
+                'deptid':deptid,
+                'deptid_descr': deptid_descr,
+                'um_college': um_college,
+                'um_college_descr': um_college_descr,
+                'um_campus': um_campus,
+                'um_campus_descr': um_campus_descr,
+            }
+        )
 
 class ExpertsEtlPersonNoJobData(ExpertsEtlUmnDataError):
-    def __init__(self, emplid):
+    ids = ['emplid']
+    def __init__(self, *, emplid):
         super().__init__('unable to find or generate any job data for person', **{'emplid':emplid})
 
 # The rest of these should never happen, because the associated columns are not nullable in EDW.

@@ -7,7 +7,7 @@ from experts_dw import db
 from sqlalchemy import and_, func, text
 from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonData, PureSyncStaffOrgAssociation, PureSyncUserData
 from experts_etl import loggers, transformers
-from experts_etl.umn_data_error import report_person_no_job_data_error
+from experts_etl.umn_data_error import record_person_no_job_data_error
 from . import affiliate_job, employee_job
 
 # defaults:
@@ -39,7 +39,7 @@ def run(
                 continue
             person_dict = transform(session, extract(session, demog.emplid))
             if len(person_dict['jobs']) == 0:
-                report_person_no_job_data_error(session=session, emplid=demog.emplid)
+                record_person_no_job_data_error(session=session, emplid=demog.emplid)
                 continue
             load(session, person_dict)
             load_count += 1

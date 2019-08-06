@@ -105,7 +105,7 @@ def get_pure_id(api_org):
     pure_id = api_org.externalId
   else:
     pure_id = next(
-      (id_ for id_ in api_org.ids if id_.typeUri =='/dk/atira/pure/organisation/organisationsources/organisationid'),
+      (id_.value for id_ in api_org.ids if id_.typeUri =='/dk/atira/pure/organisation/organisationsources/organisationid'),
       None
     )
   return pure_id
