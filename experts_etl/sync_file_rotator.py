@@ -22,7 +22,7 @@ def run(
     deleted_filenames = []
     for sync_type in sync_types:
         deleted_filenames.extend(
-            rotate_type(sync_type, sync_dir=sync_dir, keep_limit=keep_limit)
+            rotate(sync_type, sync_dir=sync_dir, keep_limit=keep_limit)
         )
 
     experts_etl_logger.info('ending: sync file rotation', extra={'pure_sync_job': 'sync_file_rotator'})
