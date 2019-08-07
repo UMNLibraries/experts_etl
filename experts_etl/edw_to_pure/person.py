@@ -20,7 +20,7 @@ db_name = 'hotel'
 dirname = os.path.dirname(os.path.realpath(__file__))
 if 'EXPERTS_ETL_SYNC_DIR' in os.environ:
   dirname = os.environ['EXPERTS_ETL_SYNC_DIR']
-output_filename = dirname + '/person_' + datetime.utcnow().strftime('%Y_%m_%d') + '.xml'
+output_filename = dirname + '/person_' + datetime.now().strftime('%Y-%m-%dT%H:%M:%S') + '.xml'
 
 def run(
     db_name=db_name,

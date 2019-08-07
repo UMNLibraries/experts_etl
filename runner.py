@@ -4,6 +4,7 @@ import importlib
 import multiprocessing as mp
 import os
 import time
+from experts_etl import sync_file_rotator
 from experts_etl import loggers
 experts_etl_logger = loggers.experts_etl_logger()
 
@@ -39,6 +40,7 @@ syncers = list(map(
     'edw_to_pure.person',
     'edw_to_pure.user',
     'umn_data_error',
+    'sync_file_rotator',
   ]
 ))
 
