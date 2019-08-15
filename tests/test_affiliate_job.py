@@ -1,7 +1,7 @@
 import datetime, re
 import pytest
 from experts_dw import db
-from experts_etl import affiliate_job
+from experts_etl.oit_to_edw import affiliate_job
 
 @pytest.fixture
 def session():
@@ -52,9 +52,12 @@ def test_extract_transform(session):
 
   expected_jobs = [
     {
+      'affiliation_id': '9403A',
       'deptid': '11735',
+      'um_campus': 'TXXX',
       'org_id': 'WSSKOZQ',
       'job_title': 'Adjunct Assistant Professor',
+      'job_description': 'Adjunct Assistant Professor',
       'employment_type': 'adjunct_faculty',
       'staff_type': 'nonacademic',
       'start_date': datetime.datetime(2015,4,6,0,0),

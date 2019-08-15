@@ -4,6 +4,7 @@ entries = [
   {
     'emplid': 'fake357',
     'deptid': '11735',
+    'um_campus': 'TXXX',
     'title': 'Adjunct Assistant Professor',
     'um_affiliate_id': '01',
     'um_affil_relation': '9403A',
@@ -14,6 +15,7 @@ entries = [
   {
     'emplid': 'fake357',
     'deptid': '11735',
+    'um_campus': 'TXXX',
     'title': 'Adjunct Assistant Professor',
     'um_affiliate_id': '01',
     'um_affil_relation': '9403A',
@@ -36,9 +38,12 @@ entry_groups = [
 
 jobs = [
   {
+   'affiliation_id': '9403A',
    'deptid': '11735',
+   'um_campus': 'TXXX',
    'org_id': 'WSSKOZQ',
    'job_title': 'Adjunct Assistant Professor',
+   'job_description': 'Adjunct Assistant Professor',
    'employment_type': 'adjunct_faculty',
    'staff_type': 'nonacademic',
    'start_date': datetime.datetime(2015,4,6,0,0),

@@ -239,8 +239,9 @@ def transform(session, person_dict):
   return person_dict
 
 def serialize(person_dict):
-  template = env.get_template('person.xml.j2')
-  return template.render(person_dict)
+  pass
+  #template = env.get_template('person.xml.j2')
+  #return template.render(person_dict)
 
 def transform_staff_org_assoc_id(jobs, person_id):
   transformed_jobs = []

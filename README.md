@@ -22,7 +22,7 @@ experts_etl requires Python >= 3.
 To connect to the Pure server, including when running `tests/test_client.py`, the
 `PURE_API_URL` and `PURE_API_KEY` environment variables must be set. To connect to
 the Experts@Minnesota Data Warehouse and the UMN OIT Data Warehouse, the environment
-variables `DB_USER`, `DB_PASS`, `DWE_DB_SERVICE_NAME`, and `HOTEL_DB_SERVICE_NAME`
+variables `EXPERTS_DB_USER`, `EXPERTS_DB_PASS`, and `EXPERTS_DB_SERVICE_NAME`
 must be set.
 
 One option is to set these environment variables in a `.env` file. See `env.dist` for an example.

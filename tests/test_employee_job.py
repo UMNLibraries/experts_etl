@@ -2,7 +2,7 @@ import datetime, re
 import pandas as pd
 import pytest
 from experts_dw import db
-from experts_etl import employee_job
+from experts_etl.oit_to_edw import employee_job
 
 @pytest.fixture
 def session():

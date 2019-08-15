@@ -1,6 +1,6 @@
 import datetime, pytest
 from experts_dw import db
-from experts_etl import person
+from experts_etl.oit_to_edw import person
 
 @pytest.fixture
 def session():
@@ -136,11 +136,14 @@ def test_transform(session):
     'profiled': True,
     'jobs': [
       {
+        'affiliation_id': '9403',
         'deptid': '11130',
+        'um_campus': 'TXXX',
         'empl_rcdno': '0',
         'employment_type': 'faculty',
         'end_date': None,
         'job_title': 'Assistant Professor',
+        'job_description': 'Assistant Professor',
         'org_id': 'IHRBIHRB',
         'staff_type': 'academic',
         'start_date': datetime.datetime(2014, 8, 29, 0, 0),
@@ -153,6 +156,7 @@ def test_transform(session):
   }
   assert transformed_person_dict == expected_transformed_person_dict
 
+@pytest.mark.skip(reason="serialization moved to edw_to_pure modules")
 def test_serialize():
   transformed_person_dict = {
     'emplid': '5150075',
@@ -224,6 +228,7 @@ def test_serialize():
 
   assert person_xml == expected_person_xml
 
+@pytest.mark.skip(reason="serialization moved to edw_to_pure modules")
 def test_extract_transform_serialize(session):
   person_xml = person.extract_transform_serialize(session, '5150075')
 
