@@ -155,13 +155,13 @@ def run(
     for api_change in extract_api_changes(session):
 
       db_org = get_db_org(session, api_change.uuid)
-      if db_org and db_org_owns_pubs(session, db_org):
-        # There is at least one pub pointing to this org. The pub will probably be
-        # updated or deleted, but we'll wait to delete the org until that happens.
-        continue
 
       if api_change.change_type == 'DELETE':
         if db_org:
+          if db_org_owns_pubs(session, db_org):
+            # There is at least one pub pointing to this org. The pub will probably be
+            # updated or deleted, but we'll wait to delete the org until that happens.
+            continue
           delete_db_org(session, db_org)
         processed_api_change_uuids.append(api_change.uuid)
         continue
