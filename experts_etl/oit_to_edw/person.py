@@ -378,14 +378,14 @@ def transform_primary_job(affiliate_jobs, employee_jobs, primary_empl_rcdno):
 
       if len(active_lowest_empl_rcdnos) == 1:
         for job in active_emp_jobs:
-          if job['empl_rcdno'] == active_lowest_empl_rcdnos[0] and job['start_date'] == min(active_earliest_start_dates[0]):
+          if job['empl_rcdno'] == active_lowest_empl_rcdnos[0] and job['start_date'] == min(active_earliest_start_dates):
             job['primary'] = True
             primary_job_set = True
             break
       else:
         # Just pick one of the active jobs with the earliest start date and lowest empl_rcdno:
         for job in active_emp_jobs:
-          if job['empl_rcdno'] == min(active_lowest_empl_rcdnos) and job['start_date'] == min(active_earliest_start_dates[0]):
+          if job['empl_rcdno'] == min(active_lowest_empl_rcdnos) and job['start_date'] == min(active_earliest_start_dates):
             job['primary'] = True
             primary_job_set = True
             break
