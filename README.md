@@ -27,6 +27,22 @@ must be set.
 
 One option is to set these environment variables in a `.env` file. See `env.dist` for an example.
 
+`EXPERTS_DB_SERVICE_NAME` must identify an Oracle tnsnames connection string.
+
+```
+# Example env
+EXPERTS_DB_SERVICE_NAME=hoteltst.oit
+
+# $ORACLE_HOME/network/admin/tnsnames.ora
+hoteltst.oit =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(Host = oracle-hotel-tst.oit.umn.edu)(Port = 1521))
+    (CONNECT_DATA =
+      (SERVICE_NAME = hoteltst.oit)
+    )
+  )
+```
+
 ### pyenv, venv, and poetry 
 
 To install and manage Python versions we use [pyenv](https://github.com/pyenv/pyenv), and to manage
