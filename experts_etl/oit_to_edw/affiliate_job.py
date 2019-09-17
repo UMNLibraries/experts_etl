@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-from experts_dw.models import PureEligibleAffiliateJob, PureEligibleJobcode, UmnDeptPureOrg
+from experts_dw.models import PureEligibleAffiliateJob, PureEligibleAffiliateJobcode, UmnDeptPureOrg
 from experts_etl.umn_data_error import record_unknown_dept_errors
 from sqlalchemy import and_
 
@@ -18,12 +18,12 @@ def extract(session, emplid):
 
 """
 status_flag values:
-C Current 
+C Current
 F Future (We exclude these entries in the SQL views.)
 H Historical
 
 status values:
-A Active 
+A Active
 I Inactive
 """
 active_states = ['A']
@@ -36,7 +36,7 @@ def transform(session, entries):
 
   entry_groups = group_entries(entries)
   jobs = transform_entry_groups(session, entry_groups)
-      
+
   return jobs
 
 def get_org_id(session, deptid):
@@ -87,19 +87,15 @@ def transform_entry_groups(session, entry_groups):
       job['end_date'] = last_entry['effdt']
     else:
       job['end_date'] = None
-  
-    # We now set visibility = 'Restricted' and 'profiled' = False for all affiliate jobs:
-    job['visibility'] = 'Restricted'
-    job['profiled'] = False
-  
-    # We now set staff_type = 'nonacademic' for all affiliate jobs:
-    job['staff_type'] = 'nonacademic'
 
-    jobcode_defaults = session.query(PureEligibleJobcode).filter(
-        PureEligibleJobcode.jobcode == group['um_affil_relation']
+    jobcode_defaults = session.query(PureEligibleAffiliateJobcode).filter(
+        PureEligibleAffiliateJobcode.jobcode == group['um_affil_relation']
     ).one()
     job['job_description'] = jobcode_defaults.pure_job_description
     job['employment_type'] = jobcode_defaults.default_employed_as
+    job['visibility'] = jobcode_defaults.default_visibility
+    job['profiled'] = jobcode_defaults.default_profiled
+    job['staff_type'] = jobcode_defaults.default_staff_type
 
     jobs.append(job)
 
@@ -149,7 +145,7 @@ def group_entries(entries):
 
   df = pd.DataFrame(data=entries)
   df_groups = df.groupby(['deptid','um_affiliate_id','um_affil_relation'])
-  
+
   entry_groups = []
   for key, rows in df_groups:
     rows.sort_values(['effdt'])
