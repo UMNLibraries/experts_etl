@@ -65,6 +65,20 @@ def test_extract_transform(session):
       'visibility': 'Restricted',
       'profiled': False,
     },
+    {
+      'affiliation_id': '9401',
+      'deptid': '11800',
+      'um_campus': 'TXXX',
+      'org_id': 'DBXNQ',
+      'job_title': 'Professor',
+      'job_description': 'Professor',
+      'employment_type': 'medical_school_affiliate',
+      'staff_type': 'nonacademic',
+      'start_date': datetime.datetime(2015,4,6,0,0),
+      'end_date': None,
+      'visibility': 'Restricted',
+      'profiled': False,
+    },
   ]
 
   assert jobs == expected_jobs
