@@ -17,8 +17,8 @@ def test_extract(session):
   for entry in entries:
     assert isinstance(entry, dict)
     assert entry['emplid'] == emplid
-    assert re.match(r'^\d+$', entry['um_affiliate_id']) 
-    assert re.match(r'^\d+$', entry['deptid']) 
+    assert re.match(r'^\d+$', entry['um_affiliate_id'])
+    assert re.match(r'^\d+$', entry['deptid'])
     assert isinstance(entry['effdt'], datetime.datetime)
 
 @pytest.fixture(params=['fake357','fake531','fake531_2','fake531_3'])
