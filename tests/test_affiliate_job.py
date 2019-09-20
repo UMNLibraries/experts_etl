@@ -17,8 +17,8 @@ def test_extract(session):
   for entry in entries:
     assert isinstance(entry, dict)
     assert entry['emplid'] == emplid
-    assert re.match(r'^\d+$', entry['um_affiliate_id']) 
-    assert re.match(r'^\d+$', entry['deptid']) 
+    assert re.match(r'^\d+$', entry['um_affiliate_id'])
+    assert re.match(r'^\d+$', entry['deptid'])
     assert isinstance(entry['effdt'], datetime.datetime)
 
 @pytest.fixture(params=['fake357','fake531','fake531_2','fake531_3'])
@@ -62,6 +62,20 @@ def test_extract_transform(session):
       'staff_type': 'nonacademic',
       'start_date': datetime.datetime(2015,4,6,0,0),
       'end_date': datetime.datetime(2015,4,7,0,0),
+      'visibility': 'Restricted',
+      'profiled': False,
+    },
+    {
+      'affiliation_id': '9401',
+      'deptid': '11800',
+      'um_campus': 'TXXX',
+      'org_id': 'DBXNQ',
+      'job_title': 'Professor',
+      'job_description': 'Professor',
+      'employment_type': 'medical_school_affiliate',
+      'staff_type': 'nonacademic',
+      'start_date': datetime.datetime(2015,4,6,0,0),
+      'end_date': None,
       'visibility': 'Restricted',
       'profiled': False,
     },

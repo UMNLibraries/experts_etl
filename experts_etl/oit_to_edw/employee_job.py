@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 from datetime import datetime
-from experts_dw.models import PureEligibleEmployeeJob, PureEligibleJobcode, PureJobcodeDefaultOverride, KnownOverrideableJobcodeDept, UmnDeptPureOrg
+from experts_dw.models import PureEligibleEmployeeJob, PureEligibleEmployeeJobcode, PureEmployeeJobcodeDefaultOverride, KnownOverrideableEmployeeJobcodeDept, UmnDeptPureOrg
 from experts_etl.umn_data_error import record_unknown_dept_errors, record_unknown_jobcode_deptid_errors
 from sqlalchemy import and_
 
@@ -20,22 +20,22 @@ def extract(session, emplid):
 
 """
 status_flag values:
-C Current 
+C Current
 F Future (We exclude these entries in the SQL views.)
 H Historical
 
 empl_status values:
-A Active 
-D Deceased 
-L Leave of Absence 
-P Leave With Pay 
-Q Retired With Pay 
-R Retired 
-S Suspended 
-T Terminated 
-U Terminated With Pay 
-V Terminated Pension Pay Out 
-W Short Work Break 
+A Active
+D Deceased
+L Leave of Absence
+P Leave With Pay
+Q Retired With Pay
+R Retired
+S Suspended
+T Terminated
+U Terminated With Pay
+V Terminated Pension Pay Out
+W Short Work Break
 X Retired-Pension Administration
 """
 active_states = ['A', 'L', 'P', 'W']
@@ -48,7 +48,7 @@ def transform(session, entries):
 
   entry_groups = group_entries(entries)
   jobs = transform_entry_groups(session, entry_groups)
-      
+
   return jobs
 
 def get_org_id(session, deptid):
@@ -109,7 +109,7 @@ def transform_entry_groups(session, entry_groups):
       # job_entry_dt of the next job:
       if (
         next_group and
-        next_group['position_nbr'] == curr_group['position_nbr'] and 
+        next_group['position_nbr'] == curr_group['position_nbr'] and
         last_date_worked_df.empty
       ):
         job['end_date'] = next_group['job_entry_dt']
@@ -133,7 +133,7 @@ def transform_entry_groups(session, entry_groups):
 
     job['um_campus'] = reference_entry['um_campus']
 
-    if not job_is_active and job['end_date'] is None:   
+    if not job_is_active and job['end_date'] is None:
       if last_date_worked_df.empty:
         job['end_date'] = reference_entry['effdt']
       else:
@@ -142,8 +142,8 @@ def transform_entry_groups(session, entry_groups):
     job['job_title'] = reference_entry['jobcode_descr']
     job['empl_rcdno'] = reference_entry['empl_rcdno']
 
-    jobcode_defaults = session.query(PureEligibleJobcode).filter(
-        PureEligibleJobcode.jobcode == reference_entry['jobcode']
+    jobcode_defaults = session.query(PureEligibleEmployeeJobcode).filter(
+        PureEligibleEmployeeJobcode.jobcode == reference_entry['jobcode']
     ).one()
     job['job_description'] = jobcode_defaults.pure_job_description
     job['employment_type'] = jobcode_defaults.default_employed_as
@@ -160,14 +160,14 @@ def transform_entry_groups(session, entry_groups):
     if job['end_date'] is None:
         job['profiled'] = jobcode_defaults.default_profiled
         if jobcode_defaults.default_profiled_overrideable:
-            known_jobcode_dept = session.query(KnownOverrideableJobcodeDept).filter(
-                KnownOverrideableJobcodeDept.jobcode == reference_entry['jobcode'],
-                KnownOverrideableJobcodeDept.deptid == reference_entry['deptid']
+            known_jobcode_dept = session.query(KnownOverrideableEmployeeJobcodeDept).filter(
+                KnownOverrideableEmployeeJobcodeDept.jobcode == reference_entry['jobcode'],
+                KnownOverrideableEmployeeJobcodeDept.deptid == reference_entry['deptid']
             ).one_or_none()
             if known_jobcode_dept:
-                jobcode_default_overrides = session.query(PureJobcodeDefaultOverride).filter(
-                    PureJobcodeDefaultOverride.jobcode == reference_entry['jobcode'],
-                    PureJobcodeDefaultOverride.deptid == reference_entry['deptid']
+                jobcode_default_overrides = session.query(PureEmployeeJobcodeDefaultOverride).filter(
+                    PureEmployeeJobcodeDefaultOverride.jobcode == reference_entry['jobcode'],
+                    PureEmployeeJobcodeDefaultOverride.deptid == reference_entry['deptid']
                 ).one_or_none()
                 if jobcode_default_overrides:
                     job['profiled'] = jobcode_default_overrides.profiled
@@ -184,7 +184,7 @@ def transform_entry_groups(session, entry_groups):
                     um_campus=reference_entry['um_campus'],
                     um_campus_descr=reference_entry['um_campus_descr'],
                 )
-  
+
     jobs.append(job)
 
   return jobs
@@ -195,7 +195,7 @@ def group_entries(entries):
 
   df = pd.DataFrame(data=entries)
   position_nbr_groups = df.groupby(['position_nbr'])
-  
+
   entry_groups = []
   for position_nbr, position_entry_rows in position_nbr_groups:
     position_entry_rows.sort_values(['effdt','effseq'])
