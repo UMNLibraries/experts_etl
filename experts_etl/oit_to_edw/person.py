@@ -7,13 +7,14 @@ from experts_dw import db
 from sqlalchemy import and_, func, text
 from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonData, PureSyncStaffOrgAssociation, PureSyncUserData
 from experts_etl import loggers, transformers
+from experts_etl.demographics import latest_demographics_for_emplid
 from experts_etl.umn_data_error import record_person_no_job_data_error
 from . import affiliate_job, employee_job
 
 # defaults:
 
 db_name = 'hotel'
-transaction_record_limit = 100 
+transaction_record_limit = 100
 
 def run(
     # Do we need other default functions here?
@@ -39,7 +40,11 @@ def run(
                 continue
             person_dict = transform(session, extract(session, demog.emplid))
             if len(person_dict['jobs']) == 0:
-                record_person_no_job_data_error(session=session, emplid=demog.emplid)
+                record_person_no_job_data_error(
+                    session=session,
+                    emplid=demog.emplid,
+                    internet_id=person_dict['internet_id'],
+                )
                 continue
             load(session, person_dict)
             load_count += 1
@@ -177,20 +182,11 @@ from pure_eligible_demog_chng_hst
     session.commit()
 
 def extract_transform_serialize(session, emplid):
-  person_dict = extract(session, emplid)
-  return serialize(transform(session, person_dict))
+    person_dict = extract(session, emplid)
+    return serialize(transform(session, person_dict))
 
 def extract(session, emplid):
-  subqry = session.query(func.max(PureEligibleDemogChngHst.timestamp)).filter(PureEligibleDemogChngHst.emplid == emplid)
-
-  demog = (
-    session.query(PureEligibleDemogChngHst)
-    .filter(
-        PureEligibleDemogChngHst.emplid == emplid,
-        PureEligibleDemogChngHst.timestamp == subqry
-    )
-    .one_or_none()
-  )
+  demog = latest_demographics_for_emplid(session, emplid)
   person_dict = {c.name: getattr(demog, c.name) for c in demog.__table__.columns}
 
   person = (
@@ -222,13 +218,13 @@ def transform(session, person_dict):
     affiliate_jobs,
     employee_jobs,
     person_dict['primary_empl_rcdno']
-  )  
+  )
 
   if len(jobs_with_primary) > 0:
     jobs = transform_staff_type(jobs_with_primary)
     person_dict['profiled'] = transform_profiled(jobs)
     person_dict['jobs'] = transform_staff_org_assoc_id(jobs, person_dict['person_id'])
-  
+
     person_dict['visibility'] = 'Restricted'
     for job in jobs:
       if job['visibility'] == 'Public':
@@ -278,7 +274,7 @@ def transform_staff_org_assoc_id(jobs, person_id):
         jobs_include_primary = True
       if not transformed_job['end_date']:
         jobs_with_no_end_date.append(transformed_job)
-    
+
     job_to_keep = possibly_multiple_jobs[0]
     if len(jobs_with_no_end_date) > 0:
       job_to_keep = jobs_with_no_end_date[0]
@@ -300,7 +296,7 @@ def transform_primary_job(affiliate_jobs, employee_jobs, primary_empl_rcdno):
   transformed_emp_jobs = employee_jobs.copy()
   transformed_jobs = []
   primary_job_set = False
-  
+
   # Affiliate jobs have no empl_rcdno, and thus no primary_empl_rcdno will ever match them,
   # so they default to false:
   for job in transformed_aff_jobs:

@@ -39,7 +39,7 @@ def run(
         ticket_address = os.environ.get('EXPERTS_ETL_TICKET_EMAIL_ADDRESS')
 
     with sqlapi.transaction():
-        report_via_email(smtp_server=smtp_server, from_address=from_address, ticket_address=ticket_address) 
+        report_via_email(smtp_server=smtp_server, from_address=from_address, ticket_address=ticket_address)
     smtp_server.quit()
 
     experts_etl_logger.info('ending: error reporting', extra={'pure_sync_job': 'error_reporting'})
@@ -80,6 +80,7 @@ def create_csv_report(unreported_errors):
     fieldnames = [
       'message',
       'emplid',
+      'internet_id',
       'jobcode',
       'jobcode_descr',
       'deptid',
@@ -97,11 +98,11 @@ def create_csv_report(unreported_errors):
     writer.writerows(unreported_errors)
     return csv_report.getvalue()
 
-def record_person_no_job_data_error(session, *, emplid):
+def record_person_no_job_data_error(session, *, emplid, internet_id=None):
     session.add(
         find_or_create_umn_data_error(
             session=session,
-            exception=ExpertsEtlPersonNoJobData(emplid=emplid),
+            exception=ExpertsEtlPersonNoJobData(emplid=emplid, internet_id=internet_id),
         )
     )
     session.commit()
@@ -110,6 +111,7 @@ def record_unknown_dept_errors(
     session,
     *,
     emplid,
+    internet_id=None,
     jobcode,
     jobcode_descr=None,
     deptid,
@@ -142,6 +144,7 @@ def record_unknown_dept_errors(
             session=session,
             exception=ExpertsEtlJobWithUnknownDept(
                 emplid=emplid,
+                internet_id=internet_id,
                 jobcode=jobcode,
                 jobcode_descr=jobcode_descr,
                 deptid=deptid,
@@ -159,6 +162,7 @@ def record_unknown_jobcode_deptid_errors(
     session,
     *,
     emplid,
+    internet_id=None,
     jobcode,
     jobcode_descr=None,
     deptid,
@@ -188,6 +192,7 @@ def record_unknown_jobcode_deptid_errors(
             session=session,
             exception=ExpertsEtlJobWithUnknownJobcodeDeptid(
                 emplid=emplid,
+                internet_id=internet_id,
                 jobcode=jobcode,
                 jobcode_descr=jobcode_descr,
                 deptid=deptid,
@@ -213,6 +218,7 @@ def find_or_create_umn_data_error(session, *, exception):
             error_id=exception.id,
             message=exception.message,
             emplid=exception.emplid,
+            internet_id=exception.internet_id,
             jobcode=exception.jobcode,
             jobcode_descr=exception.jobcode_descr,
             deptid=exception.deptid,
