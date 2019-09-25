@@ -119,7 +119,7 @@ def transform_entry_groups(session, entry_groups):
     if org_id is None:
         # The ps_dwhr_job table, and therefore our views derived from it, don't provide
         # internet id, so we must make a separate query for it:
-        demog = latest_demographics(session, reference_emtry['emplid'])
+        demog = latest_demographics(session, reference_entry['emplid'])
         internet_id = demog.internet_id if demog else None
 
         record_unknown_dept_errors(
@@ -181,7 +181,7 @@ def transform_entry_groups(session, entry_groups):
             else:
                 # The ps_dwhr_job table, and therefore our views derived from it, don't provide
                 # internet id, so we must make a separate query for it:
-                demog = latest_demographics(session, reference_emtry['emplid'])
+                demog = latest_demographics(session, reference_entry['emplid'])
                 internet_id = demog.internet_id if demog else None
 
                 record_unknown_jobcode_deptid_errors(
