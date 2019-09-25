@@ -1,7 +1,7 @@
 from sqlalchemy import func
 from experts_dw.models import PureEligibleDemogChngHst
 
-def latest_demographics(session, emplid):
+def latest_demographics_for_emplid(session, emplid):
     subqry = session.query(func.max(PureEligibleDemogChngHst.timestamp)).filter(PureEligibleDemogChngHst.emplid == emplid)
     demog = (
         session.query(PureEligibleDemogChngHst)

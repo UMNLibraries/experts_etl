@@ -7,7 +7,7 @@ from experts_dw import db
 from sqlalchemy import and_, func, text
 from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonData, PureSyncStaffOrgAssociation, PureSyncUserData
 from experts_etl import loggers, transformers
-from experts_etl.demographics import latest_demographics
+from experts_etl.demographics import latest_demographics_for_emplid
 from experts_etl.umn_data_error import record_person_no_job_data_error
 from . import affiliate_job, employee_job
 
@@ -186,7 +186,7 @@ def extract_transform_serialize(session, emplid):
     return serialize(transform(session, person_dict))
 
 def extract(session, emplid):
-  demog = latest_demographics(session, emplid)
+  demog = latest_demographics_for_emplid(session, emplid)
   person_dict = {c.name: getattr(demog, c.name) for c in demog.__table__.columns}
 
   person = (
