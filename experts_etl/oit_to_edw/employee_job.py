@@ -1,7 +1,8 @@
 import pandas as pd
 import re
 from datetime import datetime
-from experts_dw.models import PureEligibleEmployeeJob, PureEligibleEmployeeJobcode, PureEmployeeJobcodeDefaultOverride, KnownOverrideableEmployeeJobcodeDept, UmnDeptPureOrg
+from experts_dw.models import PureEligibleDemogChngHst, PureEligibleEmployeeJob, PureEligibleEmployeeJobcode, PureEmployeeJobcodeDefaultOverride, KnownOverrideableEmployeeJobcodeDept, UmnDeptPureOrg
+from experts_etl.demographics import latest_demographics
 from experts_etl.umn_data_error import record_unknown_dept_errors, record_unknown_jobcode_deptid_errors
 from sqlalchemy import and_
 
@@ -116,9 +117,15 @@ def transform_entry_groups(session, entry_groups):
 
     org_id = get_org_id(session, reference_entry['deptid'])
     if org_id is None:
+        # The ps_dwhr_job table, and therefore our views derived from it, don't provide
+        # internet id, so we must make a separate query for it:
+        demog = latest_demographics(session, reference_emtry['emplid'])
+        internet_id = demog.internet_id if demog else None
+
         record_unknown_dept_errors(
             session=session,
             emplid=reference_entry['emplid'],
+            internet_id=internet_id,
             jobcode=reference_entry['jobcode'],
             jobcode_descr=reference_entry['jobcode_descr'],
             deptid=reference_entry['deptid'],
@@ -172,9 +179,15 @@ def transform_entry_groups(session, entry_groups):
                 if jobcode_default_overrides:
                     job['profiled'] = jobcode_default_overrides.profiled
             else:
+                # The ps_dwhr_job table, and therefore our views derived from it, don't provide
+                # internet id, so we must make a separate query for it:
+                demog = latest_demographics(session, reference_emtry['emplid'])
+                internet_id = demog.internet_id if demog else None
+
                 record_unknown_jobcode_deptid_errors(
                     session=session,
                     emplid=reference_entry['emplid'],
+                    internet_id=internet_id,
                     jobcode=reference_entry['jobcode'],
                     jobcode_descr=reference_entry['jobcode_descr'],
                     deptid=reference_entry['deptid'],

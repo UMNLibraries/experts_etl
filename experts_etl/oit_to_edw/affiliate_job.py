@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 from experts_dw.models import PureEligibleAffiliateJob, PureEligibleAffiliateJobcode, UmnDeptPureOrg
+from experts_etl.demographics import latest_demographics
 from experts_etl.umn_data_error import record_unknown_dept_errors
 from sqlalchemy import and_
 
@@ -68,9 +69,15 @@ def transform_entry_groups(session, entry_groups):
 
     org_id = get_org_id(session, job['deptid'])
     if org_id is None:
+        # The ps_dwhr_um_affiliates table, and therefore our views derived from it, don't provide
+        # internet id, so we must make a separate query for it:
+        demog = latest_demographics(session, last_entry['emplid'])
+        internet_id = demog.internet_id if demog else None
+
         record_unknown_dept_errors(
             session=session,
             emplid=last_entry['emplid'],
+            internet_id=internet_id,
             jobcode=group['um_affil_relation'],
             jobcode_descr=last_entry['title'],
             deptid=group['deptid'],

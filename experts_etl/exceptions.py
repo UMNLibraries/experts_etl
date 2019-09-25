@@ -8,6 +8,7 @@ class ExpertsEtlUmnDataError(ExpertsEtlError):
     ids = []
     attrs = [
       'emplid',
+      'internet_id',
       'jobcode',
       'jobcode_descr',
       'deptid',
@@ -66,6 +67,7 @@ class ExpertsEtlJobWithUnknownDept(ExpertsEtlUmnDataError):
         self,
         *,
         emplid,
+        internet_id,
         jobcode,
         jobcode_descr=None,
         deptid,
@@ -79,6 +81,7 @@ class ExpertsEtlJobWithUnknownDept(ExpertsEtlUmnDataError):
             'job with unknown department',
             **{
                 'emplid':emplid,
+                'internet_id':internet_id,
                 'jobcode':jobcode,
                 'jobcode_descr': jobcode_descr,
                 'deptid':deptid,
@@ -124,6 +127,7 @@ class ExpertsEtlJobWithUnknownJobcodeDeptid(ExpertsEtlUmnDataError):
         self,
         *,
         emplid,
+        internet_id,
         jobcode,
         jobcode_descr=None,
         deptid,
@@ -137,6 +141,7 @@ class ExpertsEtlJobWithUnknownJobcodeDeptid(ExpertsEtlUmnDataError):
             'job with unknown overrideable jobcode/deptid pair',
             **{
                 'emplid':emplid,
+                'internet_id':internet_id,
                 'jobcode':jobcode,
                 'jobcode_descr': jobcode_descr,
                 'deptid':deptid,
@@ -150,8 +155,8 @@ class ExpertsEtlJobWithUnknownJobcodeDeptid(ExpertsEtlUmnDataError):
 
 class ExpertsEtlPersonNoJobData(ExpertsEtlUmnDataError):
     ids = ['emplid']
-    def __init__(self, *, emplid):
-        super().__init__('unable to find or generate any job data for person', **{'emplid':emplid})
+    def __init__(self, *, emplid, internet_id):
+        super().__init__('unable to find or generate any job data for person', **{'emplid':emplid, 'internet_id':internet_id})
 
 # The rest of these should never happen, because the associated columns are not nullable in EDW.
 # Will uncomment if we happen to need them, for some strange reason.
