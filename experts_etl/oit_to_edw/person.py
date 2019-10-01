@@ -1,5 +1,4 @@
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
+import dotenv_switch
 import json
 import re
 import uuid

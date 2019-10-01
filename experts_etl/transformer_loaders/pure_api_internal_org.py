@@ -1,5 +1,4 @@
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
+import dotenv_switch
 import json
 from experts_dw import db
 from sqlalchemy import and_, func
@@ -10,7 +9,7 @@ from pureapi import client, response
 # defaults:
 
 db_name = 'hotel'
-transaction_record_limit = 100 
+transaction_record_limit = 100
 # Named for the Pure API endpoint:
 pure_api_record_type = 'organisational-units'
 pure_api_record_logger = loggers.pure_api_record_logger(type=pure_api_record_type)
@@ -72,10 +71,10 @@ def load_db_dept_orgs(session, api_org):
     for _id in api_org.ids:
         if _id.typeUri.split('/')[-1] != 'peoplesoft_deptid':
             continue
-  
+
         deptid = _id.value
         pure_org_id = get_pure_id(api_org)
-  
+
         db_dept_org = session.query(UmnDeptPureOrg).filter(
             UmnDeptPureOrg.deptid == deptid
         ).one_or_none()
@@ -94,7 +93,7 @@ def get_pure_org(pure_org_uuid):
   pure_org = None
   try:
     r = client.get(pure_api_record_type + '/' + pure_org_uuid)
-    pure_org = response.transform(pure_api_record_type, r.json())      
+    pure_org = response.transform(pure_api_record_type, r.json())
   except Exception:
     pass
   return pure_org
@@ -209,14 +208,14 @@ def run(
   with db.session(db_name) as session:
     processed_api_org_uuids = []
     for db_api_org in extract_api_orgs(session):
-      api_org = response.transform(pure_api_record_type, json.loads(db_api_org.json))      
+      api_org = response.transform(pure_api_record_type, json.loads(db_api_org.json))
       db_org = get_db_org(session, db_api_org.uuid)
       if db_org:
         if db_org.pure_modified and db_org.pure_modified >= db_api_org.modified:
           # Skip this record, since we already have a newer one:
           processed_api_org_uuids.append(db_api_org.uuid)
           continue
-      else:   
+      else:
         db_org = create_db_org(api_org)
 
       # TODO: This needs work! Fix pureapi.response.

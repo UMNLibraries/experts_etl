@@ -13,7 +13,7 @@ jinja2 = ">=2.10.1"
 pandas = "*"
 pureapi = {git = "git://github.com/UMNLibraries/pureapi.git"}
 python-daemon = "*"
-python_dotenv = "*"
+dotenv_switch = {git = "git://github.com/mberkowski/dotenv_switch.git"}
 python-json-logger = "*"
 schedule = "*"
 

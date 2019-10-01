@@ -1,5 +1,4 @@
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
+import dotenv_switch
 from datetime import datetime, timezone
 import json
 import itertools
@@ -13,7 +12,7 @@ from pureapi import response
 # defaults:
 
 db_name = 'hotel'
-transaction_record_limit = 100 
+transaction_record_limit = 100
 # Named for the Pure API endpoint:
 pure_api_record_type = 'research-outputs'
 pure_api_record_logger = loggers.pure_api_record_logger(type=pure_api_record_type)
@@ -112,7 +111,7 @@ def run(
   with db.session(db_name) as session:
     processed_api_pub_uuids = []
     for db_api_pub in extract_api_pubs(session):
-      api_pub = response.transform(pure_api_record_type, json.loads(db_api_pub.json))      
+      api_pub = response.transform(pure_api_record_type, json.loads(db_api_pub.json))
       db_pub = get_db_pub(session, db_api_pub.uuid)
       db_pub_previously_existed = False
       if db_pub:
@@ -121,17 +120,17 @@ def run(
           # Skip this record, since we already have a newer one:
           processed_api_pub_uuids.append(db_api_pub.uuid)
           continue
-      else:   
+      else:
         db_pub = create_db_pub(api_pub)
 
       pub_ids = get_pub_ids(api_pub)
       db_pub.scopus_id = pub_ids['scopus_id']
       db_pub.pmid = pub_ids['pmid']
       db_pub.doi = pub_ids['doi']
-    
+
       # Commented out for now, because we will rely more on pure types and subtypes (below):
       #db_pub.type = 'article-journal'
-    
+
       type_uri_parts = api_pub.type[0].uri.split('/')
       type_uri_parts.reverse()
       pure_subtype, pure_type, pure_parent_type = type_uri_parts[0:3]
@@ -139,10 +138,10 @@ def run(
       db_pub.pure_subtype = pure_subtype
 
       db_pub.title = api_pub.title
-    
+
       db_pub.container_title = api_pub.journalAssociation.title.value
       db_pub.issn = api_pub.journalAssociation.issn.value if 'issn' in api_pub.journalAssociation else None
-    
+
       if 'publicationDate' in api_pub.publicationStatuses[0]:
         pub_date = api_pub.publicationStatuses[0].publicationDate
         year = pub_date.year
@@ -155,17 +154,17 @@ def run(
         if 'day' in pub_date:
           day = pub_date.day
           issued_precision = 1
-    
+
         db_pub.issued = datetime(year, month, day, tzinfo=timezone.utc)
         db_pub.issued_precision = issued_precision
-    
+
       db_pub.volume = api_pub.volume
       db_pub.issue = api_pub.journalNumber
       db_pub.pages = api_pub.pages
       db_pub.citation_total = api_pub.totalScopusCitations
-    
+
       db_pub.pure_modified = db_api_pub.modified
-    
+
       if 'managingOrganisationalUnit' in api_pub:
         owner_pure_org_uuid = api_pub.managingOrganisationalUnit.uuid
         owner_pure_org = session.query(PureOrg).filter(
@@ -187,7 +186,7 @@ def run(
         continue
 
       ## associations
-    
+
       author_ordinal = 0
       missing_person = False
       missing_person_pure_uuid = False
@@ -197,7 +196,7 @@ def run(
       all_person_uuids = set()
       pub_persons = []
       pub_person_pure_orgs = []
-    
+
       # personAssociations can contain authorCollaboration's, which are not persons at all,
       # so we call this variable author_assoc, to be more accurate here:
       for author_assoc in api_pub.personAssociations:
@@ -249,24 +248,24 @@ def run(
         if person_assoc is not None and person_pure_uuid is None:
           missing_person_pure_uuid = True
           break
-    
+
         db_person = session.query(Person).filter(
           Person.pure_uuid == person_pure_uuid
         ).one_or_none()
         if db_person == None:
           missing_person = True
           break
-    
+
         if db_person.uuid not in all_person_uuids:
           pub_person = PubPerson(
             pub_uuid = db_pub.uuid,
             person_uuid = db_person.uuid,
             person_ordinal = author_ordinal,
-      
+
             # TODO: This needs work. We may have tried mapping these to CSL values at
             # one point, but now we're just taking what Pure gives us.
             person_role = person_assoc.personRole[0].value.lower(),
-      
+
             person_pure_internal = person_pure_internal,
             first_name = person_assoc.name.firstName if 'firstName' in person_assoc.name else None,
             last_name = person_assoc.name.lastName if 'lastName' in person_assoc.name else None,
@@ -276,7 +275,7 @@ def run(
           all_person_uuids.add(db_person.uuid)
         else:
           continue
-    
+
         all_person_org_uuids = set()
         for api_pure_org in itertools.chain(person_assoc.organisationalUnits, person_assoc.externalOrganisations):
           db_pure_org = session.query(PureOrg).filter(
@@ -285,7 +284,7 @@ def run(
           if db_pure_org == None:
             missing_org = True
             break
-    
+
           person_org_uuids = frozenset([db_person.uuid, db_pure_org.pure_uuid])
           if person_org_uuids not in all_person_org_uuids:
             pub_person_pure_org = PubPersonPureOrg(
@@ -299,21 +298,21 @@ def run(
             continue
         if missing_org:
           break
-    
+
       if missing_person:
         experts_etl_logger.info(
           'skipping updates: one or more associated persons do not exist in EDW.',
           extra={'pure_uuid': api_pub.uuid, 'pure_api_record_type': pure_api_record_type}
         )
         continue
-    
+
       if missing_person_pure_uuid:
         experts_etl_logger.info(
           'skipping updates: one or more associated persons has no pure uuid.',
           extra={'pure_uuid': api_pub.uuid, 'pure_api_record_type': pure_api_record_type}
         )
         continue
-    
+
       if missing_org:
         experts_etl_logger.info(
           'skipping updates: one or more associated orgs do not exist in EDW.',
@@ -332,13 +331,13 @@ def run(
       ).delete(synchronize_session=False)
       for pub_author_collab in pub_author_collabs:
         session.add(pub_author_collab)
-    
+
       session.query(PubPerson).filter(
         PubPerson.pub_uuid == db_pub.uuid
       ).delete(synchronize_session=False)
       for pub_person in pub_persons:
         session.add(pub_person)
-    
+
       session.query(PubPersonPureOrg).filter(
         PubPersonPureOrg.pub_uuid == db_pub.uuid
       ).delete(synchronize_session=False)

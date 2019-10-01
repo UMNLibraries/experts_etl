@@ -1,5 +1,4 @@
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
+import dotenv_switch
 import json
 from experts_dw import db
 from sqlalchemy import and_, func
@@ -10,7 +9,7 @@ from pureapi import response
 # defaults:
 
 db_name = 'hotel'
-transaction_record_limit = 100 
+transaction_record_limit = 100
 # Named for the Pure API endpoint:
 pure_api_record_type = 'external-organisations'
 pure_api_record_logger = loggers.pure_api_record_logger(type=pure_api_record_type)
@@ -83,14 +82,14 @@ def run(
   with db.session(db_name) as session:
     processed_api_org_uuids = []
     for db_api_org in extract_api_orgs(session):
-      api_org = response.transform(pure_api_record_type, json.loads(db_api_org.json))      
+      api_org = response.transform(pure_api_record_type, json.loads(db_api_org.json))
       db_org = get_db_org(session, db_api_org.uuid)
       if db_org:
         if db_org.pure_modified and db_org.pure_modified >= db_api_org.modified:
           # Skip this record, since we already have a newer one:
           processed_api_org_uuids.append(db_api_org.uuid)
           continue
-      else:   
+      else:
         db_org = create_db_org(api_org)
 
       db_org.name_en = api_org.name[0].value
