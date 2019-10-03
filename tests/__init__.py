@@ -1,1 +1,1 @@
-import dotenv_switch
+import dotenv_switch.auto

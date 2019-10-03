@@ -1,4 +1,3 @@
-import dotenv_switch
 import json
 from experts_dw import db
 from sqlalchemy import and_, func

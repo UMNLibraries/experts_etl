@@ -1,4 +1,3 @@
-import dotenv_switch
 import os
 from datetime import datetime
 from experts_dw import db

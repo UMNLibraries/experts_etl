@@ -66,6 +66,21 @@ version = "0.15.2"
 [[package]]
 category = "main"
 description = ""
+name = "dotenv-switch"
+optional = false
+python-versions = "^3.6.3"
+version = "0.0.1"
+
+[package.dependencies]
+python_dotenv = "^0.10.3"
+
+[package.source]
+reference = "d48cf28d27fe184a47be641968e0add92fac585b"
+type = "git"
+url = "git://github.com/mberkowski/dotenv_switch.git"
+[[package]]
+category = "main"
+description = ""
 name = "experts-dw"
 optional = false
 python-versions = "^3.6.3"
@@ -82,6 +97,7 @@ sqlparse = "*"
 reference = "e71c790cd603240a2613d8d7f9083ebc0a638370"
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
+
 [[package]]
 category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -211,6 +227,7 @@ tenacity = "*"
 reference = "bf7a01d480bd5d501221a0a160e6515d77a9cfec"
 type = "git"
 url = "git://github.com/UMNLibraries/pureapi.git"
+
 [[package]]
 category = "dev"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
@@ -394,7 +411,7 @@ version = "0.6.0"
 more-itertools = "*"
 
 [metadata]
-content-hash = "9bf1e73f6c9ca449ef35bf0e016921f826d35adb14215820e4ace5e420c38524"
+content-hash = "9942ea58c7aacdf15db86ce4dcd680f004b2639287d2d1d9f0e8e74b54fc55f0"
 python-versions = "^3.6.3"
 
 [metadata.hashes]
@@ -406,6 +423,7 @@ chardet = ["84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae", "
 colorama = ["05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d", "f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48"]
 cx-oracle = ["0afe9a8028c735dbe691ccf64434c8f01eac07f71a37ae2087c0e16ec1ab56c5", "1010dfc44edbfdf3e839a7072b27f24fcdd92ddedfecfc52c40ccd61b825f54c", "14435434be6b3f2acdbde7f4116a656b5b542564228c7e1c198fadb49aceafa4", "2bd9b039f9521e48def9d8d946d36bfe84f7f7134894f5d4089f30b064032ece", "406b312a1a6e6ee79bd530bb4390947857bd3ccc060251e56a53024bfd73e6ce", "4d5ae9d689cb73eb6e9af3a714e3afbfc656b7ffad25e20ee8389f6ea9be0514", "67511f0a11dbd4fbe697917a69d2c5a709d4469986ed7a4afb79a562a719643c", "a78e3b299c859c21da25cbb842bb414d8fd0f59064a6cb099db7de0517b6559c", "c036f119039597ae7415e9c95fab2d031679bd7ed3bcb48a98853a6b049a700c", "ce511dc758f2a7f92396c883b7fca7164b184e3900cbf4b92f2378bacbca688f", "f52ab4006bdcbddab40953a682627e27fc116906e3172911f2fcb67f1332b188", "f6a1285e0d036904a96ad8c30a27f5db419c0233f9157a30db0b5c09d85e34e5", "f6d8ad337bcbda5413ff0b45cd3a47468766843f397abb32c0dc2d7d52167634", "f9bedfccef9a8a36b27247996d7b9be31b4160bf60eb0d981143d0e08573bbb2"]
 docutils = ["6c4f696463b79f1fb8ba0c594b63840ebd41f059e92b31957c46b74a4599b6d0", "9e4d7ecfc600058e07ba661411a2b7de2fd0fafa17d1a7f7361cd47b1175c827", "a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99"]
+dotenv-switch = []
 experts-dw = []
 idna = ["c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407", "ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c"]
 importlib-metadata = ["aa18d7378b00b40847790e7c27e11673d7fed219354109d0e7b9e5b25dc3ad26", "d5f18a79777f3aa179c145737780282e27b508fc8fd688cb17c7a813e8bd39af"]

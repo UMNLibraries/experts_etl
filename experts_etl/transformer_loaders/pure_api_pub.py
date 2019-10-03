@@ -1,4 +1,3 @@
-import dotenv_switch
 from datetime import datetime, timezone
 import json
 import itertools
