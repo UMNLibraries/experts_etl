@@ -375,7 +375,7 @@ def run(
             for pub_person_pure_org in pub_person_pure_orgs:
                 session.add(pub_person_pure_org)
 
-            progessed_api_pub_uuids.append(api_pub.uuid)
+            processed_api_pub_uuids.append(api_pub.uuid)
             if len(processed_api_pub_uuids) >= transaction_record_limit:
                 mark_api_pubs_as_processed(session, pure_api_record_logger, processed_api_pub_uuids)
                 processed_api_pub_uuids = []
