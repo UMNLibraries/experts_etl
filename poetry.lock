@@ -77,7 +77,7 @@ python_dotenv = "^0.10.3"
 [package.source]
 reference = "e4e2293be560a587b86d93acaa8ee5f79306230a"
 type = "git"
-url = "git://github.com/mberkowski/dotenv_switch.git"
+url = "git://github.com/UMNLibraries/dotenv_switch.git"
 [[package]]
 category = "main"
 description = ""
@@ -411,7 +411,7 @@ version = "0.6.0"
 more-itertools = "*"
 
 [metadata]
-content-hash = "9942ea58c7aacdf15db86ce4dcd680f004b2639287d2d1d9f0e8e74b54fc55f0"
+content-hash = "7dc175230caae1e1ba74b9d60857d1ef72c831e3afe8908d64607ae3a96a77b2"
 python-versions = "^3.6.3"
 
 [metadata.hashes]
