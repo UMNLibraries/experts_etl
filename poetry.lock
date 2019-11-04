@@ -69,13 +69,13 @@ description = ""
 name = "dotenv-switch"
 optional = false
 python-versions = "^3.6.3"
-version = "0.0.1"
+version = "0.1.0"
 
 [package.dependencies]
 python_dotenv = "^0.10.3"
 
 [package.source]
-reference = "d48cf28d27fe184a47be641968e0add92fac585b"
+reference = "e4e2293be560a587b86d93acaa8ee5f79306230a"
 type = "git"
 url = "git://github.com/mberkowski/dotenv_switch.git"
 [[package]]
