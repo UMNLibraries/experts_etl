@@ -1,5 +1,3 @@
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
 import json
 import re
 import uuid
@@ -12,7 +10,7 @@ from pureapi import response
 # defaults:
 
 db_name = 'hotel'
-transaction_record_limit = 100 
+transaction_record_limit = 100
 # Named for the Pure API endpoint:
 pure_api_record_type = 'persons'
 pure_api_record_logger = loggers.pure_api_record_logger(type=pure_api_record_type)
@@ -104,7 +102,7 @@ def run(
   with db.session(db_name) as session:
     processed_api_person_uuids = []
     for db_api_person in extract_api_persons(session):
-      api_person = response.transform(pure_api_record_type, json.loads(db_api_person.json))      
+      api_person = response.transform(pure_api_record_type, json.loads(db_api_person.json))
 
       person_ids = get_person_ids(api_person)
       # Not sure that we should be requiring either of these in EDW, but we do for now,
@@ -128,13 +126,13 @@ def run(
           # Skip this record, since we already have a newer one:
           processed_api_person_uuids.append(db_api_person.uuid)
           continue
-      else:   
+      else:
         db_person = create_db_person(person_ids['emplid'])
 
       # All internal persons should have this. Usually it will be the same as the emplid,
       # but sometimes the old SciVal identifier.
       db_person.pure_id = api_person.externalId
-    
+
       db_person.pure_uuid = api_person.uuid
       db_person.internet_id = person_ids['internet_id']
       db_person.first_name = api_person.name.firstName
@@ -151,19 +149,19 @@ def run(
       #    For now, we'll skip that person.
 
       # Check for orgs not in EDW yet:
-    
+
       api_org_uuids = set()
       for org_assoc in api_person.staffOrganisationAssociations:
         api_org_uuids.add(org_assoc.organisationalUnit.uuid)
-    
+
       db_org_uuids = set()
       if db_person_previously_existed:
         # Avoid trying to query a person that doesn't exist in the db yet:
         db_org_uuids = {db_org.pure_uuid for db_org in db_person.pure_orgs}
-    
+
       api_only_org_uuids = api_org_uuids - db_org_uuids
       db_only_org_uuids = db_org_uuids - api_org_uuids
-    
+
       # For now, skip this person if there are any orgs referenced in the api record
       # that we don't have in EDW:
       if len(api_only_org_uuids) > 0:
@@ -179,7 +177,7 @@ def run(
       ## umn person pure orgs aka staff organisation associations aka jobs
 
       # TODO: We may encounter duplicate jobs that break our uniqueness constraints.
-    
+
       found_missing_job_description = False
       all_umn_person_pure_org_primary_keys = set()
       umn_person_pure_orgs = []
@@ -187,11 +185,11 @@ def run(
         if 'value' not in org_assoc.jobDescription[0]:
           found_missing_job_description = True
           break
-    
+
         # Due to transitioning from master list to xml syncs of jobs, we may encounter duplicates.
         # This may also happen due to manual entering of jobs in the Pure UI.
         umn_person_pure_org_primary_keys = frozenset([
-          'person_uuid:' + db_person.uuid, 
+          'person_uuid:' + db_person.uuid,
           'pure_org_uuid:' + org_assoc.organisationalUnit.uuid,
           'job_description:' + org_assoc.jobDescription[0].value,
           'start_date:' + org_assoc.period.startDate,
@@ -207,7 +205,7 @@ def run(
           )
           continue
         all_umn_person_pure_org_primary_keys.add(umn_person_pure_org_primary_keys)
-    
+
         umn_person_pure_org = UmnPersonPureOrg(
           pure_org_uuid = org_assoc.organisationalUnit.uuid,
           person_uuid = db_person.uuid,
@@ -216,12 +214,12 @@ def run(
           # Skipping this for now:
           pure_org_id = None,
           job_description = org_assoc.jobDescription[0].value,
-    
+
           # Note: Both employmentType and staffType may be missing because they are not required
           # fields in the Pure UI, which UMN staff sometimes use to enter jobs not in PeopleSoft.
-    
-          # Called employed_as in EDW, which was all 'Academic' as of 2018-06-05. 
-          # Probably due to an artifact of the old mast list upload process, or a 
+
+          # Called employed_as in EDW, which was all 'Academic' as of 2018-06-05.
+          # Probably due to an artifact of the old mast list upload process, or a
           # misunderstanding of it. The newer EDW table for upload, pure_new_staff_pos_defaults,
           # has similar values in default_employed_as, but they're the last segment of the
           # employmentType uri.
@@ -231,14 +229,14 @@ def run(
           # Also, sometimes staffType will be 'non-academic', but we allowed space in EDW
           # only for 'nonacademic':
           staff_type = re.sub('[^a-zA-Z]+', '', org_assoc.staffType[0].value.lower()) if 'value' in org_assoc.staffType[0] else None,
-    
+
           #start_date = datetime.strptime(org_assoc.period.startDate, iso_8601_format),
           start_date = transformers.iso_8601_string_to_datetime(org_assoc.period.startDate),
           end_date = transformers.iso_8601_string_to_datetime(org_assoc.period.endDate) if org_assoc.period.endDate else None,
           primary = 'Y' if org_assoc.isPrimaryAssociation == True else 'N',
         )
         umn_person_pure_orgs.append(umn_person_pure_org)
-    
+
       if found_missing_job_description:
         experts_etl_logger.info(
 	  'skipping updates: one or more org associations are missing job descriptions',
@@ -259,35 +257,35 @@ def run(
         session.add(umn_person_pure_org)
 
       ## person pure orgs
-    
+
       for org_uuid in api_only_org_uuids:
         person_pure_org = PersonPureOrg(
           person_uuid = db_person.uuid,
           pure_org_uuid = org_uuid,
         )
         session.add(person_pure_org)
-    
+
       session.query(PersonPureOrg).filter(
         PersonPureOrg.person_uuid == db_person.uuid,
         PersonPureOrg.pure_org_uuid.in_(db_only_org_uuids)
       ).delete(synchronize_session=False)
-    
+
       ## scopus ids
-    
+
       db_scopus_ids = set()
       if db_person_previously_existed:
         # Avoid trying to query a person that doesn't exist in the db yet:
         db_scopus_ids = set(db_person.scopus_ids)
       api_only_scopus_ids = person_ids['scopus_ids'] - db_scopus_ids
       db_only_scopus_ids = db_scopus_ids - person_ids['scopus_ids']
-    
+
       for scopus_id in api_only_scopus_ids:
         person_scopus_id = PersonScopusId(
           person_uuid = db_person.uuid,
           scopus_id = scopus_id,
         )
         session.add(person_scopus_id)
-    
+
       session.query(PersonScopusId).filter(
         PersonScopusId.person_uuid == db_person.uuid,
         PersonScopusId.scopus_id.in_(db_only_scopus_ids)

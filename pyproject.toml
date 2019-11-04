@@ -3,7 +3,7 @@ name = "experts_etl"
 version = "4.1.0"
 description = "Moves data from UMN to Pure (Experts@Minnesota), and vice versa."
 readme = "README.md"
-authors = ["David Naughton <naughton@umn.edu>"]
+authors = ["David Naughton <naughton@umn.edu>", "Michael Berkowski <mjb@umn.edu"]
 license = "MIT"
 
 [tool.poetry.dependencies]
@@ -13,7 +13,7 @@ jinja2 = ">=2.10.1"
 pandas = "*"
 pureapi = {git = "git://github.com/UMNLibraries/pureapi.git"}
 python-daemon = "*"
-python_dotenv = "*"
+dotenv_switch = {git = "git://github.com/UMNLibraries/dotenv_switch.git"}
 python-json-logger = "*"
 schedule = "*"
 

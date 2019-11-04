@@ -1,5 +1,4 @@
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
+import dotenv_switch.auto
 import importlib
 import multiprocessing as mp
 import os
@@ -11,7 +10,7 @@ experts_etl_logger = loggers.experts_etl_logger()
 default_interval = 14400 # 4 hours, in seconds
 
 extractor_loaders = list(map(
-  lambda x: 'experts_etl.extractor_loaders.' + x, 
+  lambda x: 'experts_etl.extractor_loaders.' + x,
   [
     'pure_api_changes',
     'pure_api_external_organisations',
@@ -23,7 +22,7 @@ extractor_loaders = list(map(
 ))
 
 transformer_loaders = list(map(
-  lambda x: 'experts_etl.transformer_loaders.' + x, 
+  lambda x: 'experts_etl.transformer_loaders.' + x,
   [
     'pure_api_external_org',
     'pure_api_internal_org',
@@ -34,7 +33,7 @@ transformer_loaders = list(map(
 ))
 
 syncers = list(map(
-  lambda x: 'experts_etl.' + x, 
+  lambda x: 'experts_etl.' + x,
   [
     'oit_to_edw.person',
     'edw_to_pure.person',
@@ -85,7 +84,7 @@ def run():
     }
   )
 
-  for module_name in extractor_loaders + transformer_loaders + syncers: 
+  for module_name in extractor_loaders + transformer_loaders + syncers:
     try:
       # Must include a comma after a single arg, or multiprocessing seems to
       # get confused and think we're passing multiple arguments:
