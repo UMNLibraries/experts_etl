@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 from datetime import datetime
-from experts_dw.models import PureEligibleDemogChngHst, PureEligiblePOIJob, PureEligiblePOITJobcode, UmnDeptPureOrg
+from experts_dw.models import PureEligibleDemogChngHst, PureEligiblePOIJob, PureEligiblePOIJobcode, UmnDeptPureOrg
 #from experts_etl.demographics import latest_demographics_for_emplid # Commented out for now. See local implementation below.
 from experts_etl.umn_data_error import record_unknown_dept_errors
 from sqlalchemy import and_
@@ -92,12 +92,6 @@ def transform_entry_groups(session, entry_groups):
     job_is_active = False
     curr_df = pd.DataFrame(data=curr_group['entries'])
 
-    # Find any last dates worked, excluding any cases where they are associated with an active
-    # employment status. For example, often there is a last_date_worked for a status of W (short
-    # work break). In such cases, the job did not end.
-    # Also note that Pandas requires bitwise operators (&, ~) for conditionals that operate on series.
-    last_date_worked_df = curr_df[(curr_df['last_date_worked'].notnull()) & (~curr_df['empl_status'].isin(active_states))]
-
     current_status_df = curr_df[curr_df['status_flg'] == 'C']
     if not current_status_df.empty:
       current_status_entry_index = current_status_df.index[0]
@@ -114,8 +108,7 @@ def transform_entry_groups(session, entry_groups):
       # job_entry_dt of the next job:
       if (
         next_group and
-        next_group['position_nbr'] == curr_group['position_nbr'] and
-        last_date_worked_df.empty
+        next_group['position_nbr'] == curr_group['position_nbr']
       ):
         job['end_date'] = next_group['job_entry_dt']
 
@@ -145,10 +138,7 @@ def transform_entry_groups(session, entry_groups):
     job['um_campus'] = reference_entry['um_campus']
 
     if not job_is_active and job['end_date'] is None:
-      if last_date_worked_df.empty:
         job['end_date'] = reference_entry['effdt']
-      else:
-        job['end_date'] = last_date_worked_df['last_date_worked'].max().to_pydatetime()
 
     job['job_title'] = reference_entry['jobcode_descr']
     job['empl_rcdno'] = reference_entry['empl_rcdno']
@@ -210,7 +200,7 @@ def df_to_dicts(df):
       if pd.isnull(v):
         # Convert all Pandas NaN's, NaT's etc to None:
         d[k] = None
-      if k not in ['effdt','action_dt','job_entry_dt','dept_entry_dt','position_entry_dt','last_date_worked']:
+      if k not in ['effdt','action_dt','job_entry_dt','dept_entry_dt','position_entry_dt']:
         # Skip anything that's not a datetime:
         continue
       if d[k] is not None:
