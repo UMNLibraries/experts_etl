@@ -8,7 +8,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.6.3"
-experts_dw = {git = "git://github.com/UMNLibraries/experts_dw.git"}
+experts_dw = {git = "git://github.com/UMNLibraries/experts_dw.git", branch="create-poi-views"}
 jinja2 = ">=2.10.1"
 pandas = "*"
 pureapi = {git = "git://github.com/UMNLibraries/pureapi.git"}
