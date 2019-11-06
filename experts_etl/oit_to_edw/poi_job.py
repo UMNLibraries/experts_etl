@@ -2,13 +2,9 @@ import pandas as pd
 import re
 from datetime import datetime
 from experts_dw.models import PureEligibleDemogChngHst, PureEligiblePOIJob, PureEligiblePOIJobcode, UmnDeptPureOrg
-#from experts_etl.demographics import latest_demographics_for_emplid # Commented out for now. See local implementation below.
+from experts_etl.demographics import latest_demographics_for_emplid # Commented out for now. See local implementation below.
 from experts_etl.umn_data_error import record_unknown_dept_errors
 from sqlalchemy import and_
-
-# Temporary mock until we get POI data in pure_eligible_demog* tables:
-def latest_demographics_for_emplid(session, emplid):
-    return None
 
 def extract_transform(session, emplid):
   entries = extract(session, emplid)

@@ -70,7 +70,7 @@ def jobs_before_after_primary(request):
   yield job_set
 
 def test_transform_primary_job(jobs_before_after_primary):
-  assert person.transform_primary_job([], jobs_before_after_primary.jobs, '0') == jobs_before_after_primary.jobs_with_primary
+  assert person.transform_primary_job([], [], jobs_before_after_primary.jobs, '0') == jobs_before_after_primary.jobs_with_primary
 
 @pytest.fixture(params=['1217312','2110507'])
 def jobs_with_transformed_staff_type(request):
