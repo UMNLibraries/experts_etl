@@ -22,28 +22,41 @@ def test_extract(session):
     assert isinstance(entry['effdt'], datetime.datetime)
     assert isinstance(entry['effseq'], int)
 
-@pytest.fixture(params=['2898289','5575725'])
+@pytest.fixture(params=['2898289','5575725','2927554','5231388','5491169'])
 def entries_to_group(request):
   from . import poi_jobs_2898289
   from . import poi_jobs_5575725
+  from . import poi_jobs_2927554
+  from . import poi_jobs_5231388
+  from . import poi_jobs_5491169
   entries_sets = {
     '2898289': poi_jobs_2898289,
     '5575725': poi_jobs_5575725,
+    '2927554': poi_jobs_2927554,
+    '5231388': poi_jobs_5231388,
+    '5491169': poi_jobs_5491169,
   }
   entries_set = entries_sets[request.param]
   yield entries_set
 
 def test_group_entries(entries_to_group):
+  print(entries_to_group.entry_groups)
   assert poi_job.group_entries(entries_to_group.entries) == entries_to_group.entry_groups
   assert poi_job.group_entries([]) == []
 
-@pytest.fixture(params=['2898289','5575725'])
+@pytest.fixture(params=['2898289','5575725','2927554','5231388','5491169'])
 def entry_groups(request):
   from . import poi_jobs_2898289
   from . import poi_jobs_5575725
+  from . import poi_jobs_2927554
+  from . import poi_jobs_5231388
+  from . import poi_jobs_5491169
   entries_sets = {
     '2898289': poi_jobs_2898289,
     '5575725': poi_jobs_5575725,
+    '2927554': poi_jobs_2927554,
+    '5231388': poi_jobs_5231388,
+    '5491169': poi_jobs_5491169,
   }
   entries_set = entries_sets[request.param]
   yield entries_set

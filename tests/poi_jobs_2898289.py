@@ -181,7 +181,8 @@ jobs = [
   },
 ]
 
-# TODO: Not sure what to do with primary jobs in these cases yet:
+# TODO: Not sure what to do with primary jobs in this case yet,
+# especially because this person also has employee jobs!
 #jobs_with_primary = []
 #jobs_with_primary.append({**jobs[-1], **{'primary': True}})
 #
