@@ -78,6 +78,7 @@ python_dotenv = "^0.10.3"
 reference = "e4e2293be560a587b86d93acaa8ee5f79306230a"
 type = "git"
 url = "git://github.com/UMNLibraries/dotenv_switch.git"
+
 [[package]]
 category = "main"
 description = ""
@@ -94,10 +95,9 @@ sqlalchemy_mptt = "*"
 sqlparse = "*"
 
 [package.source]
-reference = "e71c790cd603240a2613d8d7f9083ebc0a638370"
+reference = "afdf7b4e564b1b5ebe98b3dc57caaf488718c646"
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
-
 [[package]]
 category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
