@@ -73,7 +73,7 @@ def extract_api_pubs(session):
         )
         .all()
     ):
-      yield pub
+        yield pub
 
 def get_pub_ids(api_pub):
     pub_ids = {
@@ -106,25 +106,25 @@ def mark_api_pubs_as_processed(session, pure_api_record_logger, processed_api_pu
     for uuid in processed_api_pub_uuids:
         for pub in session.query(PureApiPub).filter(PureApiPub.uuid==uuid).all():
 
-          pub_hst = (
-            session.query(PureApiPubHst)
-            .filter(and_(
-                PureApiPubHst.uuid == pub.uuid,
-                PureApiPubHst.modified == pub.modified,
-            ))
-            .one_or_none()
-          )
+            pub_hst = (
+                session.query(PureApiPubHst)
+                .filter(and_(
+                    PureApiPubHst.uuid == pub.uuid,
+                    PureApiPubHst.modified == pub.modified,
+                ))
+                .one_or_none()
+            )
 
-          if pub_hst is None:
-              pub_hst = PureApiPubHst(
-                  uuid=pub.uuid,
-                  modified=pub.modified,
-                  downloaded=pub.downloaded
-              )
-              session.add(pub_hst)
+            if pub_hst is None:
+                pub_hst = PureApiPubHst(
+                    uuid=pub.uuid,
+                    modified=pub.modified,
+                    downloaded=pub.downloaded
+                )
+                session.add(pub_hst)
 
-          pure_api_record_logger.info(pub.json)
-          session.delete(pub)
+            pure_api_record_logger.info(pub.json)
+            session.delete(pub)
 
 def get_db_pub(session, pure_uuid):
     return (
@@ -268,67 +268,67 @@ def run(
 
                     continue
 
-              person_assoc = author_assoc
-              person_pure_uuid = None
-              if 'person' in person_assoc:
-                  person_pure_uuid = person_assoc.person.uuid
-                  person_pure_internal = 'Y'
-              if 'externalPerson' in person_assoc:
-                  person_pure_uuid = person_assoc.externalPerson.uuid
-                  person_pure_internal = 'N'
-              if person_assoc is not None and person_pure_uuid is None:
-                  missing_person_pure_uuid = True
-                  break
+                person_assoc = author_assoc
+                person_pure_uuid = None
+                if 'person' in person_assoc:
+                    person_pure_uuid = person_assoc.person.uuid
+                    person_pure_internal = 'Y'
+                if 'externalPerson' in person_assoc:
+                    person_pure_uuid = person_assoc.externalPerson.uuid
+                    person_pure_internal = 'N'
+                if person_assoc is not None and person_pure_uuid is None:
+                    missing_person_pure_uuid = True
+                    break
 
-              db_person = session.query(Person).filter(
-                  Person.pure_uuid == person_pure_uuid
-              ).one_or_none()
-              if db_person == None:
-                  missing_person = True
-                  break
+                db_person = session.query(Person).filter(
+                    Person.pure_uuid == person_pure_uuid
+                ).one_or_none()
+                if db_person == None:
+                    missing_person = True
+                    break
 
-              if db_person.uuid not in all_person_uuids:
-                  pub_person = PubPerson(
-                      pub_uuid = db_pub.uuid,
-                      person_uuid = db_person.uuid,
-                      person_ordinal = author_ordinal,
+                if db_person.uuid not in all_person_uuids:
+                    pub_person = PubPerson(
+                        pub_uuid = db_pub.uuid,
+                        person_uuid = db_person.uuid,
+                        person_ordinal = author_ordinal,
 
-                      # TODO: This needs work. We may have tried mapping these to CSL values at
-                      # one point, but now we're just taking what Pure gives us.
-                      person_role = person_assoc.personRole[0].value.lower(),
+                        # TODO: This needs work. We may have tried mapping these to CSL values at
+                        # one point, but now we're just taking what Pure gives us.
+                        person_role = person_assoc.personRole[0].value.lower(),
 
-                      person_pure_internal = person_pure_internal,
-                      first_name = person_assoc.name.firstName if 'firstName' in person_assoc.name else None,
-                      last_name = person_assoc.name.lastName if 'lastName' in person_assoc.name else None,
-                      emplid = db_person.emplid,
-                  )
-                  pub_persons.append(pub_person)
-                  all_person_uuids.add(db_person.uuid)
-              else:
-                  continue
+                        person_pure_internal = person_pure_internal,
+                        first_name = person_assoc.name.firstName if 'firstName' in person_assoc.name else None,
+                        last_name = person_assoc.name.lastName if 'lastName' in person_assoc.name else None,
+                        emplid = db_person.emplid,
+                    )
+                    pub_persons.append(pub_person)
+                    all_person_uuids.add(db_person.uuid)
+                else:
+                    continue
 
-              all_person_org_uuids = set()
-              for api_pure_org in itertools.chain(person_assoc.organisationalUnits, person_assoc.externalOrganisations):
-                  db_pure_org = session.query(PureOrg).filter(
-                      PureOrg.pure_uuid == api_pure_org.uuid
-                  ).one_or_none()
-                  if db_pure_org == None:
-                      missing_org = True
-                      break
+                all_person_org_uuids = set()
+                for api_pure_org in itertools.chain(person_assoc.organisationalUnits, person_assoc.externalOrganisations):
+                    db_pure_org = session.query(PureOrg).filter(
+                        PureOrg.pure_uuid == api_pure_org.uuid
+                    ).one_or_none()
+                    if db_pure_org == None:
+                        missing_org = True
+                        break
 
-                  person_org_uuids = frozenset([db_person.uuid, db_pure_org.pure_uuid])
-                  if person_org_uuids not in all_person_org_uuids:
-                      pub_person_pure_org = PubPersonPureOrg(
-                          pub_uuid = db_pub.uuid,
-                          person_uuid = db_person.uuid,
-                          pure_org_uuid = db_pure_org.pure_uuid,
-                      )
-                      pub_person_pure_orgs.append(pub_person_pure_org)
-                      all_person_org_uuids.add(person_org_uuids)
-                  else:
-                      continue
-              if missing_org:
-                  break
+                    person_org_uuids = frozenset([db_person.uuid, db_pure_org.pure_uuid])
+                    if person_org_uuids not in all_person_org_uuids:
+                        pub_person_pure_org = PubPersonPureOrg(
+                            pub_uuid = db_pub.uuid,
+                            person_uuid = db_person.uuid,
+                            pure_org_uuid = db_pure_org.pure_uuid,
+                        )
+                        pub_person_pure_orgs.append(pub_person_pure_org)
+                        all_person_org_uuids.add(person_org_uuids)
+                    else:
+                        continue
+                if missing_org:
+                    break
 
             if missing_person:
                 experts_etl_logger.info(
@@ -381,8 +381,8 @@ def run(
                 processed_api_pub_uuids = []
                 session.commit()
 
-          mark_api_pubs_as_processed(session, pure_api_record_logger, processed_api_pub_uuids)
-          session.commit()
+        mark_api_pubs_as_processed(session, pure_api_record_logger, processed_api_pub_uuids)
+        session.commit()
 
     loggers.rollover(pure_api_record_logger)
     experts_etl_logger.info('ending: transforming/loading', extra={'pure_api_record_type': pure_api_record_type})
