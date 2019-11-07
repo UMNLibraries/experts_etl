@@ -95,7 +95,7 @@ sqlalchemy_mptt = "*"
 sqlparse = "*"
 
 [package.source]
-reference = "535eff4d4c36cf16d461060b2c894e91032fe5bb"
+reference = "afdf7b4e564b1b5ebe98b3dc57caaf488718c646"
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
 [[package]]
@@ -411,7 +411,7 @@ version = "0.6.0"
 more-itertools = "*"
 
 [metadata]
-content-hash = "361566e6277c4441d9cb7ba899054d90321cd7517ec6a075132caae0a07fd8ae"
+content-hash = "7dc175230caae1e1ba74b9d60857d1ef72c831e3afe8908d64607ae3a96a77b2"
 python-versions = "^3.6.3"
 
 [metadata.hashes]
