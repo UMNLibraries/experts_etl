@@ -10,7 +10,7 @@ from experts_etl import loggers
 # defaults:
 
 db_name = 'hotel'
-transaction_record_limit = 100 
+transaction_record_limit = 100
 # Named for the Pure API endpoint:
 pure_api_record_type = 'external-organisations'
 
@@ -65,14 +65,6 @@ def get_db_org(session, uuid):
     .filter(PureOrg.pure_uuid == uuid)
     .one_or_none()
   )
-
-def db_org_owns_pubs(session, db_org):
-  count = (session.query(func.count(Pub.uuid)).filter(
-    Pub.owner_pure_org_uuid == db_org.pure_uuid
-  )).scalar()
-  if count:
-    return True
-  return False
 
 def delete_db_org(session, db_org):
   # We may be able to do this with less code by using
@@ -147,16 +139,6 @@ def run(
     for api_change in extract_api_changes(session):
 
       db_org = get_db_org(session, api_change.uuid)
-      if db_org and db_org_owns_pubs(session, db_org):
-        # There is at least pub pointing to this org. The pub will probably be
-        # updated or deleted, but we'll wait to delete the org until that happens.
-        continue
-
-      if api_change.change_type == 'DELETE':
-        if db_org:
-          delete_db_org(session, db_org)
-        processed_api_change_uuids.append(api_change.uuid)
-        continue
 
       r = None
       try:
@@ -169,6 +151,12 @@ def run(
         raise
       api_external_org = response.transform(pure_api_record_type, r.json())
 
+      if api_change.change_type == 'DELETE':
+        if db_org:
+          delete_db_org(session, db_org)
+        processed_api_change_uuids.append(api_change.uuid)
+        continue
+
       load = True
       if db_org_newer_than_api_org(session, api_external_org):
         load = False
@@ -176,7 +164,7 @@ def run(
         load = False
       if load:
         load_api_external_org(session, api_external_org, r.text)
-  
+
       processed_api_change_uuids.append(api_change.uuid)
       if len(processed_api_change_uuids) >= transaction_record_limit:
         mark_api_changes_as_processed(session, processed_api_change_uuids)
