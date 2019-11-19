@@ -1,16 +1,16 @@
 import json
 from sqlalchemy import and_, func
 from experts_dw import db
-from experts_dw.models import PureApiPub, PureApiPubHst, PureApiChange, PureApiChangeHst, Pub, PubPerson, PubPersonPureOrg
+from experts_dw.models import PureApiPub, PureApiPubHst, PureApiChange, PureApiChangeHst, Pub, PubPerson, PubPersonPureOrg, PubAuthorCollaboration
 from experts_etl import transformers
 from pureapi import client, response
-from pureapi.exceptions import PureAPIClientRequestException
+from pureapi.exceptions import PureAPIClientRequestException, PureAPIClientHTTPError
 from experts_etl import loggers
 
 # defaults:
 
 db_name = 'hotel'
-transaction_record_limit = 100 
+transaction_record_limit = 100
 # Named for the Pure API endpoint:
 pure_api_record_type = 'research-outputs'
 
@@ -97,7 +97,17 @@ def delete_db_pub(session, db_pub):
     PubPersonPureOrg.pub_uuid == db_pub.uuid
   ).delete(synchronize_session=False)
 
+  session.query(PubAuthorCollaboration).filter(
+    PubAuthorCollaboration.pub_uuid == db_pub.uuid
+  ).delete(synchronize_session=False)
+
   session.delete(db_pub)
+
+def delete_merged_records(session, api_pub):
+    for uuid in api_pub.info.previousUuids:
+        db_pub = get_db_pub(session, uuid)
+        if db_pub:
+            delete_db_pub(session, db_pub)
 
 def db_pub_newer_than_api_pub(session, api_pub):
   api_pub_modified = transformers.iso_8601_string_to_datetime(api_pub.info.modifiedDate)
@@ -159,10 +169,11 @@ def run(
     processed_api_change_uuids = []
     for api_change in extract_api_changes(session):
 
+      db_pub = get_db_pub(session, api_change.uuid)
+
       # We delete here and continue, because there will be no record
       # to download from the Pure API when it has been deleted.
       if api_change.change_type == 'DELETE':
-        db_pub = get_db_pub(session, api_change.uuid)
         if db_pub:
           delete_db_pub(session, db_pub)
         processed_api_change_uuids.append(api_change.uuid)
@@ -179,6 +190,8 @@ def run(
         d = r.json()
         for api_pub_orig in d['items']:
           api_pub = response.transform(pure_api_record_type, api_pub_orig)
+
+          delete_merged_records(session, api_pub)
 
           type_uri_parts = api_pub.type[0].uri.split('/')
           type_uri_parts.reverse()
@@ -204,7 +217,7 @@ def run(
             mark_api_changes_as_processed(session, processed_api_change_uuids)
             processed_api_change_uuids = []
             session.commit()
-    
+
     except Exception as e:
       experts_etl_logger.exception(str(e))
 
