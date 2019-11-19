@@ -3,13 +3,13 @@ from experts_dw import db
 from experts_dw.models import PureApiInternalPerson, PureApiInternalPersonHst, PureApiChange, PureApiChangeHst, Person, PubPerson, PubPersonPureOrg, PersonPureOrg, PersonScopusId, UmnPersonPureOrg
 from experts_etl import transformers
 from pureapi import client, response
-from pureapi.exceptions import PureAPIClientRequestException
+from pureapi.exceptions import PureAPIClientRequestException, PureAPIClientHTTPError
 from experts_etl import loggers
 
 # defaults:
 
 db_name = 'hotel'
-transaction_record_limit = 100 
+transaction_record_limit = 100
 # Named for the Pure API endpoint:
 pure_api_record_type = 'persons'
 
@@ -90,6 +90,12 @@ def delete_db_person(session, db_person):
 
   session.delete(db_person)
 
+def delete_merged_records(session, api_person):
+    for uuid in api_person.info.previousUuids:
+        db_person = get_db_person(session, uuid)
+        if db_person:
+            delete_db_person(session, db_person)
+
 def db_person_newer_than_api_person(session, api_person):
   api_person_modified = transformers.iso_8601_string_to_datetime(api_person.info.modifiedDate)
   db_person = get_db_person(session, api_person.uuid)
@@ -149,8 +155,9 @@ def run(
     processed_api_change_uuids = []
     for api_change in extract_api_changes(session):
 
+      db_person = get_db_person(session, api_change.uuid)
+
       if api_change.change_type == 'DELETE':
-        db_person = get_db_person(session, api_change.uuid)
         if db_person:
           delete_db_person(session, db_person)
         processed_api_change_uuids.append(api_change.uuid)
@@ -159,13 +166,22 @@ def run(
       r = None
       try:
         r = client.get(pure_api_record_type + '/' + api_change.uuid)
+      except PureAPIClientHTTPError as e:
+        # This record has been deleted from Pure but still exists in our local db:
+        if e.response.status_code == 404 and db_person:
+          delete_db_person(session, db_person)
+          processed_api_change_uuids.append(api_change.uuid)
+        # Some other HTTP error occurred. Skip for now and try later.
+        continue
       except PureAPIClientRequestException:
-        # This is probably a 404, due to the record being deleted. For now, just skip it.
-        processed_api_change_uuids.append(api_change.uuid)
+        # Some other ambiguous HTTP-communication-related error occurred. Skip for now and try later.
         continue
       except Exception:
+        # Some unexpected error occurred from which we probably can't recover.
         raise
       api_internal_person = response.transform(pure_api_record_type, r.json())
+
+      delete_merged_records(session, api_internal_person)
 
       load = True
       if db_person_newer_than_api_person(session, api_internal_person):
@@ -174,13 +190,13 @@ def run(
         load = False
       if load:
         load_api_internal_person(session, api_internal_person, r.text)
-  
+
       processed_api_change_uuids.append(api_change.uuid)
       if len(processed_api_change_uuids) >= transaction_record_limit:
         mark_api_changes_as_processed(session, processed_api_change_uuids)
         processed_api_change_uuids = []
         session.commit()
-  
+
     mark_api_changes_as_processed(session, processed_api_change_uuids)
     session.commit()
 

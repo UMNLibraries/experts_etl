@@ -4,13 +4,13 @@ from experts_dw import db
 from experts_dw.models import PureApiExternalOrg, PureApiExternalOrgHst, PureApiChange, PureApiChangeHst, PureOrg, PersonPureOrg, PubPersonPureOrg, Pub
 from experts_etl import transformers
 from pureapi import client, response
-from pureapi.exceptions import PureAPIClientRequestException
+from pureapi.exceptions import PureAPIClientRequestException, PureAPIClientHTTPError
 from experts_etl import loggers
 
 # defaults:
 
 db_name = 'hotel'
-transaction_record_limit = 100 
+transaction_record_limit = 100
 # Named for the Pure API endpoint:
 pure_api_record_type = 'external-organisations'
 
@@ -66,14 +66,6 @@ def get_db_org(session, uuid):
     .one_or_none()
   )
 
-def db_org_owns_pubs(session, db_org):
-  count = (session.query(func.count(Pub.uuid)).filter(
-    Pub.owner_pure_org_uuid == db_org.pure_uuid
-  )).scalar()
-  if count:
-    return True
-  return False
-
 def delete_db_org(session, db_org):
   # We may be able to do this with less code by using
   # the sqlalchemy delete cascade somehow:
@@ -86,6 +78,12 @@ def delete_db_org(session, db_org):
   ).delete(synchronize_session=False)
 
   session.delete(db_org)
+
+def delete_merged_records(session, api_org):
+    for uuid in api_org.info.previousUuids:
+        db_org = get_db_org(session, uuid)
+        if db_org:
+            delete_db_org(session, db_org)
 
 def db_org_newer_than_api_org(session, api_org):
   api_org_modified = transformers.iso_8601_string_to_datetime(api_org.info.modifiedDate)
@@ -147,27 +145,33 @@ def run(
     for api_change in extract_api_changes(session):
 
       db_org = get_db_org(session, api_change.uuid)
-      if db_org and db_org_owns_pubs(session, db_org):
-        # There is at least pub pointing to this org. The pub will probably be
-        # updated or deleted, but we'll wait to delete the org until that happens.
-        continue
 
       if api_change.change_type == 'DELETE':
         if db_org:
           delete_db_org(session, db_org)
         processed_api_change_uuids.append(api_change.uuid)
+        # The associated record should no longer exist in Pure, so there's nothing else to do:
         continue
 
       r = None
       try:
         r = client.get(pure_api_record_type + '/' + api_change.uuid)
+      except PureAPIClientHTTPError as e:
+        # This record has been deleted from Pure but still exists in our local db:
+        if e.response.status_code == 404 and db_org:
+          delete_db_org(session, db_org)
+          processed_api_change_uuids.append(api_change.uuid)
+        # Some other HTTP error occurred. Skip for now and try later.
+        continue
       except PureAPIClientRequestException:
-        # This is probably a 404, due to the record being deleted. For now, just skip it.
-        processed_api_change_uuids.append(api_change.uuid)
+        # Some other ambiguous HTTP-communication-related error occurred. Skip for now and try later.
         continue
       except Exception:
+        # Some unexpected error occurred from which we probably can't recover.
         raise
       api_external_org = response.transform(pure_api_record_type, r.json())
+
+      delete_merged_records(session, api_external_org)
 
       load = True
       if db_org_newer_than_api_org(session, api_external_org):
@@ -176,7 +180,7 @@ def run(
         load = False
       if load:
         load_api_external_org(session, api_external_org, r.text)
-  
+
       processed_api_change_uuids.append(api_change.uuid)
       if len(processed_api_change_uuids) >= transaction_record_limit:
         mark_api_changes_as_processed(session, processed_api_change_uuids)
