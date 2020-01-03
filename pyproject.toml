@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "experts_etl"
-version = "4.2.0"
+version = "4.3.0"
 description = "Moves data from UMN to Pure (Experts@Minnesota), and vice versa."
 readme = "README.md"
 authors = ["David Naughton <naughton@umn.edu>", "Michael Berkowski <mjb@umn.edu"]
