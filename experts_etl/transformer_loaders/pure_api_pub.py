@@ -32,9 +32,9 @@ def nullify_pub_states(db_pub):
             setattr(db_pub, column_name, None)
 
 def update_pub_state(db_pub, api_pub_state):
-    if 'uri' not in api_pub_state.publicationStatus[0]:
+    if 'uri' not in api_pub_state.publicationStatus:
         return
-    state_uri_parts = api_pub_state.publicationStatus[0].uri.split('/')
+    state_uri_parts = api_pub_state.publicationStatus.uri.split('/')
     state_uri_parts.reverse()
     pure_pub_state = state_uri_parts[0]
     base_column_name = pure_edw_pub_state_map[pure_pub_state]
@@ -174,13 +174,13 @@ def run(
             # Commented out for now, because we will rely more on pure types and subtypes (below):
             #db_pub.type = 'article-journal'
 
-            type_uri_parts = api_pub.type[0].uri.split('/')
+            type_uri_parts = api_pub.type.uri.split('/')
             type_uri_parts.reverse()
             pure_subtype, pure_type, pure_parent_type = type_uri_parts[0:3]
             db_pub.pure_type = pure_type
             db_pub.pure_subtype = pure_subtype
 
-            db_pub.title = api_pub.title
+            db_pub.title = api_pub.title.value
 
             db_pub.container_title = api_pub.journalAssociation.title.value
             db_pub.issn = api_pub.journalAssociation.issn.value if 'issn' in api_pub.journalAssociation else None
@@ -252,7 +252,14 @@ def run(
                         )
                     # This is less than ideal, but for now we just update the author collaboration
                     # name with whatever value this record includes:
-                    db_author_collab.name = author_collab_assoc.authorCollaboration.name[0].value
+                    db_author_collab.name = next(
+                        (author_collab_text.value
+                            for author_collab_text
+                            in author_collab_assoc.authorCollaboration.name.text
+                            if author_collab_text.locale =='en_US'
+                        ),
+                        None
+                    )
                     session.add(db_author_collab)
 
                     pub_author_collab = PubAuthorCollaboration(
@@ -262,7 +269,16 @@ def run(
 
                         # TODO: This needs work. We may have tried mapping these to CSL values at
                         # one point, but now we're just taking what Pure gives us.
-                        author_role = author_collab_assoc.personRole[0].value.lower(),
+                        author_role = next(
+                            (author_role_text.value
+                                for author_role_text
+                                in author_collab_assoc.personRole.term.text
+                                if author_role_text.locale =='en_US'
+                            ),
+                            None
+                        ).lower(),
+                    )
+
                     )
                     pub_author_collabs.append(pub_author_collab)
 
@@ -295,7 +311,14 @@ def run(
 
                         # TODO: This needs work. We may have tried mapping these to CSL values at
                         # one point, but now we're just taking what Pure gives us.
-                        person_role = person_assoc.personRole[0].value.lower(),
+                        person_role = next(
+                            (person_role_text.value
+                                for person_role_text
+                                in person_assoc.personRole.term.text
+                                if person_role_text.locale =='en_US'
+                            ),
+                            None
+                        ).lower(),
 
                         person_pure_internal = person_pure_internal,
                         first_name = person_assoc.name.firstName if 'firstName' in person_assoc.name else None,
