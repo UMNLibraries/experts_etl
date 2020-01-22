@@ -60,11 +60,18 @@ def get_db_org(session, pure_uuid):
   )
 
 def create_db_org(api_org):
-  return PureOrg(
-    pure_uuid = api_org.uuid,
-    name_en = api_org.name[0].value,
-    pure_internal = 'N',
-  )
+    return PureOrg(
+        pure_uuid = api_org.uuid,
+        pure_internal = 'N',
+        name_en = next(
+            (name_text.value
+                for name_text
+                in api_org.name.text
+                if name_text.locale =='en_US'
+            ),
+            None
+        ),
+    )
 
 def run(
   # Do we need other default functions here?
@@ -91,8 +98,24 @@ def run(
       else:
         db_org = create_db_org(api_org)
 
-      db_org.name_en = api_org.name[0].value
-      db_org.type = api_org.type[0].value.lower()
+      db_org.name_en = next(
+        (name_text.value
+            for name_text
+            in api_org.name.text
+            if name_text.locale =='en_US'
+        ),
+        None
+      )
+
+      db_org.type = next(
+        (type_text.value
+            for type_text
+            in api_org.type.term.text
+            if type_text.locale =='en_US'
+        ),
+        None
+      ).lower()
+
       db_org.pure_modified = db_api_org.modified
       session.add(db_org)
 

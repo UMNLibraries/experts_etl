@@ -31,9 +31,9 @@ def extract_api_persons(session):
     yield person
 
 def get_person_ids(api_person):
-  type_key_map = {
-    'Employee ID': 'emplid',
-    'Internet ID': 'internet_id',
+  type_uri_key_map = {
+    '/dk/atira/pure/person/personsources/employee': 'emplid',
+    '/dk/atira/pure/person/personsources/umn': 'internet_id',
   }
   person_ids = {
     # None of these may exist, so we give them default values:
@@ -42,11 +42,11 @@ def get_person_ids(api_person):
     'internet_id': None,
   }
   for _id in api_person.ids:
-    if _id.type == 'Scopus Author ID':
-      person_ids['scopus_ids'].add(_id.value)
-    elif _id.type in type_key_map:
-      key = type_key_map[_id.type]
-      person_ids[key] = _id.value
+    if _id.type.uri == '/dk/atira/pure/person/personsources/scopusauthor':
+      person_ids['scopus_ids'].add(_id.value.value)
+    elif _id.type.uri in type_uri_key_map:
+      key = type_uri_key_map[_id.type.uri]
+      person_ids[key] = _id.value.value
   return person_ids
 
 def mark_api_persons_as_processed(session, pure_api_record_logger, processed_api_person_uuids):
@@ -182,7 +182,15 @@ def run(
       all_umn_person_pure_org_primary_keys = set()
       umn_person_pure_orgs = []
       for org_assoc in api_person.staffOrganisationAssociations:
-        if 'value' not in org_assoc.jobDescription[0]:
+        job_description = next(
+          (job_description_text.value
+             for job_description_text
+             in org_assoc.jobDescription.text
+             if job_description_text.locale =='en_US'
+          ),
+          None
+        )
+        if job_description is None:
           found_missing_job_description = True
           break
 
@@ -191,7 +199,7 @@ def run(
         umn_person_pure_org_primary_keys = frozenset([
           'person_uuid:' + db_person.uuid,
           'pure_org_uuid:' + org_assoc.organisationalUnit.uuid,
-          'job_description:' + org_assoc.jobDescription[0].value,
+          'job_description:' + job_description,
           'start_date:' + org_assoc.period.startDate,
         ])
         if umn_person_pure_org_primary_keys in all_umn_person_pure_org_primary_keys:
@@ -213,24 +221,36 @@ def run(
           emplid = db_person.emplid,
           # Skipping this for now:
           pure_org_id = None,
-          job_description = org_assoc.jobDescription[0].value,
+          job_description = job_description,
 
           # Note: Both employmentType and staffType may be missing because they are not required
           # fields in the Pure UI, which UMN staff sometimes use to enter jobs not in PeopleSoft.
 
           # Called employed_as in EDW, which was all 'Academic' as of 2018-06-05.
-          # Probably due to an artifact of the old mast list upload process, or a
-          # misunderstanding of it. The newer EDW table for upload, pure_new_staff_pos_defaults,
-          # has similar values in default_employed_as, but they're the last segment of the
+          # Probably due to an artifact of the old master list upload process, or a
+          # misunderstanding of it. The newer EDW tables for upload (sync) to Pure
+          # have similar values in default_employed_as, but they're the last segment of the
           # employmentType uri.
-          employed_as = org_assoc.employmentType[0].value if 'value' in org_assoc.employmentType[0] else None,
-          # employment_type is mixed case while this is upper case probably due to different,
-          # maybe confused use of these fields, as partly described above.
-          # Also, sometimes staffType will be 'non-academic', but we allowed space in EDW
-          # only for 'nonacademic':
-          staff_type = re.sub('[^a-zA-Z]+', '', org_assoc.staffType[0].value.lower()) if 'value' in org_assoc.staffType[0] else None,
+          employed_as = next(
+            (employment_type_text.value
+              for employment_type_text
+              in org_assoc.employmentType.term.text
+              if employment_type_text.locale =='en_US'
+            ),
+            None
+          ),
 
-          #start_date = datetime.strptime(org_assoc.period.startDate, iso_8601_format),
+          # Sometimes staffType will be 'non-academic', but we allowed space in EDW
+          # only for 'nonacademic' (without a hyphen):
+          staff_type = re.sub('[^a-zA-Z]+', '', next(
+            (staff_type_text.value
+                for staff_type_text
+                in org_assoc.staffType.term.text
+                if staff_type_text.locale =='en_US'
+            ),
+            None
+          ).lower()),
+
           start_date = transformers.iso_8601_string_to_datetime(org_assoc.period.startDate),
           end_date = transformers.iso_8601_string_to_datetime(org_assoc.period.endDate) if org_assoc.period.endDate else None,
           primary = 'Y' if org_assoc.isPrimaryAssociation == True else 'N',

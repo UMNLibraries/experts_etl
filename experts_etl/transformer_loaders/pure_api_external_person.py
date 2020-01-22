@@ -33,8 +33,9 @@ def get_person_ids(api_person):
   person_ids = {
     'scopus_ids': set(),
   }
-  if api_person.externalIdSource == 'Scopus':
-    person_ids['scopus_ids'].add(api_person.externalId)
+  for _id in api_person.ids:
+    if _id.type.uri == '/dk/atira/pure/externalperson/externalpersonsources/scopusauthor':
+      person_ids['scopus_ids'].add(_id.value.value)
   return person_ids
 
 def mark_api_persons_as_processed(session, pure_api_record_logger, processed_api_person_uuids):

@@ -60,18 +60,25 @@ def get_db_org(session, pure_uuid):
   )
 
 def create_db_org(api_org):
-  return PureOrg(
-    pure_uuid = api_org.uuid,
-    name_en = api_org.name[0].value,
-    pure_internal = 'Y',
-  )
+    return PureOrg(
+        pure_uuid = api_org.uuid,
+        pure_internal = 'Y',
+        name_en = next(
+            (name_text.value
+                for name_text
+                in api_org.name.text
+                if name_text.locale =='en_US'
+            ),
+            None
+        ),
+    )
 
 def load_db_dept_orgs(session, api_org):
     for _id in api_org.ids:
-        if _id.typeUri.split('/')[-1] != 'peoplesoft_deptid':
+        if _id.type.uri.split('/')[-1] != 'peoplesoft_deptid':
             continue
 
-        deptid = _id.value
+        deptid = _id.value.value
         pure_org_id = get_pure_id(api_org)
 
         db_dept_org = session.query(UmnDeptPureOrg).filter(
@@ -103,7 +110,7 @@ def get_pure_id(api_org):
     pure_id = api_org.externalId
   else:
     pure_id = next(
-      (id_.value for id_ in api_org.ids if id_.typeUri =='/dk/atira/pure/organisation/organisationsources/organisationid'),
+      (_id.value.value for _id in api_org.ids if _id.type.uri =='/dk/atira/pure/organisation/organisationsources/organisationid'),
       None
     )
   return pure_id
@@ -226,10 +233,27 @@ def run(
           parent_pure_id = get_pure_id(parent_pure_org)
       db_org.parent_pure_id = parent_pure_id
 
-      db_org.name_en = api_org.name[0].value
+      db_org.name_en = next(
+        (name_text.value
+            for name_text
+            in api_org.name.text
+            if name_text.locale =='en_US'
+        ),
+        None
+      )
+
       db_org.parent_pure_uuid = api_org.parents[0].uuid
       db_org.pure_id = get_pure_id(api_org)
-      db_org.type = api_org.type[0].value.lower()
+
+      db_org.type = next(
+        (type_text.value
+            for type_text
+            in api_org.type.term.text
+            if type_text.locale =='en_US'
+        ),
+        None
+      ).lower()
+
       db_org.pure_modified = db_api_org.modified
       session.add(db_org)
 
