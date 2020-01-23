@@ -98,6 +98,7 @@ sqlparse = "*"
 reference = "6335c90137abb3c67cc7c3acc5449edf91c1fb5d"
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
+
 [[package]]
 category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -216,7 +217,7 @@ description = ""
 name = "pureapi"
 optional = false
 python-versions = "^3.6.3"
-version = "2.1.0"
+version = "3.0.0"
 
 [package.dependencies]
 addict = "*"
@@ -224,10 +225,9 @@ requests = "^2.20.0"
 tenacity = "*"
 
 [package.source]
-reference = "f9c95fadb2bede114fdf9274ead2a3b994d650cf"
+reference = "e9b3c193b02a78b5582970745f87790afa96b64d"
 type = "git"
 url = "git://github.com/UMNLibraries/pureapi.git"
-
 [[package]]
 category = "dev"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
