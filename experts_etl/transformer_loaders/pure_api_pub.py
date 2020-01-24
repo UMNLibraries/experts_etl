@@ -278,8 +278,6 @@ def run(
                             None
                         ).lower(),
                     )
-
-                    )
                     pub_author_collabs.append(pub_author_collab)
 
                     continue
