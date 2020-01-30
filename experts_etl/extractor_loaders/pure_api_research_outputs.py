@@ -193,7 +193,7 @@ def run(
 
           delete_merged_records(session, api_pub)
 
-          type_uri_parts = api_pub.type[0].uri.split('/')
+          type_uri_parts = api_pub.type.uri.split('/')
           type_uri_parts.reverse()
           pure_subtype, pure_type, pure_parent_type = type_uri_parts[0:3]
 
