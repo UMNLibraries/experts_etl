@@ -61,19 +61,14 @@ def update_pub_state(db_pub, api_pub_state):
         setattr(db_pub, base_column_name + '_precision', state_precision)
 
 def extract_api_pubs(session):
-    sq = session.query(
-        PureApiPub.uuid,
-        func.max(PureApiPub.modified).label('modified')
-    ).select_from(PureApiPub).group_by(PureApiPub.uuid).subquery()
-
-    for pub in (session.query(PureApiPub)
-        .join(
-            sq,
-            and_(PureApiPub.uuid==sq.c.uuid, PureApiPub.modified==sq.c.modified)
-        )
-        .all()
-    ):
-        yield pub
+    for uuid in [result[0] for result in session.query(PureApiPub.uuid).distinct()]:
+        pubs = session.query(PureApiPub).filter(
+                PureApiPub.uuid == uuid
+            ).order_by(
+                PureApiPub.modified.desc()
+            ).all()
+        # The first record in the list should be the latest:
+        yield pubs[0]
 
 def get_pub_ids(api_pub):
     pub_ids = {

@@ -16,19 +16,14 @@ pure_api_record_type = 'persons'
 pure_api_record_logger = loggers.pure_api_record_logger(type=pure_api_record_type)
 
 def extract_api_persons(session):
-  sq = session.query(
-    PureApiInternalPerson.uuid,
-    func.max(PureApiInternalPerson.modified).label('modified')
-  ).select_from(PureApiInternalPerson).group_by(PureApiInternalPerson.uuid).subquery()
-
-  for person in (session.query(PureApiInternalPerson)
-    .join(sq, and_(
-      PureApiInternalPerson.uuid==sq.c.uuid,
-      PureApiInternalPerson.modified==sq.c.modified
-    ))
-    .all()
-  ):
-    yield person
+    for uuid in [result[0] for result in session.query(PureApiInternalPerson.uuid).distinct()]:
+        persons = session.query(PureApiInternalPerson).filter(
+                PureApiInternalPerson.uuid == uuid
+            ).order_by(
+                PureApiInternalPerson.modified.desc()
+            ).all()
+        # The first record in the list should be the latest:
+        yield persons[0]
 
 def get_person_ids(api_person):
   type_uri_key_map = {

@@ -14,19 +14,14 @@ pure_api_record_type = 'external-organisations'
 pure_api_record_logger = loggers.pure_api_record_logger(type=pure_api_record_type)
 
 def extract_api_orgs(session):
-  sq = session.query(
-    PureApiExternalOrg.uuid,
-    func.max(PureApiExternalOrg.modified).label('modified')
-  ).select_from(PureApiExternalOrg).group_by(PureApiExternalOrg.uuid).subquery()
-
-  for org in (session.query(PureApiExternalOrg)
-    .join(
-      sq,
-      and_(PureApiExternalOrg.uuid==sq.c.uuid, PureApiExternalOrg.modified==sq.c.modified)
-    )
-    .all()
-  ):
-    yield org
+    for uuid in [result[0] for result in session.query(PureApiExternalOrg.uuid).distinct()]:
+        orgs = session.query(PureApiExternalOrg).filter(
+                PureApiExternalOrg.uuid == uuid
+            ).order_by(
+                PureApiExternalOrg.modified.desc()
+            ).all()
+        # The first record in the list should be the latest:
+        yield orgs[0]
 
 def mark_api_orgs_as_processed(session, pure_api_record_logger, processed_api_org_uuids):
   for uuid in processed_api_org_uuids:
