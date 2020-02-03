@@ -5,6 +5,7 @@ from logging.handlers import TimedRotatingFileHandler
 import os
 import shutil
 import gzip
+import traceback
 
 from pythonjsonlogger import jsonlogger
 
@@ -14,7 +15,7 @@ dirname = os.path.dirname(os.path.realpath(__file__ + '/..'))
 if 'EXPERTS_ETL_LOG_DIR' in os.environ:
   dirname = os.environ['EXPERTS_ETL_LOG_DIR']
 
-# formatters 
+# formatters
 
 class PureApiRecordFormatter(logging.Formatter):
   def format(self, record):
@@ -44,7 +45,7 @@ def pure_api_record_logger(name='pure_api_record', dirname=dirname, type='pure-a
   path = dirname + '/' + type + '.log'
   logger = logging.getLogger('experts_etl.' + name)
   logger.setLevel(logging.INFO)
-   
+
   handler = TimedRotatingFileHandler(
     path,
     when='S',
@@ -62,7 +63,7 @@ def experts_etl_logger(name='experts_etl', dirname=dirname):
   path = dirname + '/' + name + '.log'
   logger = logging.getLogger('experts_etl.' + name)
   logger.setLevel(logging.INFO)
-   
+
   handler = TimedRotatingFileHandler(
     path,
     when='S',
@@ -84,3 +85,8 @@ def rollover(logger):
     if isinstance(handler, TimedRotatingFileHandler):
       handler.doRollover()
       break
+
+def format_exception(e):
+    # Inspired by: https://realpython.com/the-most-diabolical-python-antipattern/
+    tb_lines = traceback.format_exception(e.__class__, e, e.__traceback__)
+    return ''.join(tb_lines)

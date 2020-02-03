@@ -59,8 +59,9 @@ def subprocess(module_name):
       experts_etl_logger=experts_etl_logger
     )
   except Exception as e:
+    formatted_exception = loggers.format_exception(e)
     experts_etl_logger.error(
-      'attempt to execute ' + module_name + '.run() failed: {}'.format(e),
+      f'attempt to execute {module_name}.run() failed: {formatted_exception}',
       extra={
         'pid': str(os.getpid()),
         'ppid': str(os.getppid()),
@@ -92,8 +93,9 @@ def run():
       p.start()
       p.join()
     except Exception as e:
+      formatted_exception = loggers.format_exception(e)
       experts_etl_logger.error(
-        'attempt to execute ' + module_name + 'in a new process failed: {}'.format(e),
+        f'attempt to execute {module_name} in a new process failed: {formatted_exception}',
         extra={
           'pid': str(os.getpid()),
           'ppid': str(os.getppid()),
