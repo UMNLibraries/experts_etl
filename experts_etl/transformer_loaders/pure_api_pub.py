@@ -158,6 +158,8 @@ def run(
         with db.session(db_name) as session:
             processed_api_pub_uuids = []
             for db_api_pub in extract_api_pubs(session):
+                if db_api_pub.uuid in pub_uuids_to_skip:
+                    continue
                 api_pub = response.transform(pure_api_record_type, json.loads(db_api_pub.json))
                 db_pub = get_db_pub(session, db_api_pub.uuid)
                 db_pub_previously_existed = False

@@ -1,4 +1,3 @@
-import json
 from sqlalchemy import and_, func
 from experts_dw import db
 from experts_dw.models import PureApiPub, PureApiPubHst, PureApiChange, PureApiChangeHst, Pub, PubPerson, PubPersonPureOrg, PubAuthorCollaboration
@@ -6,6 +5,7 @@ from experts_etl import transformers
 from pureapi import client, response
 from pureapi.exceptions import PureAPIClientRequestException, PureAPIClientHTTPError
 from experts_etl import loggers
+from experts_etl.changes_buffer_managers import changes_for_family_ordered_by_uuid_version, record_changes_as_processed
 
 # defaults:
 
@@ -35,16 +35,6 @@ supported_pure_types = {
         'conferencearticle', # Conference article: An article that has been presented at a conference and published in a journal
   ],
 }
-
-def extract_api_changes(session):
-    for uuid in [result[0] for result in session.query(PureApiChange.uuid).filter(PureApiChange.family_system_name=='ResearchOutput').distinct()]:
-        changes = session.query(PureApiChange).filter(
-                PureApiChange.uuid == uuid
-            ).order_by(
-                PureApiChange.version.desc()
-            ).all()
-        # The first record in the list should be the latest:
-        yield changes[0]
 
 # functions:
 
@@ -120,36 +110,11 @@ def load_api_pub(session, api_pub, raw_json):
     )
     session.add(db_api_pub)
 
-def mark_api_changes_as_processed(session, processed_api_change_uuids):
-    for uuid in processed_api_change_uuids:
-        for change in session.query(PureApiChange).filter(PureApiChange.uuid==uuid).all():
-
-            change_hst = (
-                session.query(PureApiChangeHst)
-                .filter(and_(
-                    PureApiChangeHst.uuid == change.uuid,
-                    PureApiChangeHst.version == change.version,
-                ))
-                .one_or_none()
-            )
-
-            if change_hst is None:
-                change_hst = PureApiChangeHst(
-                    uuid=change.uuid,
-                    family_system_name=change.family_system_name,
-                    change_type=change.change_type,
-                    version=change.version,
-                    downloaded=change.downloaded
-                )
-                session.add(change_hst)
-
-            session.delete(change)
-
 # entry point/public api:
 
 def run(
     # Do we need other default functions here?
-    extract_api_changes=extract_api_changes,
+    #extract_api_changes=extract_api_changes,
     db_name=db_name,
     transaction_record_limit=transaction_record_limit,
     experts_etl_logger=None
@@ -158,65 +123,94 @@ def run(
         experts_etl_logger = loggers.experts_etl_logger()
     experts_etl_logger.info('starting: extracting/loading', extra={'pure_api_record_type': pure_api_record_type})
 
-    with db.session(db_name) as session:
-        uuids_to_download = []
-        processed_api_change_uuids = []
-        for api_change in extract_api_changes(session):
+    # Capture the current record for each iteration, so we can log it in case of an exception:
+    latest_change = None
 
-            db_pub = get_db_pub(session, api_change.uuid)
+    try:
+        with db.session(db_name) as session:
+            processed_changes = []
+            for changes in changes_for_family_ordered_by_uuid_version(session, 'ResearchOutput'):
+                latest_change = changes[0]
+                db_pub = get_db_pub(session, latest_change.uuid)
 
-            # We delete here and continue, because there will be no record
-            # to download from the Pure API when it has been deleted.
-            if api_change.change_type == 'DELETE':
-                if db_pub:
-                    delete_db_pub(session, db_pub)
-                processed_api_change_uuids.append(api_change.uuid)
-                if len(processed_api_change_uuids) >= transaction_record_limit:
-                    mark_api_changes_as_processed(session, processed_api_change_uuids)
-                    processed_api_change_uuids = []
-                    session.commit()
-                continue
-
-            uuids_to_download.append(api_change.uuid)
-
-        try:
-            for r in client.filter_all_by_uuid(pure_api_record_type, uuids=uuids_to_download):
-                d = r.json()
-                for api_pub_orig in d['items']:
-                    api_pub = response.transform(pure_api_record_type, api_pub_orig)
-
-                    delete_merged_records(session, api_pub)
-
-                    type_uri_parts = api_pub.type.uri.split('/')
-                    type_uri_parts.reverse()
-                    pure_subtype, pure_type, pure_parent_type = type_uri_parts[0:3]
-
-                    load = True
-                    if pure_type not in supported_pure_types or pure_subtype not in supported_pure_types[pure_type]:
-                        # Check whether we previously loaded this research output: its type(/subtype)
-                        # may have changed to a type(/subtype) we do not support. If so, delete:
-                        db_pub = get_db_pub(session, api_pub.uuid)
-                        if db_pub:
-                            delete_db_pub(session, db_pub)
-                        load = False
-                    if db_pub_newer_than_api_pub(session, api_pub):
-                        load = False
-                    if api_pub_exists_in_db(session, api_pub):
-                        load = False
-                    if load:
-                        load_api_pub(session, api_pub, json.dumps(api_pub_orig))
-
-                    processed_api_change_uuids.append(api_pub.uuid)
-                    if len(processed_api_change_uuids) >= transaction_record_limit:
-                        mark_api_changes_as_processed(session, processed_api_change_uuids)
-                        processed_api_change_uuids = []
+                # We delete here and continue, because there will be no record
+                # to download from the Pure API when it has been deleted.
+                if latest_change.change_type == 'DELETE':
+                    if db_pub:
+                        delete_db_pub(session, db_pub)
+                    processed_changes.extend(changes)
+                    if len(processed_changes) >= transaction_record_limit:
+                        record_changes_as_processed(session, processed_changes)
+                        processed_changes = []
                         session.commit()
+                    continue
 
-        # TODO: Revisit this when improving exception handling in general!
-        except Exception as e:
-            experts_etl_logger.exception(str(e))
+                r = None
+                try:
+                    r = client.get(pure_api_record_type + '/' + latest_change.uuid)
+                except PureAPIClientHTTPError as e:
+                    if e.response.status_code == 404:
+                        if db_pub:
+                            # This record has been deleted from Pure but still exists in our local db:
+                            delete_db_pub(session, db_pub)
+                        processed_changes.extend(changes)
+                        if len(processed_changes) >= transaction_record_limit:
+                            record_changes_as_processed(session, processed_changes)
+                            processed_changes = []
+                            session.commit()
+                    else:
+                        experts_etl_logger.error(
+                            f'HTTP error {e.response.status_code} returned during record extraction',
+                            extra={'pure_uuid': latest_change.uuid, 'pure_api_record_type': pure_api_record_type}
+                        )
+                    continue
+                except PureAPIClientRequestException as e:
+                    formatted_exception = loggers.format_exception(e)
+                    experts_etl_logger.error(
+                        f'mysterious client request exception encountered during record extraction: {formatted_exception}',
+                        extra={'pure_uuid': latest_change.uuid, 'pure_api_record_type': pure_api_record_type}
+                    )
+                    continue
+                except Exception:
+                    raise
 
-        mark_api_changes_as_processed(session, processed_api_change_uuids)
-        session.commit()
+                api_pub = response.transform(pure_api_record_type, r.json())
+
+                delete_merged_records(session, api_pub)
+
+                type_uri_parts = api_pub.type.uri.split('/')
+                type_uri_parts.reverse()
+                pure_subtype, pure_type, pure_parent_type = type_uri_parts[0:3]
+
+                load = True
+                if pure_type not in supported_pure_types or pure_subtype not in supported_pure_types[pure_type]:
+                    # Check whether we previously loaded this research output: its type(/subtype)
+                    # may have changed to a type(/subtype) we do not support. If so, delete:
+                    db_pub = get_db_pub(session, api_pub.uuid)
+                    if db_pub:
+                        delete_db_pub(session, db_pub)
+                    load = False
+                if db_pub_newer_than_api_pub(session, api_pub):
+                    load = False
+                if api_pub_exists_in_db(session, api_pub):
+                    load = False
+                if load:
+                    load_api_pub(session, api_pub, r.text)
+
+                processed_changes.extend(changes)
+                if len(processed_changes) >= transaction_record_limit:
+                    record_changes_as_processed(session, processed_changes)
+                    processed_changes = []
+                    session.commit()
+
+            record_changes_as_processed(session, processed_changes)
+            session.commit()
+
+    except Exception as e:
+        formatted_exception = loggers.format_exception(e)
+        experts_etl_logger.error(
+            f'exception encountered during record extraction: {formatted_exception}',
+            extra={'pure_uuid': latest_change.uuid, 'pure_api_record_type': pure_api_record_type}
+        )
 
     experts_etl_logger.info('ending: extracting/loading', extra={'pure_api_record_type': pure_api_record_type})

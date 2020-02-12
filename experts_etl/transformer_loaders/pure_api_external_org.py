@@ -36,16 +36,16 @@ def mark_api_orgs_as_processed(session, pure_api_record_logger, processed_api_or
                 .one_or_none()
             )
 
-          if org_hst is None:
-              org_hst = PureApiExternalOrgHst(
-                  uuid=org.uuid,
-                  modified=org.modified,
-                  downloaded=org.downloaded
-              )
-              session.add(org_hst)
+            if org_hst is None:
+                org_hst = PureApiExternalOrgHst(
+                    uuid=org.uuid,
+                    modified=org.modified,
+                    downloaded=org.downloaded
+                )
+                session.add(org_hst)
 
-          pure_api_record_logger.info(org.json)
-          session.delete(org)
+            pure_api_record_logger.info(org.json)
+            session.delete(org)
 
 def get_db_org(session, pure_uuid):
     return (
