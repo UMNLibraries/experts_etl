@@ -209,64 +209,64 @@ def run(
     api_org = None
 
     try:
-    with db.session(db_name) as session:
-        processed_api_org_uuids = []
-        for db_api_org in extract_api_orgs(session):
-            api_org = response.transform(pure_api_record_type, json.loads(db_api_org.json))
-            db_org = get_db_org(session, db_api_org.uuid)
-            if db_org:
-                if db_org.pure_modified and db_org.pure_modified >= db_api_org.modified:
-                    # Skip this record, since we already have a newer one:
-                    processed_api_org_uuids.append(db_api_org.uuid)
-                    continue
-            else:
-                db_org = create_db_org(api_org)
+        with db.session(db_name) as session:
+            processed_api_org_uuids = []
+            for db_api_org in extract_api_orgs(session):
+                api_org = response.transform(pure_api_record_type, json.loads(db_api_org.json))
+                db_org = get_db_org(session, db_api_org.uuid)
+                if db_org:
+                    if db_org.pure_modified and db_org.pure_modified >= db_api_org.modified:
+                        # Skip this record, since we already have a newer one:
+                        processed_api_org_uuids.append(db_api_org.uuid)
+                        continue
+                else:
+                    db_org = create_db_org(api_org)
 
-            # TODO: This needs work! Fix pureapi.response.
-            parent_pure_id = None
-            if api_org.parents[0].uuid is not None:
-                parent_pure_uuid = api_org.parents[0].uuid
-                parent_pure_org = get_pure_org(parent_pure_uuid)
-                if parent_pure_org is not None:
-                    parent_pure_id = get_pure_id(parent_pure_org)
-            db_org.parent_pure_id = parent_pure_id
+                # TODO: This needs work! Fix pureapi.response.
+                parent_pure_id = None
+                if api_org.parents[0].uuid is not None:
+                    parent_pure_uuid = api_org.parents[0].uuid
+                    parent_pure_org = get_pure_org(parent_pure_uuid)
+                    if parent_pure_org is not None:
+                        parent_pure_id = get_pure_id(parent_pure_org)
+                db_org.parent_pure_id = parent_pure_id
 
-            db_org.name_en = next(
-                (name_text.value
-                    for name_text
-                    in api_org.name.text
-                    if name_text.locale =='en_US'
-                ),
-                None
-            )
+                db_org.name_en = next(
+                    (name_text.value
+                        for name_text
+                        in api_org.name.text
+                        if name_text.locale =='en_US'
+                    ),
+                    None
+                )
 
-            db_org.parent_pure_uuid = api_org.parents[0].uuid
-            db_org.pure_id = get_pure_id(api_org)
+                db_org.parent_pure_uuid = api_org.parents[0].uuid
+                db_org.pure_id = get_pure_id(api_org)
 
-            db_org.type = next(
-                (type_text.value
-                    for type_text
-                    in api_org.type.term.text
-                    if type_text.locale =='en_US'
-                ),
-                None
-            ).lower()
+                db_org.type = next(
+                    (type_text.value
+                        for type_text
+                        in api_org.type.term.text
+                        if type_text.locale =='en_US'
+                    ),
+                    None
+                ).lower()
 
-            db_org.pure_modified = db_api_org.modified
-            session.add(db_org)
+                db_org.pure_modified = db_api_org.modified
+                session.add(db_org)
 
-            load_db_dept_orgs(session, api_org)
+                load_db_dept_orgs(session, api_org)
 
-            processed_api_org_uuids.append(api_org.uuid)
-            if len(processed_api_org_uuids) >= transaction_record_limit:
-                mark_api_orgs_as_processed(session, pure_api_record_logger, processed_api_org_uuids)
-                processed_api_org_uuids = []
-                session.commit()
+                processed_api_org_uuids.append(api_org.uuid)
+                if len(processed_api_org_uuids) >= transaction_record_limit:
+                    mark_api_orgs_as_processed(session, pure_api_record_logger, processed_api_org_uuids)
+                    processed_api_org_uuids = []
+                    session.commit()
 
-        mark_api_orgs_as_processed(session, pure_api_record_logger, processed_api_org_uuids)
-        session.commit()
+            mark_api_orgs_as_processed(session, pure_api_record_logger, processed_api_org_uuids)
+            session.commit()
 
-        update_db_mptt_orgs(session)
+            update_db_mptt_orgs(session)
 
     except Exception as e:
         formatted_exception = loggers.format_exception(e)
