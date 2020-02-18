@@ -146,11 +146,6 @@ def run(
         experts_etl_logger = loggers.experts_etl_logger()
     experts_etl_logger.info('starting: transforming/loading', extra={'pure_api_record_type': pure_api_record_type})
 
-    # Temporarily skip these records that are giving us problems for whatever reason:
-    pub_uuids_to_skip = [
-        'c8457687-c06b-4289-8e5f-9b21aae34d84', # Dict is not callable
-    ]
-
     # Capture the current record for each iteration, so we can log it in case of an exception:
     api_pub = None
 
@@ -158,8 +153,6 @@ def run(
         with db.session(db_name) as session:
             processed_api_pub_uuids = []
             for db_api_pub in extract_api_pubs(session):
-                if db_api_pub.uuid in pub_uuids_to_skip:
-                    continue
                 api_pub = response.transform(pure_api_record_type, json.loads(db_api_pub.json))
                 db_pub = get_db_pub(session, db_api_pub.uuid)
                 db_pub_previously_existed = False
