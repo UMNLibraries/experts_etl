@@ -17,12 +17,23 @@ def test_extract(session):
   for entry in entries:
     assert isinstance(entry, dict)
     assert entry['emplid'] == emplid
-    assert re.match(r'^\d+$', entry['empl_rcdno']) 
-    assert re.match(r'^\d+$', entry['position_nbr']) 
+    assert re.match(r'^\d+$', entry['empl_rcdno'])
+    assert re.match(r'^\d+$', entry['position_nbr'])
     assert isinstance(entry['effdt'], datetime.datetime)
     assert isinstance(entry['effseq'], int)
 
-@pytest.fixture(params=['4604830','1082441','3262322','5150075','1717940','1217312','2110507','8000397'])
+@pytest.fixture(params=[
+    '4604830',
+    '1082441',
+    '3262322',
+    '5150075',
+    '1717940',
+    '1217312',
+    '1732812',
+    '0903070',
+    '2110507',
+    '8000397',
+])
 def entries_to_group(request):
   from . import emp_job_entries_4604830
   from . import emp_job_entries_1082441
@@ -30,6 +41,8 @@ def entries_to_group(request):
   from . import emp_job_entries_5150075
   from . import employee_jobs_1717940
   from . import employee_jobs_1217312
+  from . import employee_jobs_1732812
+  from . import employee_jobs_0903070
   from . import employee_jobs_2110507
   from . import employee_jobs_8000397
   entries_sets = {
@@ -39,6 +52,8 @@ def entries_to_group(request):
     '5150075': emp_job_entries_5150075,
     '1717940': employee_jobs_1717940,
     '1217312': employee_jobs_1217312,
+    '1732812': employee_jobs_1732812,
+    '0903070': employee_jobs_0903070,
     '2110507': employee_jobs_2110507,
     '8000397': employee_jobs_8000397,
   }
@@ -49,13 +64,25 @@ def test_group_entries(entries_to_group):
   assert employee_job.group_entries(entries_to_group.entries) == entries_to_group.entry_groups
   assert employee_job.group_entries([]) == []
 
-@pytest.fixture(params=['4604830','1082441','3262322','5150075','1217312','2110507','8000397'])
+@pytest.fixture(params=[
+    '4604830',
+    '1082441',
+    '3262322',
+    '5150075',
+    '1217312',
+    '1732812',
+    '0903070',
+    '2110507',
+    '8000397',
+])
 def entry_groups(request):
   from . import emp_job_entries_4604830
   from . import emp_job_entries_1082441
   from . import emp_job_entries_3262322
   from . import emp_job_entries_5150075
   from . import employee_jobs_1217312
+  from . import employee_jobs_1732812
+  from . import employee_jobs_0903070
   from . import employee_jobs_2110507
   from . import employee_jobs_8000397
   entries_sets = {
@@ -64,6 +91,8 @@ def entry_groups(request):
     '3262322': emp_job_entries_3262322,
     '5150075': emp_job_entries_5150075,
     '1217312': employee_jobs_1217312,
+    '1732812': employee_jobs_1732812,
+    '0903070': employee_jobs_0903070,
     '2110507': employee_jobs_2110507,
     '8000397': employee_jobs_8000397,
   }
