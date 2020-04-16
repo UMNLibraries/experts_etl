@@ -10,7 +10,7 @@ from experts_etl import loggers
 # defaults:
 
 db_name = 'hotel'
-transaction_record_limit = 100 
+transaction_record_limit = 100
 # Named for the Pure API endpoint:
 pure_api_record_type = 'changes'
 
@@ -99,9 +99,9 @@ def run(
         continue
 
       load_api_change(session, api_change)
-  
+
       record_count += 1
-      if record_count > transaction_record_limit:
+      if (record_count % transaction_record_limit) == 0:
         session.commit()
 
   experts_etl_logger.info('ending: extracting/loading', extra={'pure_api_record_type': pure_api_record_type})
