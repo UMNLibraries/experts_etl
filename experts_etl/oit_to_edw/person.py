@@ -3,7 +3,8 @@ import re
 import uuid
 from experts_dw import db
 from sqlalchemy import and_, func, text
-from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonData, PureSyncStaffOrgAssociation, PureSyncUserData
+from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonDataScratch, PureSyncStaffOrgAssociationScratch, PureSyncUserDataScratch
+from experts_dw.sqlapi import sqlapi
 from experts_etl import loggers, transformers
 from experts_etl.demographics import latest_demographics_for_emplid
 from experts_etl.umn_data_error import record_person_no_job_data_error
@@ -21,12 +22,16 @@ def run(
     transaction_record_limit=transaction_record_limit,
     experts_etl_logger=None
 ):
+    # This connection API in general needs work. Including this here for the sake of consistency
+    # with other ETL module.run() functions.
+    sqlapi.set_engine(db.engine(db_name))
+
     if experts_etl_logger is None:
         experts_etl_logger = loggers.experts_etl_logger()
         experts_etl_logger.info('starting: oit -> edw', extra={'pure_sync_job': 'person'})
 
     engine = db.engine(db_name)
-    prepare_destination_tables(engine)
+    prepare_target_scratch_tables(engine)
 
     with db.session(db_name) as session:
         prepare_source_tables(engine, session)
@@ -44,17 +49,31 @@ def run(
                     internet_id=person_dict['internet_id'],
                 )
                 continue
-            load(session, person_dict)
+            load_into_scratch(session, person_dict)
             load_count += 1
             if load_count >= transaction_record_limit:
                 session.commit()
                 load_count = 0
+
+        update_targets_from_scratch()
+
         session.commit()
 
     experts_etl_logger.info('ending: oit -> edw', extra={'pure_sync_job': 'person'})
 
-def load(session, person_dict):
-    pure_sync_person_data = PureSyncPersonData(
+def update_targets_from_scratch():
+    with sqlapi.transaction():
+        sqlapi.udate_pure_sync_person_data()
+        sqlapi.insert_pure_sync_person_data()
+
+        sqlapi.udate_pure_sync_user_data()
+        sqlapi.insert_pure_sync_user_data()
+
+        sqlapi.udate_pure_sync_staff_org_association()
+        sqlapi.insert_pure_sync_staff_org_association()
+
+def load_into_scratch(session, person_dict):
+    pure_sync_person_data = PureSyncPersonDataScratch(
         person_id=person_dict['person_id'],
         first_name=person_dict['first_name'],
         last_name=person_dict['last_name'],
@@ -67,7 +86,7 @@ def load(session, person_dict):
     session.add(pure_sync_person_data)
 
     for job in person_dict['jobs']:
-        pure_sync_staff_org_association = PureSyncStaffOrgAssociation(
+        pure_sync_staff_org_association = PureSyncStaffOrgAssociationScratch(
             affiliation_id=job['affiliation_id'],
             staff_org_association_id=job['staff_org_assoc_id'],
             person_id=person_dict['person_id'],
@@ -83,7 +102,7 @@ def load(session, person_dict):
         session.add(pure_sync_staff_org_association)
 
     if person_dict['internet_id'] is not None:
-        pure_sync_user_data = PureSyncUserData(
+        pure_sync_user_data = PureSyncUserDataScratch(
             person_id=person_dict['person_id'],
             first_name=person_dict['first_name'],
             last_name=person_dict['last_name'],
@@ -92,10 +111,10 @@ def load(session, person_dict):
         )
         session.add(pure_sync_user_data)
 
-def prepare_destination_tables(engine):
-    engine.execute('delete pure_sync_user_data')
-    engine.execute('delete pure_sync_staff_org_association')
-    engine.execute('delete pure_sync_person_data')
+def prepare_target_scratch_tables(engine):
+    engine.execute('delete pure_sync_user_data_scratch')
+    engine.execute('delete pure_sync_staff_org_association_scratch')
+    engine.execute('delete pure_sync_person_data_scratch')
 
 def prepare_source_tables(engine, session):
     update_pure_eligible_persons(engine, session)
