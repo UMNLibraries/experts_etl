@@ -85,7 +85,7 @@ description = ""
 name = "experts-dw"
 optional = false
 python-versions = "^3.6.3"
-version = "7.3.0"
+version = "7.4.0"
 
 [package.dependencies]
 cx_oracle = "*"
@@ -95,10 +95,9 @@ sqlalchemy_mptt = "*"
 sqlparse = "*"
 
 [package.source]
-reference = "45ac8d2adc85b0b5207335c6fc4c1f698c77c6d0"
+reference = "93ad51f37a364fc556b258b3e3239f8778a415cd"
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
-
 [[package]]
 category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -228,6 +227,7 @@ tenacity = "*"
 reference = "b9911b8c627f3e24196c9ae4641ed979c03b8fec"
 type = "git"
 url = "git://github.com/UMNLibraries/pureapi.git"
+
 [[package]]
 category = "dev"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
