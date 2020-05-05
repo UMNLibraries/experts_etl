@@ -63,13 +63,13 @@ def run(
 
 def update_targets_from_scratch():
     with sqlapi.transaction():
-        sqlapi.udate_pure_sync_person_data()
+        sqlapi.update_pure_sync_person_data()
         sqlapi.insert_pure_sync_person_data()
 
-        sqlapi.udate_pure_sync_user_data()
+        sqlapi.update_pure_sync_user_data()
         sqlapi.insert_pure_sync_user_data()
 
-        sqlapi.udate_pure_sync_staff_org_association()
+        sqlapi.update_pure_sync_staff_org_association()
         sqlapi.insert_pure_sync_staff_org_association()
 
 def load_into_scratch(session, person_dict):
