@@ -85,7 +85,7 @@ description = ""
 name = "experts-dw"
 optional = false
 python-versions = "^3.6.3"
-version = "7.4.0"
+version = "7.4.1"
 
 [package.dependencies]
 cx_oracle = "*"
@@ -95,7 +95,7 @@ sqlalchemy_mptt = "*"
 sqlparse = "*"
 
 [package.source]
-reference = "93ad51f37a364fc556b258b3e3239f8778a415cd"
+reference = "3e4633acafd2794fc3f477a4baa326e1c7368c96"
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
 [[package]]
