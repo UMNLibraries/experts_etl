@@ -72,6 +72,8 @@ def update_targets_from_scratch():
         sqlapi.update_pure_sync_staff_org_association()
         sqlapi.insert_pure_sync_staff_org_association()
 
+        sqlapi.delete_obsolete_primary_jobs()
+
 def load_into_scratch(session, person_dict):
     pure_sync_person_data = PureSyncPersonDataScratch(
         person_id=person_dict['person_id'],
