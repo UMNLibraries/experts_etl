@@ -3,7 +3,7 @@ from experts_dw import db
 from experts_dw.models import PureApiInternalOrg, PureApiInternalOrgHst, PureApiChange, PureApiChangeHst, PureOrg, PureInternalOrg, PersonPureOrg, PubPersonPureOrg, Pub, UmnPersonPureOrg, UmnDeptPureOrg, PureInternalOrg
 from experts_etl import transformers
 from pureapi import client, response
-from pureapi.exceptions import PureAPIClientRequestException, PureAPIClientHTTPError
+from pureapi.client import Config, PureAPIRequestException, PureAPIHTTPError
 from experts_etl import loggers
 from experts_etl.changes_buffer_managers import changes_for_family_ordered_by_uuid_version, record_changes_as_processed
 
@@ -112,11 +112,15 @@ def run(
     #extract_api_changes=extract_api_changes,
     db_name=db_name,
     transaction_record_limit=transaction_record_limit,
-    experts_etl_logger=None
+    experts_etl_logger=None,
+    pure_api_config=None
 ):
     if experts_etl_logger is None:
         experts_etl_logger = loggers.experts_etl_logger()
     experts_etl_logger.info('starting: extracting/loading', extra={'pure_api_record_type': pure_api_record_type})
+
+    if pure_api_config is None:
+        pure_api_config = Config()
 
     # Capture the current record for each iteration, so we can log it in case of an exception:
     latest_change = None
@@ -142,8 +146,8 @@ def run(
 
                 r = None
                 try:
-                    r = client.get(pure_api_record_type + '/' + latest_change.uuid)
-                except PureAPIClientHTTPError as e:
+                    r = client.get(pure_api_record_type + '/' + latest_change.uuid, config=pure_api_config)
+                except PureAPIHTTPError as e:
                     if e.response.status_code == 404:
                         if db_org:
                             # This record has been deleted from Pure but still exists in our local db:
@@ -159,7 +163,7 @@ def run(
                             extra={'pure_uuid': latest_change.uuid, 'pure_api_record_type': pure_api_record_type}
                         )
                     continue
-                except PureAPIClientRequestException as e:
+                except PureAPIRequestException as e:
                     formatted_exception = loggers.format_exception(e)
                     experts_etl_logger.error(
                         f'mysterious client request exception encountered during record extraction: {formatted_exception}',
@@ -170,7 +174,11 @@ def run(
                     raise
 
 
-                api_internal_org = response.transform(pure_api_record_type, r.json())
+                api_internal_org = response.transform(
+                    pure_api_record_type,
+                    r.json(),
+                    version=pure_api_config.version
+                )
 
                 delete_merged_records(session, api_internal_org)
 

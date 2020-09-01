@@ -7,6 +7,7 @@ from sqlalchemy import and_, func
 from experts_dw.models import PureApiPub, PureApiPubHst, Pub, Person, PubPerson, PureOrg, PubPersonPureOrg, AuthorCollaboration, PubAuthorCollaboration
 from experts_etl import loggers
 from pureapi import response
+from pureapi.client import Config
 
 # defaults:
 
@@ -140,11 +141,15 @@ def run(
     db_name=db_name,
     transaction_record_limit=transaction_record_limit,
     pure_api_record_logger=pure_api_record_logger,
-    experts_etl_logger=None
+    experts_etl_logger=None,
+    pure_api_config=None
 ):
     if experts_etl_logger is None:
         experts_etl_logger = loggers.experts_etl_logger()
     experts_etl_logger.info('starting: transforming/loading', extra={'pure_api_record_type': pure_api_record_type})
+
+    if pure_api_config is None:
+        pure_api_config = Config()
 
     # Capture the current record for each iteration, so we can log it in case of an exception:
     api_pub = None
@@ -153,7 +158,11 @@ def run(
         with db.session(db_name) as session:
             processed_api_pub_uuids = []
             for db_api_pub in extract_api_pubs(session):
-                api_pub = response.transform(pure_api_record_type, json.loads(db_api_pub.json))
+                api_pub = response.transform(
+                    pure_api_record_type,
+                    json.loads(db_api_pub.json),
+                    version=pure_api_config.version
+                )
                 db_pub = get_db_pub(session, db_api_pub.uuid)
                 db_pub_previously_existed = False
                 if db_pub:
