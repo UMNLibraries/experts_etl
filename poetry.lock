@@ -217,7 +217,7 @@ description = ""
 name = "pureapi"
 optional = false
 python-versions = "^3.6.3"
-version = "4.0.0"
+version = "4.0.1"
 
 [package.dependencies]
 addict = "*"
@@ -226,7 +226,7 @@ requests = "^2.20.0"
 tenacity = "*"
 
 [package.source]
-reference = "2132f2f4d9e4a1f54aa9e4452782c7c742326eec"
+reference = "2d6c8921c03277fe93d756cd9b63c8638366f335"
 type = "git"
 url = "git://github.com/UMNLibraries/pureapi.git"
 [[package]]
