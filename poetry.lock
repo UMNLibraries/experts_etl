@@ -15,7 +15,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "1.3.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Classes Without Boilerplate"
 name = "attrs"
 optional = false
@@ -98,6 +98,7 @@ sqlparse = "*"
 reference = "3e4633acafd2794fc3f477a4baa326e1c7368c96"
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
+
 [[package]]
 category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -216,18 +217,18 @@ description = ""
 name = "pureapi"
 optional = false
 python-versions = "^3.6.3"
-version = "3.3.1"
+version = "4.0.0"
 
 [package.dependencies]
 addict = "*"
+attrs = "^19.3.0"
 requests = "^2.20.0"
 tenacity = "*"
 
 [package.source]
-reference = "b9911b8c627f3e24196c9ae4641ed979c03b8fec"
+reference = "2132f2f4d9e4a1f54aa9e4452782c7c742326eec"
 type = "git"
 url = "git://github.com/UMNLibraries/pureapi.git"
-
 [[package]]
 category = "dev"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"

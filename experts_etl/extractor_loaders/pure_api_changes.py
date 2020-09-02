@@ -4,7 +4,8 @@ import re
 from sqlalchemy import and_, func
 from experts_dw import db
 from experts_dw.models import PureApiChange, PureApiChangeHst
-from pureapi import client, response
+from pureapi import client
+from pureapi.client import Config
 from experts_etl import loggers
 
 # defaults:
@@ -80,17 +81,21 @@ def run(
   db_name=db_name,
   family_system_names=family_system_names,
   transaction_record_limit=transaction_record_limit,
-  experts_etl_logger=None
+  experts_etl_logger=None,
+  pure_api_config=None
 ):
   if experts_etl_logger is None:
     experts_etl_logger = loggers.experts_etl_logger()
   experts_etl_logger.info('starting: extracting/loading', extra={'pure_api_record_type': pure_api_record_type})
 
+  if pure_api_config is None:
+      pure_api_config = Config()
+
   with db.session(db_name) as session:
     record_count = 0
     if startdate_str is None:
       startdate_str = ensure_valid_startdate(session, startdate).isoformat()
-    for api_change in client.get_all_changes_transformed(startdate_str):
+    for api_change in client.get_all_changes_transformed(startdate_str, config=pure_api_config):
       if not required_fields_exist(api_change):
         continue
       if api_change.familySystemName not in family_system_names:

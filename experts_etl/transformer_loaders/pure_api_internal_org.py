@@ -4,6 +4,7 @@ from sqlalchemy import and_, func
 from experts_dw.models import PureApiInternalOrg, PureApiInternalOrgHst, PureOrg, PureInternalOrg, UmnDeptPureOrg
 from experts_etl import loggers
 from pureapi import client, response
+from pureapi.client import Config
 
 # defaults:
 
@@ -89,11 +90,15 @@ def load_db_dept_orgs(session, api_org):
             db_dept_org.pure_org_id = pure_org_id
         session.add(db_dept_org)
 
-def get_pure_org(pure_org_uuid):
+def get_pure_org(pure_org_uuid, pure_api_config):
     pure_org = None
     try:
-        r = client.get(pure_api_record_type + '/' + pure_org_uuid)
-        pure_org = response.transform(pure_api_record_type, r.json())
+        r = client.get(pure_api_record_type + '/' + pure_org_uuid, config=pure_api_config)
+        pure_org = response.transform(
+            pure_api_record_type,
+            r.json(),
+            version=pure_api_config.version
+        )
     except Exception:
         pass
     return pure_org
@@ -199,11 +204,15 @@ def run(
     db_name=db_name,
     transaction_record_limit=transaction_record_limit,
     pure_api_record_logger=pure_api_record_logger,
-    experts_etl_logger=None
+    experts_etl_logger=None,
+    pure_api_config = None
 ):
     if experts_etl_logger is None:
         experts_etl_logger = loggers.experts_etl_logger()
     experts_etl_logger.info('starting: transforming/loading', extra={'pure_api_record_type': pure_api_record_type})
+
+    if pure_api_config is None:
+        pure_api_config = Config()
 
     # Capture the current record for each iteration, so we can log it in case of an exception:
     api_org = None
@@ -212,7 +221,11 @@ def run(
         with db.session(db_name) as session:
             processed_api_org_uuids = []
             for db_api_org in extract_api_orgs(session):
-                api_org = response.transform(pure_api_record_type, json.loads(db_api_org.json))
+                api_org = response.transform(
+                    pure_api_record_type,
+                    json.loads(db_api_org.json),
+                    version=pure_api_config.version
+                )
                 db_org = get_db_org(session, db_api_org.uuid)
                 if db_org:
                     if db_org.pure_modified and db_org.pure_modified >= db_api_org.modified:
@@ -226,7 +239,10 @@ def run(
                 parent_pure_id = None
                 if api_org.parents[0].uuid is not None:
                     parent_pure_uuid = api_org.parents[0].uuid
-                    parent_pure_org = get_pure_org(parent_pure_uuid)
+                    parent_pure_org = get_pure_org(
+                        parent_pure_uuid,
+                        pure_api_config
+                    )
                     if parent_pure_org is not None:
                         parent_pure_id = get_pure_id(parent_pure_org)
                 db_org.parent_pure_id = parent_pure_id

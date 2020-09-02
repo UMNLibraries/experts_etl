@@ -5,6 +5,7 @@ from sqlalchemy import and_, func
 from experts_dw.models import PureApiExternalPerson, PureApiExternalPersonHst, Person, PureOrg, PersonPureOrg, PersonScopusId
 from experts_etl import loggers
 from pureapi import response
+from pureapi.client import Config
 
 # defaults:
 
@@ -77,11 +78,15 @@ def run(
     db_name=db_name,
     transaction_record_limit=transaction_record_limit,
     pure_api_record_logger=pure_api_record_logger,
-    experts_etl_logger=None
+    experts_etl_logger=None,
+    pure_api_config=None
 ):
     if experts_etl_logger is None:
         experts_etl_logger = loggers.experts_etl_logger()
     experts_etl_logger.info('starting: transforming/loading', extra={'pure_api_record_type': pure_api_record_type})
+
+    if pure_api_config is None:
+        pure_api_config = Config()
 
     # Capture the current record for each iteration, so we can log it in case of an exception:
     api_person = None
@@ -90,7 +95,11 @@ def run(
         with db.session(db_name) as session:
             processed_api_person_uuids = []
             for db_api_person in extract_api_persons(session):
-                api_person = response.transform(pure_api_record_type, json.loads(db_api_person.json))
+                api_person = response.transform(
+                    pure_api_record_type,
+                    json.loads(db_api_person.json),
+                    version=pure_api_config.version
+                )
                 db_person = get_db_person(session, db_api_person.uuid)
                 db_person_previously_existed = False
                 if db_person:
