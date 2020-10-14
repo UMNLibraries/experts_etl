@@ -1,6 +1,6 @@
 from sqlalchemy import and_, func
 from experts_dw import db
-from experts_dw.models import PureApiInternalOrg, PureApiInternalOrgHst, PureApiChange, PureApiChangeHst, PureOrg, PureInternalOrg, PersonPureOrg, PubPersonPureOrg, Pub, UmnPersonPureOrg, UmnDeptPureOrg, PureInternalOrg
+from experts_dw.models import PureApiInternalOrg, PureApiInternalOrgHst, PureApiChange, PureApiChangeHst, PureOrg, PureInternalOrg, PersonPureOrg, PubPersonPureOrg, Pub, UmnPersonPureOrg, UmnDeptPureOrg
 from experts_etl import transformers
 from pureapi import client, response
 from pureapi.client import Config, PureAPIRequestException, PureAPIHTTPError
@@ -58,7 +58,7 @@ def delete_db_org(session, db_org):
     # that we know should be stable, just as a placeholder. That field of the
     # research output will likely be automatically updated later.
     root_db_mptt_org = session.query(PureInternalOrg).filter(PureInternalOrg.left == 1).one()
-    for pub in session.query(func.count(Pub.uuid)).filter(
+    for pub in session.query(Pub).filter(
         Pub.owner_pure_org_uuid == db_org.pure_uuid
     ).all():
         pub.owner_pure_org_uuid = root_db_mptt_org.pure_uuid
@@ -78,6 +78,10 @@ def delete_db_org(session, db_org):
 
     session.query(UmnDeptPureOrg).filter(
         UmnDeptPureOrg.pure_org_uuid == db_org.pure_uuid
+    ).delete(synchronize_session=False)
+
+    session.query(PureInternalOrg).filter(
+        PureInternalOrg.pure_uuid == db_org.pure_uuid
     ).delete(synchronize_session=False)
 
     session.delete(db_org)
