@@ -25,7 +25,7 @@ def run(
 ):
     # This connection API in general needs work. Including this here for the sake of consistency
     # with other ETL module.run() functions.
-    sqlapi.set_engine(db.engine(db_name))
+    sqlapi.setengine(db.engine(db_name))
 
     if experts_etl_logger is None:
         experts_etl_logger = loggers.experts_etl_logger()
