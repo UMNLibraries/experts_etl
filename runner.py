@@ -3,7 +3,11 @@ import importlib
 import multiprocessing as mp
 import os
 import time
+from experts_dw import db
+from experts_dw import pure_json
 from experts_etl import sync_file_rotator
+from experts_etl.pure_to_edw import changes
+from experts_etl.pure_to_edw import collection
 from experts_etl import loggers
 experts_etl_logger = loggers.experts_etl_logger()
 
@@ -76,6 +80,12 @@ def subprocess(module_name):
         }
     )
 
+def extract_load_changes(params):
+    changes.run(**params)
+
+def extract_load_collection(collection_api_name, params):
+    collection.run(collection_api_name, **params)
+
 def run():
     experts_etl_logger.info(
         'starting: experts etl',
@@ -101,6 +111,23 @@ def run():
                     'ppid': str(os.getppid()),
                 }
             )
+
+    api_version_collections_map = {}
+    with db.cx_oracle_connection() as session:
+        cursor = session.cursor()
+        #for api_version in pure_json.api_versions(cursor): # Later!
+        for api_version in ['516']: # For now, until we create tables for other versions.
+            collections = pure_json.collection_api_names_for_api_version(cursor, api_version=api_version)
+            api_version_collections_map[api_version] = collections
+
+    # Just 1 process for now, until we add other api_versions. But do we even need this param? Defaults to os.cpu_count.
+    with mp.Pool(processes=1) as pool:
+        for api_version in api_version_collections_map:
+            result = pool.apply_async(extract_load_changes, ({'api_version': api_version},))
+
+    with mp.Pool() as pool:
+        for api_version, collection_api_name in api_version_collections_map:
+            result = pool.apply_async(extract_load_collection, (collection_api_name, {'api_version': api_version},))
 
     experts_etl_logger.info(
         'ending: experts etl',
