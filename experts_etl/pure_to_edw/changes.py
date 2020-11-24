@@ -1,8 +1,9 @@
 import json
 import datetime
+
 from experts_dw import db, pure_json
-from pureapi import client
 from experts_etl import loggers
+from pureapi import client
 
 # defaults:
 
