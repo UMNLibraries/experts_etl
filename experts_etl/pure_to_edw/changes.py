@@ -69,16 +69,16 @@ def run(
     client_config = client.Config() if api_version is None else client.Config(version=api_version)
     api_version = client_config.version
 
-    with db.cx_oracle_connection() as session:
+    with db.cx_oracle_connection() as connection:
         try:
-            cursor = session.cursor()
+            cursor = connection.cursor()
             family_system_names = pure_json.collection_family_system_names_for_api_version(
                 cursor,
                 api_version=api_version
             )
 
             if startdate_str is None:
-                startdate_str = ensure_valid_startdate(session, api_version, startdate).isoformat()
+                startdate_str = ensure_valid_startdate(cursor, api_version, startdate).isoformat()
 
             documents_to_insert = {}
             for api_document in client.get_all_changes_transformed(startdate_str, config=client_config):
@@ -106,7 +106,7 @@ def run(
                         api_version=api_version
                     )
                     documents_to_insert = {}
-                    session.commit()
+                    connection.commit()
 
             if documents_to_insert:
                 pure_json.insert_change_documents(
@@ -114,10 +114,10 @@ def run(
                     documents=list(documents_to_insert.values()),
                     api_version=api_version
                 )
-            session.commit()
+            connection.commit()
 
         except Exception as e:
-            session.rollback()
+            connection.rollback()
             formatted_exception = loggers.format_exception(e)
             experts_etl_logger.error(
                 f'exception encountered during extractin/loading raw json: {formatted_exception}',

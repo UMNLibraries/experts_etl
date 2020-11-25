@@ -28,9 +28,9 @@ def run(
     client_config = client.Config() if api_version is None else client.Config(version=api_version)
     api_version = client_config.version
 
-    with db.cx_oracle_connection() as session:
+    with db.cx_oracle_connection() as connection:
         try:
-            cursor = session.cursor()
+            cursor = connection.cursor()
 
             pure_json.process_changes_matching_previous_uuids(
                 cursor,
@@ -74,7 +74,7 @@ def run(
                         staging=True,
                         api_version=api_version
                     )
-                    session.commit()
+                    connection.commit()
                     documents_to_insert = {}
 
             if documents_to_insert:
@@ -85,7 +85,7 @@ def run(
                     staging=True,
                     api_version=api_version
                 )
-            session.commit()
+            connection.commit()
 
             pure_json.process_changes_matching_staging(
                 cursor,
@@ -115,7 +115,7 @@ def run(
             )
 
         except Exception as e:
-            session.rollback()
+            connection.rollback()
             formatted_exception = loggers.format_exception(e)
             experts_etl_logger.error(
                 f'exception encountered during extractin/loading raw json: {formatted_exception}',

@@ -112,8 +112,8 @@ def run():
             )
 
     api_version_collections_map = {}
-    with db.cx_oracle_connection() as session:
-        cursor = session.cursor()
+    with db.cx_oracle_connection() as connection:
+        cursor = connection.cursor()
         #for api_version in pure_json.api_versions(cursor): # Later!
         for api_version in ['516']: # For now, until we create tables for other versions.
             collections = pure_json.collection_api_names_for_api_version(cursor, api_version=api_version)
