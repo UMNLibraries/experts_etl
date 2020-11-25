@@ -66,7 +66,7 @@ def run(
                     'json_document': json.dumps(api_document),
                 }
 
-                if len(documents_to_insert) % 100 == 0:
+                if len(documents_to_insert) % transaction_record_limit == 0:
                     pure_json.insert_documents(
                         cursor,
                         documents=list(documents_to_insert.values()),
