@@ -22,8 +22,8 @@ experts_etl requires Python >= 3.
 To connect to the Pure server, including when running `tests/test_client.py`, the
 `PURE_API_URL` and `PURE_API_KEY` environment variables must be set. To connect to
 the Experts@Minnesota Data Warehouse and the UMN OIT Data Warehouse, the environment
-variables `EXPERTS_DB_USER`, `EXPERTS_DB_PASS`, and `EXPERTS_DB_SERVICE_NAME`
-must be set.
+variables `EXPERTS_DB_USER`, `EXPERTS_DB_PASS`, `EXPERTS_DB_SERVICE_NAME`,
+and `EXPERTS_DB_HOSTNAME` must be set.
 
 One option is to set these environment variables in a `.env` file. See `env.dist` for an example.
 
@@ -32,6 +32,7 @@ One option is to set these environment variables in a `.env` file. See `env.dist
 ```
 # Example env
 EXPERTS_DB_SERVICE_NAME=hoteltst.oit
+EXPERTS_DB_HOSTNAME=oracle-instance-domain.umn.edu
 
 # $ORACLE_HOME/network/admin/tnsnames.ora
 hoteltst.oit =
@@ -43,7 +44,7 @@ hoteltst.oit =
   )
 ```
 
-### pyenv, venv, and poetry 
+### pyenv, venv, and poetry
 
 To install and manage Python versions we use [pyenv](https://github.com/pyenv/pyenv), and to manage
 dependencies we use [poetry](https://poetry.eustace.io/). While alternative tools will work, we document
@@ -57,16 +58,16 @@ that is what `poetry` does and expects.
 * Install pyenv.
 * `pyenv install $python_version`
 * `mkdir $project_dir; cd $project_dir`
-* Create a `.python-version` file, containing `$python_version`. 
+* Create a `.python-version` file, containing `$python_version`.
 * `pip install poetry`
 * `poetry config settings.virtualenvs.in-project true`
 * `python -m venv ./.venv/`
 * `source ./.venv/bin/activate`
- 
+
 Now running commands like `poetry install` or `poetry update` should install packages into the virtual
 environment in `./.venv`. Don't forget to `deactivate` the virtual environment when finished using it.
 If the project virtual environment is not activated, `poetry run` and `poetry shell` will activate it.
-When using `poetry shell`, exit the shell to deactivate the virtual environment. 
+When using `poetry shell`, exit the shell to deactivate the virtual environment.
 
 ## Installing
 
@@ -105,7 +106,7 @@ must be set in order to run those tests.
 
 ### Include an updated `setup.py`.
 
-Python package managers, including poetry, will be unable to install a VCS-based package without a 
+Python package managers, including poetry, will be unable to install a VCS-based package without a
 `setup.py` file in the project root. To generate `setup.py`:
 
 ```
