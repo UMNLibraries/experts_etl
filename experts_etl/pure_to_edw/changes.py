@@ -1,5 +1,5 @@
 import json
-import datetime
+from datetime import datetime, timedelta
 
 from experts_dw import db, pure_json
 from experts_etl import loggers
@@ -25,7 +25,7 @@ def ensure_valid_startdate(cursor, api_version, startdate=None):
             startdate = max(change_date, change_history_date)
     if startdate is None:
         # Default to 1 day ago (yesterday):
-        startdate = datetime.datetime.now() - datetime.timedelta(days=1)
+        startdate = datetime.now() - timedelta(days=1)
     return startdate
 
 def required_fields_exist(api_document):
