@@ -79,15 +79,17 @@ python_dotenv = "^0.10.3"
 reference = "dc55429f6394bdd8c36d57232c6dc32e7eba7fd2"
 type = "git"
 url = "git://github.com/UMNLibraries/dotenv_switch.git"
+
 [[package]]
 category = "main"
 description = ""
 name = "experts-dw"
 optional = false
 python-versions = "^3.6.3"
-version = "7.6.2"
+version = "7.7.0"
 
 [package.dependencies]
+Jinja2 = "^2.11"
 cx_oracle = "^8.0.1"
 pugsql = "^0.2.3"
 sqlalchemy = "*"
@@ -95,7 +97,7 @@ sqlalchemy_mptt = "*"
 sqlparse = "*"
 
 [package.source]
-reference = "5adff0e4e023d66be4b83706fbe461667a34fa40"
+reference = "6172e88203c36d788614e287629eb46627e34084"
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
 [[package]]
@@ -228,6 +230,7 @@ tenacity = "*"
 reference = "2d6c8921c03277fe93d756cd9b63c8638366f335"
 type = "git"
 url = "git://github.com/UMNLibraries/pureapi.git"
+
 [[package]]
 category = "dev"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
