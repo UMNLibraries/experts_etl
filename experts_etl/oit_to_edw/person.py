@@ -296,8 +296,8 @@ def transform_staff_org_assoc_id(jobs, person_id):
         for transformed_job in possibly_multiple_jobs:
             if transformed_job['primary']:
                 jobs_include_primary = True
-          if not transformed_job['end_date']:
-              jobs_with_no_end_date.append(transformed_job)
+            if not transformed_job['end_date']:
+                jobs_with_no_end_date.append(transformed_job)
 
         job_to_keep = possibly_multiple_jobs[0]
         if len(jobs_with_no_end_date) > 0:
