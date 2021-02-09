@@ -166,18 +166,19 @@ select
 from pure_eligible_demog
 minus
 select
-  emplid,
-  internet_id,
-  name,
-  last_name,
-  first_name,
-  middle_initial,
-  name_suffix,
-  instl_email_addr,
-  tenure_flag,
-  tenure_track_flag,
-  primary_empl_rcdno
-from pure_eligible_demog_chng_hst
+  pe1.emplid,
+  pe1.internet_id,
+  pe1.name,
+  pe1.last_name,
+  pe1.first_name,
+  pe1.middle_initial,
+  pe1.name_suffix,
+  pe1.instl_email_addr,
+  pe1.tenure_flag,
+  pe1.tenure_track_flag,
+  pe1.primary_empl_rcdno
+from pure_eligible_demog_chng_hst pe1
+where pe1.timestamp = (select max(timestamp) from pure_eligible_demog_chng_hst pe2 where pe1.emplid = pe2.emplid)
     ''')
     count = 0
     for demog_new in session.query(PureEligibleDemogNew).all():
@@ -296,8 +297,8 @@ def transform_staff_org_assoc_id(jobs, person_id):
         for transformed_job in possibly_multiple_jobs:
             if transformed_job['primary']:
                 jobs_include_primary = True
-          if not transformed_job['end_date']:
-              jobs_with_no_end_date.append(transformed_job)
+            if not transformed_job['end_date']:
+                jobs_with_no_end_date.append(transformed_job)
 
         job_to_keep = possibly_multiple_jobs[0]
         if len(jobs_with_no_end_date) > 0:
