@@ -86,7 +86,7 @@ description = ""
 name = "experts-dw"
 optional = false
 python-versions = "^3.6.3"
-version = "7.7.0"
+version = "7.8.0"
 
 [package.dependencies]
 Jinja2 = "^2.11"
@@ -97,7 +97,7 @@ sqlalchemy_mptt = "*"
 sqlparse = "*"
 
 [package.source]
-reference = "6172e88203c36d788614e287629eb46627e34084"
+reference = "821770c8da28d0d111b7a936d04e010b1c287fd1"
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
 [[package]]
