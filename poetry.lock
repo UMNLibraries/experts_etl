@@ -53,8 +53,8 @@ category = "main"
 description = "Python interface to Oracle"
 name = "cx-oracle"
 optional = false
-python-versions = "*"
-version = "8.1.0"
+python-versions = ">=3.5"
+version = "8.0.1"
 
 [[package]]
 category = "main"
@@ -86,18 +86,18 @@ description = ""
 name = "experts-dw"
 optional = false
 python-versions = "^3.6.3"
-version = "7.10.0"
+version = "7.10.1"
 
 [package.dependencies]
 Jinja2 = "^2.11"
-cx-oracle = "8.1.0"
+cx-oracle = "8.0.1"
 pugsql = "^0.2.3"
 sqlalchemy = "*"
 sqlalchemy_mptt = "*"
 sqlparse = "*"
 
 [package.source]
-reference = "60f92b144c0ba787cfa788743d1d96582840c784"
+reference = "742ea1ce51d19d3d8be9a87df0d0ae1a7f9ab1b6"
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
 [[package]]
@@ -452,7 +452,7 @@ attrs = ["08a96c641c3a74e44eb59afb61a24f2cb9f4d7188748e76ba4bb5edfa3cb7d1c", "f7
 certifi = ["5930595817496dd21bb8dc35dad090f1c2cd0adfaf21204bf6732ca5d8ee34d3", "8fc0819f1f30ba15bdb34cceffb9ef04d99f420f68eb75d901e9560b8749fc41"]
 chardet = ["84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae", "fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"]
 colorama = ["5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b", "9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"]
-cx-oracle = ["01b636af6b8332d4a688a120f2722c2fda8c8fa87ecec0573c91bed7668c5cd0", "0f9480c85a8c34f99aee3a4aaa700c2ca1015065a08bc27ca74b5aa1c8e4f141", "21fc4dde12cd49e755f861c38a3b9da74efb171d971487211d396ad9ff71b7fe", "2482f76b6d83b3e62fda5a5db12f9b18fb42c484993c08952614e02a476e9687", "2d5e4602ad4f35d513f302c956e40cd9b5ea7d8243cd48c9d718c263cf91bf67", "41698ca187b935f28c05655d97e845e04cee69d3ab632bf86b031bd5e5ccd3c5", "57930928cdaf79a4dba69ba1e228a1f993d35ee0a10a0a2c2722bb7fb983853f", "62e0b63e68067f1dc9ca018fd0d09d3834b05acec17344ac149c0ec2bfd45df1", "6ddaf1ec77bf55d452a31f6ef81789e2a410d9c1a1bbdd63e8a7eb73e6a38051", "b7bcef92299efaaa2b53c360e5703d3301faa156f896c67b5d2036498b861834", "e1698c5522ee1355e552b30bfa0a58e6e772475b882c5d69d158bd7e6aed45de", "f99b97574c0a0ffb3c2ddebb91e48c1140d7d9a59abe06933e6b358c7df056f6", "fa0211e711cb5ede2f806aafe542c6d70c780e46a166fe606f0384f1dd9a742f"]
+cx-oracle = ["02c430c3b7feb93e8a6b5c3439608cd142b9e8bc5c46422a0345bc3ade0ac420", "0da6d9df662cd7ebc18e309e7e8746aa725e5a3320a660e911dedf887d2a53dd", "0f11cd16e43fa23c6fe4ed1605b4c3dd63863a79297e4b2620615c1014a6545d", "430562d6a1485a467d274200a4df11b342d399e4b3156c536bf47ec0e42e9d6b", "6b51a5c9b3943fdab35d4cc44a436af1c95227ac54787d3912420d37d07bf1b2", "7493b6e87125a632f2359237ac9caa1cafd2567de9b6e56aa58ed77f69298275", "970d133b318b7f4062f2afb3702bdd9bad114bcc2dde6bcb60adfaaea529e2f4", "a182b3d8af21856f0d3768d3d30cab734710cb39769909a7084b02315e8eedfa", "b9c67dab5cc3113b451e44622bd6a21e0dadeeeb03702e3a7107adbde817650c", "bca81d34b55058c5446f951e3f5e7318fc8111b50a7bb4503fd56fa3497dea8a", "c8f4f7c5c0d38d580a96ac813139c3cb17a15512cdae7b27e960f24c6858afc1", "cf43e544a3a61d0d0c2be71274cc3ae52d83131e56af65c6acfa48f7252d8863", "f10ada7f821a325c6befdd6fef1cac44ebc830736d0b75dda7b8ac9f851087b2"]
 docutils = ["0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af", "c2de3a60e9e7d07be26b7f2b00ca0309c207e06c100f9cc2a94931fc75a478fc"]
 dotenv-switch = []
 experts-dw = []
