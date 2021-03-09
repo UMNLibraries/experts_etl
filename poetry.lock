@@ -53,8 +53,8 @@ category = "main"
 description = "Python interface to Oracle"
 name = "cx-oracle"
 optional = false
-python-versions = ">=3.5"
-version = "8.0.1"
+python-versions = "*"
+version = "8.1.0"
 
 [[package]]
 category = "main"
@@ -86,18 +86,18 @@ description = ""
 name = "experts-dw"
 optional = false
 python-versions = "^3.6.3"
-version = "7.8.0"
+version = "7.10.0"
 
 [package.dependencies]
 Jinja2 = "^2.11"
-cx_oracle = "^8.0.1"
+cx-oracle = "8.1.0"
 pugsql = "^0.2.3"
 sqlalchemy = "*"
 sqlalchemy_mptt = "*"
 sqlparse = "*"
 
 [package.source]
-reference = "821770c8da28d0d111b7a936d04e010b1c287fd1"
+reference = "60f92b144c0ba787cfa788743d1d96582840c784"
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
 [[package]]
@@ -240,6 +240,25 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "1.9.0"
 
 [[package]]
+category = "main"
+description = "ASN.1 types and codecs"
+name = "pyasn1"
+optional = false
+python-versions = "*"
+version = "0.4.8"
+
+[[package]]
+category = "main"
+description = "A collection of ASN.1-based protocols modules."
+name = "pyasn1-modules"
+optional = false
+python-versions = "*"
+version = "0.2.8"
+
+[package.dependencies]
+pyasn1 = ">=0.4.6,<0.5.0"
+
+[[package]]
 category = "dev"
 description = "Python parsing module"
 name = "pyparsing"
@@ -308,6 +327,18 @@ name = "python-json-logger"
 optional = false
 python-versions = ">=3.4"
 version = "2.0.1"
+
+[[package]]
+category = "main"
+description = "Python modules for implementing LDAP clients"
+name = "python-ldap"
+optional = false
+python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
+version = "3.3.1"
+
+[package.dependencies]
+pyasn1 = ">=0.3.7"
+pyasn1_modules = ">=0.1.5"
 
 [[package]]
 category = "main"
@@ -411,7 +442,7 @@ python-versions = ">=3.6"
 version = "3.3.1"
 
 [metadata]
-content-hash = "7dc175230caae1e1ba74b9d60857d1ef72c831e3afe8908d64607ae3a96a77b2"
+content-hash = "33bf3b6c8847d167bb1e026ff389ba5369ac023c8be3e040b5f7fd6ff64955eb"
 python-versions = "^3.6.3"
 
 [metadata.hashes]
@@ -421,7 +452,7 @@ attrs = ["08a96c641c3a74e44eb59afb61a24f2cb9f4d7188748e76ba4bb5edfa3cb7d1c", "f7
 certifi = ["5930595817496dd21bb8dc35dad090f1c2cd0adfaf21204bf6732ca5d8ee34d3", "8fc0819f1f30ba15bdb34cceffb9ef04d99f420f68eb75d901e9560b8749fc41"]
 chardet = ["84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae", "fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"]
 colorama = ["5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b", "9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"]
-cx-oracle = ["02c430c3b7feb93e8a6b5c3439608cd142b9e8bc5c46422a0345bc3ade0ac420", "0da6d9df662cd7ebc18e309e7e8746aa725e5a3320a660e911dedf887d2a53dd", "0f11cd16e43fa23c6fe4ed1605b4c3dd63863a79297e4b2620615c1014a6545d", "430562d6a1485a467d274200a4df11b342d399e4b3156c536bf47ec0e42e9d6b", "6b51a5c9b3943fdab35d4cc44a436af1c95227ac54787d3912420d37d07bf1b2", "7493b6e87125a632f2359237ac9caa1cafd2567de9b6e56aa58ed77f69298275", "970d133b318b7f4062f2afb3702bdd9bad114bcc2dde6bcb60adfaaea529e2f4", "a182b3d8af21856f0d3768d3d30cab734710cb39769909a7084b02315e8eedfa", "b9c67dab5cc3113b451e44622bd6a21e0dadeeeb03702e3a7107adbde817650c", "bca81d34b55058c5446f951e3f5e7318fc8111b50a7bb4503fd56fa3497dea8a", "c8f4f7c5c0d38d580a96ac813139c3cb17a15512cdae7b27e960f24c6858afc1", "cf43e544a3a61d0d0c2be71274cc3ae52d83131e56af65c6acfa48f7252d8863", "f10ada7f821a325c6befdd6fef1cac44ebc830736d0b75dda7b8ac9f851087b2"]
+cx-oracle = ["01b636af6b8332d4a688a120f2722c2fda8c8fa87ecec0573c91bed7668c5cd0", "0f9480c85a8c34f99aee3a4aaa700c2ca1015065a08bc27ca74b5aa1c8e4f141", "21fc4dde12cd49e755f861c38a3b9da74efb171d971487211d396ad9ff71b7fe", "2482f76b6d83b3e62fda5a5db12f9b18fb42c484993c08952614e02a476e9687", "2d5e4602ad4f35d513f302c956e40cd9b5ea7d8243cd48c9d718c263cf91bf67", "41698ca187b935f28c05655d97e845e04cee69d3ab632bf86b031bd5e5ccd3c5", "57930928cdaf79a4dba69ba1e228a1f993d35ee0a10a0a2c2722bb7fb983853f", "62e0b63e68067f1dc9ca018fd0d09d3834b05acec17344ac149c0ec2bfd45df1", "6ddaf1ec77bf55d452a31f6ef81789e2a410d9c1a1bbdd63e8a7eb73e6a38051", "b7bcef92299efaaa2b53c360e5703d3301faa156f896c67b5d2036498b861834", "e1698c5522ee1355e552b30bfa0a58e6e772475b882c5d69d158bd7e6aed45de", "f99b97574c0a0ffb3c2ddebb91e48c1140d7d9a59abe06933e6b358c7df056f6", "fa0211e711cb5ede2f806aafe542c6d70c780e46a166fe606f0384f1dd9a742f"]
 docutils = ["0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af", "c2de3a60e9e7d07be26b7f2b00ca0309c207e06c100f9cc2a94931fc75a478fc"]
 dotenv-switch = []
 experts-dw = []
@@ -438,12 +469,15 @@ pluggy = ["15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0", "9
 pugsql = ["8970a421388bf7d6277517d361e0e1a4bf7d5b0ffaa7c77123aabfec9f3f58b6", "b3caf1a0c9fee25529761c0b3bad75cf22e775720e4a60ea189fa5c30ec0fc8b"]
 pureapi = []
 py = ["366389d1db726cd2fcfc79732e75410e5fe4d31db13692115529d34069a043c2", "9ca6883ce56b4e8da7e79ac18787889fa5206c79dcc67fb065376cd2fe03f342"]
+pyasn1 = ["014c0e9976956a08139dc0712ae195324a75e142284d5f87f1a87ee1b068a359", "03840c999ba71680a131cfaee6fab142e1ed9bbd9c693e285cc6aca0d555e576", "0458773cfe65b153891ac249bcf1b5f8f320b7c2ce462151f8fa74de8934becf", "08c3c53b75eaa48d71cf8c710312316392ed40899cb34710d092e96745a358b7", "39c7e2ec30515947ff4e87fb6f456dfc6e84857d34be479c9d4a4ba4bf46aa5d", "5c9414dcfede6e441f7e8f81b43b34e834731003427e5b09e4e00e3172a10f00", "6e7545f1a61025a4e58bb336952c5061697da694db1cae97b116e9c46abcf7c8", "78fa6da68ed2727915c4767bb386ab32cdba863caa7dbe473eaae45f9959da86", "7ab8a544af125fb704feadb008c99a88805126fb525280b2270bb25cc1d78a12", "99fcc3c8d804d1bc6d9a099921e39d827026409a58f2a720dcdb89374ea0c776", "aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba", "e89bf84b5437b532b0803ba5c9a5e054d21fec423a89952a74f87fa2c9b7bce2", "fec3e9d8e36808a28efb59b489e4528c10ad0f480e57dcc32b4de5c9d8c9fdf3"]
+pyasn1-modules = ["0845a5582f6a02bb3e1bde9ecfc4bfcae6ec3210dd270522fee602365430c3f8", "0fe1b68d1e486a1ed5473f1302bd991c1611d319bba158e98b106ff86e1d7199", "15b7c67fabc7fc240d87fb9aabf999cf82311a6d6fb2c70d00d3d0604878c811", "426edb7a5e8879f1ec54a1864f16b882c2837bfd06eee62f2c982315ee2473ed", "65cebbaffc913f4fe9e4808735c95ea22d7a7775646ab690518c056784bc21b4", "905f84c712230b2c592c19470d3ca8d552de726050d1d1716282a1f6146be65e", "a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74", "a99324196732f53093a84c4369c996713eb8c89d360a496b599fb1a9c47fc3eb", "b80486a6c77252ea3a3e9b1e360bc9cf28eaac41263d173c032581ad2f20fe45", "c29a5e5cc7a3f05926aff34e097e84f8589cd790ce0ed41b67aed6857b26aafd", "cbac4bc38d117f2a49aeedec4407d23e8866ea4ac27ff2cf7fb3e5b570df19e0", "f39edd8c4ecaa4556e989147ebf219227e2cd2e8a43c7e7fcb1f1c18c5fd6a3d", "fe0644d9ab041506b62782e92b06b8c68cca799e1a9636ec398675459e031405"]
 pyparsing = ["c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1", "ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"]
 pytest = ["7a8190790c17d79a11f847fba0b004ee9a8122582ebff4729a082c109e81a4c9", "8f593023c1a0f916110285b6efd7f99db07d59546e3d8c36fc60e2ab05d3be92"]
 python-daemon = ["57c84f50a04d7825515e4dbf3a31c70cc44414394a71608dee6cfde469e81766", "a0d5dc0b435a02c7e0b401e177a7c17c3f4c7b4e22e2d06271122c8fec5f8946"]
 python-dateutil = ["73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c", "75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a"]
 python-dotenv = ["440c7c23d53b7d352f9c94d6f70860242c2f071cf5c029dd661ccb22d64ae42b", "f254bfd0c970d64ccbb6c9ebef3667ab301a71473569c991253a481f1c98dddc"]
 python-json-logger = ["f26eea7898db40609563bed0a7ca11af12e2a79858632706d835a0f961b7d398"]
+python-ldap = ["4711cacf013e298754abd70058ccc995758177fb425f1c2d30e71adfc1d00aa5"]
 pytz = ["a494d53b6d39c3c6e44c3bec237336e14305e4f29bbf800b599253057fbb79ed", "c35965d010ce31b23eeb663ed3cc8c906275d6be1a34393a1d73a41febf4a048"]
 requests = ["b3559a131db72c33ee969480840fff4bb6dd111de7dd27c8ee1f820f4f00231b", "fe75cc94a9443b9246fc7049224f75604b113c36acb93f87b80ed42c44cbb898"]
 schedule = ["3f895a1036799a25ab9c335de917073e63cf8256920917e932777382f101f08f", "f9fb5181283de4db6e701d476dd01b6a3dd81c38462a54991ddbb9d26db857c9"]

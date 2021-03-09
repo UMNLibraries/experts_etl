@@ -19,6 +19,14 @@
     {%- for job in jobs %}
     <staffOrganisationAssociation id="{{ job.staff_org_association_id }}" managedInPure="false">
       <affiliationId>{{ job.affiliation_id }}</affiliationId>
+      {%- if job.email_address %}
+      <emails>
+        <v3:classifiedEmail id="personStaffAssocEmail1">
+          <v3:classification>email</v3:classification>
+          <v3:value>{{ job.email_address }}</v3:value>
+        </v3:classifiedEmail>
+      </emails>
+      {%- endif %}
       <employmentType>{{ job.employment_type }}</employmentType>
       <primaryAssociation>{% if job.primary_association %}true{% else %}false{% endif %}</primaryAssociation>
       <organisation>

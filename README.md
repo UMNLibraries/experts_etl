@@ -19,30 +19,23 @@ experts_etl requires Python >= 3.
 
 ### Environment Variables
 
-To connect to the Pure server, including when running `tests/test_client.py`, the
-`PURE_API_URL` and `PURE_API_KEY` environment variables must be set. To connect to
-the Experts@Minnesota Data Warehouse and the UMN OIT Data Warehouse, the environment
-variables `EXPERTS_DB_USER`, `EXPERTS_DB_PASS`, `EXPERTS_DB_SERVICE_NAME`,
-and `EXPERTS_DB_HOSTNAME` must be set.
+Experts ETL connects to several external services, for which it requires configuration
+via environment variables:
+
+* Pure web services API
+  * `PURE_API_DOMAIN`
+  * `PURE_API_VERSION`
+  * `PURE_API_KEY`
+* Experts@Minnesota Data Warehouse and the UMN OIT Data Warehouse
+  * `EXPERTS_DB_USER`
+  * `EXPERTS_DB_PASS`
+  * `EXPERTS_DB_HOSTNAME`
+  * `EXPERTS_DB_SERVICE_NAME`
+* UMN LDAP
+  * `UMN_LDAP_DOMAIN`
+  * `UMN_LDAP_PORT`
 
 One option is to set these environment variables in a `.env` file. See `env.dist` for an example.
-
-`EXPERTS_DB_SERVICE_NAME` must identify an Oracle tnsnames connection string.
-
-```
-# Example env
-EXPERTS_DB_SERVICE_NAME=hoteltst.oit
-EXPERTS_DB_HOSTNAME=oracle-instance-domain.umn.edu
-
-# $ORACLE_HOME/network/admin/tnsnames.ora
-hoteltst.oit =
-  (DESCRIPTION =
-    (ADDRESS = (PROTOCOL = TCP)(Host = oracle-instance-domain.umn.edu)(Port = 1521))
-    (CONNECT_DATA =
-      (SERVICE_NAME = hoteltst.oit)
-    )
-  )
-```
 
 ### pyenv, venv, and poetry
 

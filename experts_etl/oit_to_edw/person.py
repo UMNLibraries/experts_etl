@@ -1,14 +1,26 @@
 import json
+import os
 import re
 import uuid
-from experts_dw import db
+
+import ldap
 from sqlalchemy import and_, func, text
+
+from experts_dw import db
 from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonDataScratch, PureSyncStaffOrgAssociationScratch, PureSyncUserDataScratch
 from experts_dw.sqlapi import sqlapi
 from experts_etl import loggers, transformers
 from experts_etl.demographics import latest_demographics_for_emplid, latest_not_null_internet_id_for_emplid
 from experts_etl.umn_data_error import record_person_no_job_data_error
 from . import affiliate_job, employee_job, poi_job
+
+# Turn off referral chasing:
+ldap.set_option(ldap.OPT_REFERRALS, 0)
+# Active Directory uses LDAP protocol version 3:
+ldap.set_option(ldap.OPT_PROTOCOL_VERSION, 3)
+ldap_client = ldap.initialize(f'ldaps://{os.environ.get("UMN_LDAP_DOMAIN")}:{os.environ.get("UMN_LDAP_PORT")}')
+# No username/password required to search for public info.
+ldap_client.simple_bind_s('','')
 
 # defaults:
 
@@ -100,6 +112,7 @@ def load_into_scratch(session, person_dict):
             visibility=job['visibility'],
             primary_association=job['primary'],
             job_description=job['job_description'],
+            email_address=job['email_address'],
         )
         session.add(pure_sync_staff_org_association)
 
@@ -250,8 +263,13 @@ def transform(session, person_dict):
         person_dict['profiled'] = transform_profiled(jobs)
         person_dict['jobs'] = transform_staff_org_assoc_id(jobs, person_dict['person_id'])
 
+        email_address = transform_email_address(
+            person_dict['instl_email_addr'],
+            person_dict['internet_id']
+        )
         person_dict['visibility'] = 'Restricted'
-        for job in jobs:
+        for job in person_dict['jobs']:
+            job['email_address'] = email_address
             if job['visibility'] == 'Public':
                 person_dict['visibility'] = 'Public'
     else:
@@ -263,6 +281,21 @@ def serialize(person_dict):
     pass
     #template = env.get_template('person.xml.j2')
     #return template.render(person_dict)
+
+def transform_email_address(email_address, internet_id):
+    '''Ensure email address is empty if we get no response from UMN LDAP,
+    which indicates that a student has chosen to suppress public display
+    of contact information.
+    '''
+    if email_address is not None:
+        ldap_response = ldap_client.search_s(
+            'o=University of Minnesota, c=US',
+            ldap.SCOPE_SUBTREE,
+            f'cn={internet_id}'
+        )
+        if not ldap_response:
+            email_address = None
+    return email_address
 
 def transform_staff_org_assoc_id(jobs, person_id):
     transformed_jobs = []
