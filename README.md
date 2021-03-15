@@ -2,20 +2,79 @@
 
 Moves data from UMN to Pure (Experts@Minnesota), and vice versa.
 
-## Usage
+## Overview
 
-Please see `tests/test_*.py` for now. We freely admit this section of the documentation requires
-much improvement.
+This is an Extract-Transform-Load (ETL) system that integrates other major
+systems both inside and outside UMN. The most important of these are the
+OIT Legacy Data Warehouse and Pure systems hosted by Elsevier.
 
-## Pure API Versions
+### Installing and Running Remotely
 
-Successfully tested against Pure API versions 5.10.x - 5.12.x.
+To provision remote environments, and to install and deploy Experts ETL for
+running in those environemtns, see
+[experts-ansible on UMN GitHub](https://github.umn.edu/Libraries/experts-ansible).
 
-## Requirements and Recommendations
+### Installing and Running Locally
 
-### Python Versions
+While it should be possible to run the Experts ETL system on a local
+development machine, we advise against it, due to its reliance on
+integration with external systems, whose data it writes as well as reads.
+Instead most of this document is about running unit and integration tests
+in a local development environment.
 
-experts_etl requires Python >= 3.
+## Installing
+
+### Prerequisites
+
+#### Python
+
+Experts ETL requires a relatively recent version of Python 3. See the
+[pyproject.toml](pyproject.toml) project config file for supported versions.
+
+#### Oracle
+
+Both the OIT Legacy Data Warehouse and the Experts Data Warehouse are Oracle
+databases. See [experts-dw on GitHub](https://github.com/UMNLibraries/experts-dw)
+for supported versions of the required Oracle InstanctClient library.
+
+#### LDAP
+
+Experts ETL uses LDAP to search for some student researcher information. See the
+[python-ldap build prerequisites](https://www.python-ldap.org/en/python-ldap-3.3.0/installing.html#build-prerequisites)
+for the required system libraries to install in your local environment.
+
+### pyenv, venv, and poetry
+
+To install and manage Python versions we use
+[pyenv](https://github.com/pyenv/pyenv), and to manage dependencies we use
+[poetry](https://poetry.eustace.io/).
+
+One way to set up all these tools to work together, for a new project, is to
+follow the workflow below. Note that we prefer to put virtual environments
+inside the project directory. Note also that we use the built-in `venv` module
+to create virtual environments, and we name their directories `.venv`, because
+that is what `poetry` does and expects.
+
+* Install pyenv.
+* `pyenv install $python_version`
+* `mkdir $project_dir; cd $project_dir`
+* Create a `.python-version` file, containing `$python_version`.
+* `pip install poetry`
+* `poetry config settings.virtualenvs.in-project true`
+* `python -m venv ./.venv/`
+* `source ./.venv/bin/activate`
+
+Now running commands like `poetry install` or `poetry update` should install
+packages into the virtual environment in `./.venv`.
+
+So to install the python package dependencies for Experts ETL, run `poetry install`.
+
+Don't forget to `deactivate` the virtual environment when finished using it. If
+the project virtual environment is not activated, `poetry run` and `poetry
+shell` will activate it.  When using `poetry shell`, exit the shell to
+deactivate the virtual environment.
+
+## Testing
 
 ### Environment Variables
 
@@ -35,50 +94,11 @@ via environment variables:
   * `UMN_LDAP_DOMAIN`
   * `UMN_LDAP_PORT`
 
-One option is to set these environment variables in a `.env` file. See `env.dist` for an example.
+Some tests are integration tests that connect to these external services, so
+these variables must be set for testing. One option is to set these
+environment variables in a `.env` file. See `env.dist` for an example.
 
-### pyenv, venv, and poetry
-
-To install and manage Python versions we use [pyenv](https://github.com/pyenv/pyenv), and to manage
-dependencies we use [poetry](https://poetry.eustace.io/). While alternative tools will work, we document
-here only the tools we use. We will document the use of other tools if demand arises.
-
-One way to set up all these tools to work together, for a new project, is to follow the workflow below.
-Note that we prefer to put virtual environments inside the project directory. Note also that we use the
-built-in `venv` module to create virtual environments, and we name their directories `.venv`, because
-that is what `poetry` does and expects.
-
-* Install pyenv.
-* `pyenv install $python_version`
-* `mkdir $project_dir; cd $project_dir`
-* Create a `.python-version` file, containing `$python_version`.
-* `pip install poetry`
-* `poetry config settings.virtualenvs.in-project true`
-* `python -m venv ./.venv/`
-* `source ./.venv/bin/activate`
-
-Now running commands like `poetry install` or `poetry update` should install packages into the virtual
-environment in `./.venv`. Don't forget to `deactivate` the virtual environment when finished using it.
-If the project virtual environment is not activated, `poetry run` and `poetry shell` will activate it.
-When using `poetry shell`, exit the shell to deactivate the virtual environment.
-
-## Installing
-
-Add to `pyproject.toml`:
-
-```
-experts_etl = {git = "git://github.com/UMNLibraries/experts_etl.git"}
-```
-
-To specify a version, include the `tag` parameter:
-
-```
-experts_etl = {git = "git://github.com/UMNLibraries/experts_etl.git", tag = "1.0.0"}
-```
-
-To install, run `poetry install`.
-
-## Testing
+### Running the Tests
 
 Run the following, either as arguments
 to `poetry run`, or after running `poetry shell`:
@@ -86,21 +106,17 @@ to `poetry run`, or after running `poetry shell`:
 ```
 pytest tests/test_affiliate_job.py
 pytest tests/test_employee_job.py
+...
 ```
 
 Or to run all tests: `pytest`
-
-Note that many of these tests are integration tests that execute queries against UMN databases,
-so the environment variables described in
-[Requirements and Recommendations](#requirements-and-recommendations)
-must be set in order to run those tests.
 
 ## Contributing
 
 ### Include an updated `setup.py`.
 
-Python package managers, including poetry, will be unable to install a VCS-based package without a
-`setup.py` file in the project root. To generate `setup.py`:
+Python package managers, including poetry, will be unable to install a VCS-based
+package without a `setup.py` file in the project root. To generate `setup.py`:
 
 ```
 poetry build
@@ -109,5 +125,5 @@ tar -zxf dist/experts_etl-0.0.0.tar.gz experts_etl-0.0.0/setup.py --strip-compon
 
 ### Please commit `pyproject.lock`.
 
-Because experts_etl is an application, please commit `pyproject.lock` so that we can reproduce builds
-with exactly the same set of packages.
+Because Experts ETL is an application, please commit `pyproject.lock` so that we
+can reproduce builds with exactly the same set of packages.
