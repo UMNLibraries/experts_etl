@@ -59,18 +59,18 @@
                         <!--Optional:-->
                         <fileName>portrait.png</fileName>
                     </http>
-                    <!--<file>-->
-                        <!--<path>https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/N.Tesla.JPG/800px-N.Tesla.JPG</path>-->
-                        <!--Optional:-->
-                        <!--<mimeType>image/png</mimeType>-->
-                        <!--Optional:-->
-                        <!--<fileName>portrait.png</fileName>-->
-                    <!--</file>-->
-                    <!--<byte>-->
-                        <!--<base64EncodedString>base64EncodedString</base64EncodedString>-->
-                        <!--<mimeType>image/png</mimeType>-->
-                        <!--<fileName>portrait.png</fileName>-->
-                    <!--</byte>-->
+                    <!--<file>
+                        <path>c:\data\photo1.jpg/path>
+                        Optional:
+                        <mimeType>image/png</mimeType>
+                        Optional:
+                        <fileName>portrait.png</fileName>
+                    </file>-->
+                    <!--<byte>
+                        <base64EncodedString>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</base64EncodedString>
+                        <mimeType>image/png</mimeType>
+                        <fileName>portrait.png</fileName>
+                    </byte>-->
                 </data>
             </personPhoto>
         </photos>
@@ -285,10 +285,7 @@
                 </v3:description>
             </v3:link>
         </links>
-        <user id="user1">
-            <userName>JohnDoe</userName>
-            <email>atira@noreply.dk</email>
-        </user>
+        <user id="user1" />
         <personIds>
             <v3:id type="employee" id="person1">person1</v3:id>
         </personIds>

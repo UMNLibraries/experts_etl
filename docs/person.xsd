@@ -10,7 +10,7 @@
 	<xs:element name="persons">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="person" maxOccurs="unbounded" />
+				<xs:element ref="person" minOccurs="0" maxOccurs="unbounded" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
@@ -58,7 +58,11 @@
 			<xs:element name="keywords" type="commons:keywords" minOccurs="0" />
 			<xs:element name="links" type="commons:links" minOccurs="0" />
 			<xs:element name="user" type="user" minOccurs="0" />
-			<xs:element name="personIds" type="commons:ids" minOccurs="0" />
+			<xs:element name="personIds" type="commons:ids" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Type attribute must be a token from the classification scheme /dk/atira/pure/person/personsources</xs:documentation>
+                </xs:annotation>
+            </xs:element>
 			<xs:element name="orcId" minOccurs="0">
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
@@ -81,11 +85,25 @@
 
 	<xs:complexType name="user">
 		<xs:sequence>
-			<xs:element name="userName" type="commons:string_256" minOccurs="0" />
-			<xs:element name="email" type="commons:string_256" minOccurs="0" />
+			<xs:element name="userName" type="commons:string_256" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						DEPRECATED: This field is deprecated from 5.12 and will be removed in 5.15.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="email" type="commons:string_256" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						DEPRECATED: This field is deprecated from 5.12 and will be removed in 5.15.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
-		<xs:attribute type="commons:string_400" name="id" use="optional">
-			<xs:annotation><xs:documentation>Id of the user. This would be the id from an external source i.e. an HR system.</xs:documentation></xs:annotation>
+		<xs:attribute type="commons:string_400" name="id" use="required">
+			<xs:annotation>
+				<xs:documentation>Id of the user. This would be the id from an external source i.e. an HR system.</xs:documentation>
+			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
 
@@ -155,6 +173,11 @@
 	<xs:complexType name="dataType">
 		<xs:choice>
 			<xs:element name="http">
+				<xs:annotation>
+					<xs:documentation>
+						Use the HTTP element to indicate that the synchronization should fetch the file from an URL.
+					</xs:documentation>
+				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="url" type="xs:string" minOccurs="1" />
@@ -164,6 +187,11 @@
 				</xs:complexType>
 			</xs:element>
 			<xs:element name="file" >
+				<xs:annotation>
+					<xs:documentation>
+						Use the FILE element to indicate that the synchronization should fetch the file from the disk of the Pure installation.
+					</xs:documentation>
+				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
 						<xs:element name="path" type="xs:string" minOccurs="1" />
@@ -173,9 +201,14 @@
 				</xs:complexType>
 			</xs:element>
 			<xs:element name="byte">
+				<xs:annotation>
+					<xs:documentation>
+						Use the byte element to indicate that the synchronization should fetch the base64 encoded file from base64EncodedString element
+					</xs:documentation>
+				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="base64EncodedString" type="commons:base64Binary" minOccurs="1" />
+						<xs:element name="base64EncodedString" type="xs:string" minOccurs="1" />
 						<xs:element name="mimeType" type="commons:string_256" minOccurs="1"/>
 						<xs:element name="fileName" type="commons:string_256" minOccurs="1"/>
 					</xs:sequence>
@@ -265,7 +298,7 @@
 			<xs:element name="startDate" type="commons:compoundDate" minOccurs="0" />
 			<xs:element name="endDate" type="commons:compoundDate" minOccurs="0" />
 			<xs:element name="qualification" type="commons:localized_string_1024" />
-			<xs:element name="abbreviatedQualification" type="commons:localized_string_1024" />
+			<xs:element name="abbreviatedQualification" type="commons:localized_string_1024" minOccurs="0"/>
 		</xs:all>
 		<xs:attribute type="commons:string_400" name="id" use="required"/>
 	</xs:complexType>
@@ -278,7 +311,7 @@
 
 	<xs:complexType name="externalPosition">
 		<xs:all>
-			<xs:element name="startDate" type="commons:compoundDate" />
+			<xs:element name="startDate" type="commons:compoundDate" minOccurs="0" />
 			<xs:element name="endDate" type="commons:compoundDate" minOccurs="0" />
 			<xs:element name="appointment" type="commons:classification" minOccurs="0" >
 				<xs:annotation>
@@ -380,7 +413,13 @@
 		<xs:complexContent>
 			<xs:extension base="organisationAssociationType">
 				<xs:sequence>
-					<xs:element name="staffType" type="commons:classification" minOccurs="1" />
+					<xs:element name="staffType" type="commons:classification">
+						<xs:annotation>
+							<xs:documentation>
+								The type of staff. Must be a valid classification from the /dk/atira/pure/person/personstafftype classification
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
 					<xs:element name="contractType" type="commons:classification" minOccurs="0" />
 					<xs:element name="jobTitle" type="commons:classification" minOccurs="0" />
 					<xs:element name="jobDescription" type="commons:localized_string_1024" minOccurs="0" />
@@ -423,6 +462,11 @@
 					<xs:element name="projectTitle" type="commons:localized_string_1024" minOccurs="0" />
 					<xs:element name="awardDate" type="commons:date" minOccurs="0"/>
 					<xs:element name="fte" type="xs:double" minOccurs="0" />
+					<xs:element name="fundingAssociations" type="fundingAssociations" minOccurs="0" >
+						<xs:annotation>
+							<xs:documentation>Funding associations. Only available for customers on the UK base</xs:documentation>
+						</xs:annotation>
+					</xs:element>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -481,6 +525,41 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+
+	<xs:complexType name="fundingAssociations">
+		<xs:sequence>
+			<xs:element name="fundingAssociation" type="fundingAssociation" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="fundingAssociation">
+		<xs:all>
+			<xs:element name="academicYear" type="commons:string_20" minOccurs="0"/>
+			<xs:element name="amount" type="xs:double" minOccurs="0"/>
+			<xs:element name="amountCurrency" type="commons:classification" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The currency of the amount. Must be a valid classification from the /dk/atira/pure/core/isocurrencies classification scheme</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="costCentreCode" type="commons:string_40" minOccurs="0"/>
+			<xs:element name="analysisCode" type="commons:string_40" minOccurs="0"/>
+			<xs:element name="percent" type="commons:percent" minOccurs="0"/>
+			<xs:element name="funderType" type="funderType" minOccurs="0"/>
+
+			<xs:element name="organisation" type="commons:non_explicit_id_with_hint" minOccurs="0"/>
+			<xs:element name="externalOrganisation" type="commons:non_explicit_id_with_hint_for_ext_org" minOccurs="0"/>
+			<xs:element name="project" type="commons:non_explicit_id_with_hint" minOccurs="0"/>
+		</xs:all>
+		<xs:attribute type="commons:string_512" name="id" use="required"/>
+	</xs:complexType>
+
+	<xs:simpleType name="funderType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="selffunded"/>
+			<xs:enumeration value="internalfunding"/>
+			<xs:enumeration value="externalfunding"/>
+		</xs:restriction>
+	</xs:simpleType>
 
 	<xs:complexType name="externalPerson">
 		<xs:sequence>
