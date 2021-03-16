@@ -60,7 +60,7 @@ that is what `poetry` does and expects.
 * `mkdir $project_dir; cd $project_dir`
 * Create a `.python-version` file, containing `$python_version`.
 * `pip install poetry`
-* `poetry config settings.virtualenvs.in-project true`
+* `poetry config virtualenvs.in-project true`
 * `python -m venv ./.venv/`
 * `source ./.venv/bin/activate`
 
