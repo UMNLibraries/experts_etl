@@ -34,7 +34,7 @@ Experts ETL requires a relatively recent version of Python 3. See the
 #### Oracle
 
 Both the OIT Legacy Data Warehouse and the Experts Data Warehouse are Oracle
-databases. See [experts-dw on GitHub](https://github.com/UMNLibraries/experts-dw)
+databases. See [experts\_dw on GitHub](https://github.com/UMNLibraries/experts_dw)
 for supported versions of the required Oracle InstanctClient library.
 
 #### LDAP
@@ -112,6 +112,19 @@ pytest tests/test_employee_job.py
 Or to run all tests: `pytest`
 
 ## Contributing
+
+### Entry point: `runner.py`
+
+Automated, scheduled ETL processes start by executing [runner.py](runner.py).
+To follow the flow of execution from the beginning, start with that file.
+
+### Separate project: `pureapi`
+
+Experts ETL gets data from Pure via its web services API, for which UMN
+Libraries has a separate project,
+[pureapi](https://github.com/UMNLibraries/pureapi),
+which is a dependency for this project, Experts ETL. Any contributions which
+use the Pure API should be made there.
 
 ### Include an updated `setup.py`.
 
