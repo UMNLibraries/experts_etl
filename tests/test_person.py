@@ -45,14 +45,6 @@ def test_transform_first_name():
   assert person.transform_first_name(first_name, ' ') == 'Alex'
   assert person.transform_first_name(first_name, None) == 'Alex'
 
-def test_transform_email_address():
-  # Email address is public information for staff:
-  assert person.transform_email_address('naughton@umn.edu', 'naughton') == 'naughton@umn.edu'
-  # Use a made-up email address and internet id to simulate a case in which
-  # a student has chosen to suppress public display of contact info. The
-  # response will be the same:
-  assert person.transform_email_address('bogus@umn.edu', 'bogus') == None
-
 @pytest.fixture
 def jobs():
   from . import employee_jobs_1217312
