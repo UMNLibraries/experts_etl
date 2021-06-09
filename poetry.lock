@@ -71,11 +71,11 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 [[package]]
 name = "dotenv-switch"
 version = "0.1.1"
-description = ""
+description = "Switch between sourcing .env files based on $APP_ENV environment variable"
 category = "main"
 optional = false
 python-versions = "^3.6.3"
-develop = true
+develop = false
 
 [package.dependencies]
 python_dotenv = "^0.10.3"
@@ -83,16 +83,17 @@ python_dotenv = "^0.10.3"
 [package.source]
 type = "git"
 url = "git://github.com/UMNLibraries/dotenv_switch.git"
-reference = "dc55429f6394bdd8c36d57232c6dc32e7eba7fd2"
+reference = "master"
+resolved_reference = "dc55429f6394bdd8c36d57232c6dc32e7eba7fd2"
 
 [[package]]
 name = "experts-dw"
-version = "7.10.1"
-description = ""
+version = "7.11.0"
+description = "Tools for working with the Experts@Minnesota Data Warehouse."
 category = "main"
 optional = false
 python-versions = "^3.6.3"
-develop = true
+develop = false
 
 [package.dependencies]
 cx-oracle = "8.0.1"
@@ -105,7 +106,8 @@ sqlparse = "*"
 [package.source]
 type = "git"
 url = "git://github.com/UMNLibraries/experts_dw.git"
-reference = "742ea1ce51d19d3d8be9a87df0d0ae1a7f9ab1b6"
+reference = "7.11.0"
+resolved_reference = "9dce97418653119cf2b64c9d71e046e702fff233"
 
 [[package]]
 name = "idna"
@@ -140,7 +142,7 @@ python-versions = "*"
 
 [[package]]
 name = "jinja2"
-version = "2.11.2"
+version = "2.11.3"
 description = "A very fast and expressive template engine."
 category = "main"
 optional = false
@@ -231,12 +233,12 @@ sqlalchemy = ">=1.3,<2.0"
 
 [[package]]
 name = "pureapi"
-version = "4.0.1"
-description = ""
+version = "4.1.0"
+description = "Tools for working with Elsevier's Pure API."
 category = "main"
 optional = false
 python-versions = "^3.6.3"
-develop = true
+develop = false
 
 [package.dependencies]
 addict = "*"
@@ -247,34 +249,16 @@ tenacity = "*"
 [package.source]
 type = "git"
 url = "git://github.com/UMNLibraries/pureapi.git"
-reference = "2d6c8921c03277fe93d756cd9b63c8638366f335"
+reference = "4.1.0"
+resolved_reference = "6be88aad207b76f46908688156871e01a32c872d"
 
 [[package]]
 name = "py"
-version = "1.9.0"
+version = "1.10.0"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-
-[[package]]
-name = "pyasn1"
-version = "0.4.8"
-description = "ASN.1 types and codecs"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
-name = "pyasn1-modules"
-version = "0.2.8"
-description = "A collection of ASN.1-based protocols modules."
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-pyasn1 = ">=0.4.6,<0.5.0"
 
 [[package]]
 name = "pyparsing"
@@ -351,18 +335,6 @@ description = "A python library adding a json log formatter"
 category = "main"
 optional = false
 python-versions = ">=3.4"
-
-[[package]]
-name = "python-ldap"
-version = "3.3.1"
-description = "Python modules for implementing LDAP clients"
-category = "main"
-optional = false
-python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
-
-[package.dependencies]
-pyasn1 = ">=0.3.7"
-pyasn1_modules = ">=0.1.5"
 
 [[package]]
 name = "pytz"
@@ -495,7 +467,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.3"
-content-hash = "33bf3b6c8847d167bb1e026ff389ba5369ac023c8be3e040b5f7fd6ff64955eb"
+content-hash = "2fdcd01ec348459ea27fcb927b1d36b7f6934cc315e41eff20defe875e89444e"
 
 [metadata.files]
 addict = [
@@ -556,8 +528,8 @@ iniconfig = [
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
 ]
 jinja2 = [
-    {file = "Jinja2-2.11.2-py2.py3-none-any.whl", hash = "sha256:f0a4641d3cf955324a89c04f3d94663aa4d638abe8f733ecd3582848e1c37035"},
-    {file = "Jinja2-2.11.2.tar.gz", hash = "sha256:89aab215427ef59c34ad58735269eb58b1a5808103067f7bb9d5836c651b3bb0"},
+    {file = "Jinja2-2.11.3-py2.py3-none-any.whl", hash = "sha256:03e47ad063331dd6a3f04a43eddca8a966a26ba0c5b7207a9a9e4e08f1b29419"},
+    {file = "Jinja2-2.11.3.tar.gz", hash = "sha256:a6d58433de0ae800347cab1fa3043cebbabe8baa9d29e668f1c768cb87a333c6"},
 ]
 lockfile = [
     {file = "lockfile-0.12.2-py2.py3-none-any.whl", hash = "sha256:6c3cb24f344923d30b2785d5ad75182c8ea7ac1b6171b08657258ec7429d50fa"},
@@ -685,38 +657,8 @@ pugsql = [
 ]
 pureapi = []
 py = [
-    {file = "py-1.9.0-py2.py3-none-any.whl", hash = "sha256:366389d1db726cd2fcfc79732e75410e5fe4d31db13692115529d34069a043c2"},
-    {file = "py-1.9.0.tar.gz", hash = "sha256:9ca6883ce56b4e8da7e79ac18787889fa5206c79dcc67fb065376cd2fe03f342"},
-]
-pyasn1 = [
-    {file = "pyasn1-0.4.8-py2.4.egg", hash = "sha256:fec3e9d8e36808a28efb59b489e4528c10ad0f480e57dcc32b4de5c9d8c9fdf3"},
-    {file = "pyasn1-0.4.8-py2.5.egg", hash = "sha256:0458773cfe65b153891ac249bcf1b5f8f320b7c2ce462151f8fa74de8934becf"},
-    {file = "pyasn1-0.4.8-py2.6.egg", hash = "sha256:5c9414dcfede6e441f7e8f81b43b34e834731003427e5b09e4e00e3172a10f00"},
-    {file = "pyasn1-0.4.8-py2.7.egg", hash = "sha256:6e7545f1a61025a4e58bb336952c5061697da694db1cae97b116e9c46abcf7c8"},
-    {file = "pyasn1-0.4.8-py2.py3-none-any.whl", hash = "sha256:39c7e2ec30515947ff4e87fb6f456dfc6e84857d34be479c9d4a4ba4bf46aa5d"},
-    {file = "pyasn1-0.4.8-py3.1.egg", hash = "sha256:78fa6da68ed2727915c4767bb386ab32cdba863caa7dbe473eaae45f9959da86"},
-    {file = "pyasn1-0.4.8-py3.2.egg", hash = "sha256:08c3c53b75eaa48d71cf8c710312316392ed40899cb34710d092e96745a358b7"},
-    {file = "pyasn1-0.4.8-py3.3.egg", hash = "sha256:03840c999ba71680a131cfaee6fab142e1ed9bbd9c693e285cc6aca0d555e576"},
-    {file = "pyasn1-0.4.8-py3.4.egg", hash = "sha256:7ab8a544af125fb704feadb008c99a88805126fb525280b2270bb25cc1d78a12"},
-    {file = "pyasn1-0.4.8-py3.5.egg", hash = "sha256:e89bf84b5437b532b0803ba5c9a5e054d21fec423a89952a74f87fa2c9b7bce2"},
-    {file = "pyasn1-0.4.8-py3.6.egg", hash = "sha256:014c0e9976956a08139dc0712ae195324a75e142284d5f87f1a87ee1b068a359"},
-    {file = "pyasn1-0.4.8-py3.7.egg", hash = "sha256:99fcc3c8d804d1bc6d9a099921e39d827026409a58f2a720dcdb89374ea0c776"},
-    {file = "pyasn1-0.4.8.tar.gz", hash = "sha256:aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba"},
-]
-pyasn1-modules = [
-    {file = "pyasn1-modules-0.2.8.tar.gz", hash = "sha256:905f84c712230b2c592c19470d3ca8d552de726050d1d1716282a1f6146be65e"},
-    {file = "pyasn1_modules-0.2.8-py2.4.egg", hash = "sha256:0fe1b68d1e486a1ed5473f1302bd991c1611d319bba158e98b106ff86e1d7199"},
-    {file = "pyasn1_modules-0.2.8-py2.5.egg", hash = "sha256:fe0644d9ab041506b62782e92b06b8c68cca799e1a9636ec398675459e031405"},
-    {file = "pyasn1_modules-0.2.8-py2.6.egg", hash = "sha256:a99324196732f53093a84c4369c996713eb8c89d360a496b599fb1a9c47fc3eb"},
-    {file = "pyasn1_modules-0.2.8-py2.7.egg", hash = "sha256:0845a5582f6a02bb3e1bde9ecfc4bfcae6ec3210dd270522fee602365430c3f8"},
-    {file = "pyasn1_modules-0.2.8-py2.py3-none-any.whl", hash = "sha256:a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74"},
-    {file = "pyasn1_modules-0.2.8-py3.1.egg", hash = "sha256:f39edd8c4ecaa4556e989147ebf219227e2cd2e8a43c7e7fcb1f1c18c5fd6a3d"},
-    {file = "pyasn1_modules-0.2.8-py3.2.egg", hash = "sha256:b80486a6c77252ea3a3e9b1e360bc9cf28eaac41263d173c032581ad2f20fe45"},
-    {file = "pyasn1_modules-0.2.8-py3.3.egg", hash = "sha256:65cebbaffc913f4fe9e4808735c95ea22d7a7775646ab690518c056784bc21b4"},
-    {file = "pyasn1_modules-0.2.8-py3.4.egg", hash = "sha256:15b7c67fabc7fc240d87fb9aabf999cf82311a6d6fb2c70d00d3d0604878c811"},
-    {file = "pyasn1_modules-0.2.8-py3.5.egg", hash = "sha256:426edb7a5e8879f1ec54a1864f16b882c2837bfd06eee62f2c982315ee2473ed"},
-    {file = "pyasn1_modules-0.2.8-py3.6.egg", hash = "sha256:cbac4bc38d117f2a49aeedec4407d23e8866ea4ac27ff2cf7fb3e5b570df19e0"},
-    {file = "pyasn1_modules-0.2.8-py3.7.egg", hash = "sha256:c29a5e5cc7a3f05926aff34e097e84f8589cd790ce0ed41b67aed6857b26aafd"},
+    {file = "py-1.10.0-py2.py3-none-any.whl", hash = "sha256:3b80836aa6d1feeaa108e046da6423ab8f6ceda6468545ae8d02d9d58d18818a"},
+    {file = "py-1.10.0.tar.gz", hash = "sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3"},
 ]
 pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
@@ -740,9 +682,6 @@ python-dotenv = [
 ]
 python-json-logger = [
     {file = "python-json-logger-2.0.1.tar.gz", hash = "sha256:f26eea7898db40609563bed0a7ca11af12e2a79858632706d835a0f961b7d398"},
-]
-python-ldap = [
-    {file = "python-ldap-3.3.1.tar.gz", hash = "sha256:4711cacf013e298754abd70058ccc995758177fb425f1c2d30e71adfc1d00aa5"},
 ]
 pytz = [
     {file = "pytz-2020.1-py2.py3-none-any.whl", hash = "sha256:a494d53b6d39c3c6e44c3bec237336e14305e4f29bbf800b599253057fbb79ed"},

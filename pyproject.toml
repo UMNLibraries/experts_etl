@@ -9,14 +9,13 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.6.3"
 experts_dw = {git = "git://github.com/UMNLibraries/experts_dw.git", tag="7.11.0"}
-jinja2 = ">=2.10.1"
+jinja2 = ">=2.11.3"
 pandas = "*"
 pureapi = {git = "git://github.com/UMNLibraries/pureapi.git", tag="4.1.0"}
 python-daemon = "*"
 dotenv_switch = {git = "git://github.com/UMNLibraries/dotenv_switch.git"}
 python-json-logger = "*"
 schedule = "*"
-python-ldap = "^3.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
