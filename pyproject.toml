@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "experts_etl"
-version = "5.10.2"
+version = "5.10.3"
 description = "Moves data from UMN to Pure (Experts@Minnesota), and vice versa."
 readme = "README.md"
 authors = ["David Naughton <naughton@umn.edu>", "Michael Berkowski <mjb@umn.edu"]
@@ -11,7 +11,7 @@ python = "^3.6.3"
 experts_dw = {git = "git://github.com/UMNLibraries/experts_dw.git", tag="7.11.0"}
 jinja2 = ">=2.11.3"
 pandas = "*"
-pureapi = {git = "git://github.com/UMNLibraries/pureapi.git", tag="4.1.0"}
+pureapi = {git = "git://github.com/UMNLibraries/pureapi.git", tag="4.1.1"}
 python-daemon = "*"
 dotenv_switch = {git = "git://github.com/UMNLibraries/dotenv_switch.git"}
 python-json-logger = "*"

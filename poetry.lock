@@ -233,7 +233,7 @@ sqlalchemy = ">=1.3,<2.0"
 
 [[package]]
 name = "pureapi"
-version = "4.1.0"
+version = "4.1.1"
 description = "Tools for working with Elsevier's Pure API."
 category = "main"
 optional = false
@@ -249,8 +249,8 @@ tenacity = "*"
 [package.source]
 type = "git"
 url = "git://github.com/UMNLibraries/pureapi.git"
-reference = "4.1.0"
-resolved_reference = "6be88aad207b76f46908688156871e01a32c872d"
+reference = "4.1.1"
+resolved_reference = "3cf5e955e2ac34af48d772ae7e42779f5c5c4cc5"
 
 [[package]]
 name = "py"
@@ -467,7 +467,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.3"
-content-hash = "2fdcd01ec348459ea27fcb927b1d36b7f6934cc315e41eff20defe875e89444e"
+content-hash = "0715cb4e3aa68a89c56d1f9142a22a0ff62077bc4b29c8bd2a647ecbc6b6f652"
 
 [metadata.files]
 addict = [
