@@ -262,8 +262,8 @@ def run(
                             None
                         ).lower()),
 
-                        start_date = transformers.iso_8601_string_to_datetime(org_assoc.period.startDate),
-                        end_date = transformers.iso_8601_string_to_datetime(org_assoc.period.endDate) if org_assoc.period.endDate else None,
+                        start_date = transformers.string_to_datetime(org_assoc.period.startDate),
+                        end_date = transformers.string_to_datetime(org_assoc.period.endDate) if org_assoc.period.endDate else None,
                         primary = 'Y' if org_assoc.isPrimaryAssociation == True else 'N',
                     )
                     umn_person_pure_orgs.append(umn_person_pure_org)
