@@ -3,7 +3,7 @@ import datetime
 import re
 from sqlalchemy import and_, func
 from experts_dw import db
-from experts_dw.models import PureApiChange, PureApiChangeHst
+from experts_dw.models import PureApiChange, PureApiChangeHst, Pub, Person, PureOrg
 from pureapi import client
 from pureapi.client import Config
 from experts_etl import loggers
@@ -15,13 +15,13 @@ transaction_record_limit = 100
 # Named for the Pure API endpoint:
 pure_api_record_type = 'changes'
 
-family_system_names = [
-    'Person',
-    'ExternalPerson',
-    'Organisation',
-    'ExternalOrganisation',
-    'ResearchOutput',
-]
+family_system_name_db_class_map = {
+    'Person': Person,
+    'ExternalPerson': Person,
+    'Organisation': PureOrg,
+    'ExternalOrganisation': PureOrg,
+    'ResearchOutput': Pub,
+}
 
 # functions:
 
@@ -45,6 +45,18 @@ def required_fields_exist(api_change):
         if field not in api_change:
             return False
     return True
+
+def matching_db_record_exists(session, api_change):
+    db_class = family_system_name_db_class_map[api_change.familySystemName]
+    db_record = (
+        session.query(db_class)
+        .filter(db_class.pure_uuid == api_change.uuid)
+        .one_or_none()
+    )
+    if db_record:
+        return True
+    else:
+        return False
 
 def same_or_newer_db_change_exists(session, api_change):
     db_change_hst_version = (session
@@ -79,7 +91,6 @@ def run(
     startdate=None,
     startdate_str=None, # yyyy-MM-dd or yyyy-MM-dd_HH-mm-ss format
     db_name=db_name,
-    family_system_names=family_system_names,
     transaction_record_limit=transaction_record_limit,
     experts_etl_logger=None,
     pure_api_config=None
@@ -98,9 +109,9 @@ def run(
         for api_change in client.get_all_changes_transformed(startdate_str, config=pure_api_config):
             if not required_fields_exist(api_change):
                 continue
-            if api_change.familySystemName not in family_system_names:
+            if api_change.familySystemName not in family_system_name_db_class_map:
                 continue
-            if same_or_newer_db_change_exists(session, api_change):
+            if matching_db_record_exists(session, api_change) and same_or_newer_db_change_exists(session, api_change):
                 continue
 
             load_api_change(session, api_change)
