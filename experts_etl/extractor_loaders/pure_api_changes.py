@@ -58,7 +58,7 @@ def matching_db_record_exists(session, api_change):
     else:
         return False
 
-def same_or_newer_db_change_exists(session, api_change):
+def previously_processed_same_or_newer_change(session, api_change):
     db_change_hst_version = (session
         .query(func.max(PureApiChangeHst.version))
         .filter(PureApiChangeHst.uuid==api_change.uuid)
@@ -66,6 +66,9 @@ def same_or_newer_db_change_exists(session, api_change):
     )
     if db_change_hst_version is not None and db_change_hst_version >= api_change.version:
         return True
+    return False
+
+def already_loaded_same_or_newer_change(session, api_change):
     db_change_version = (session
         .query(func.max(PureApiChange.version))
         .filter(PureApiChange.uuid==api_change.uuid)
@@ -111,7 +114,10 @@ def run(
                 continue
             if api_change.familySystemName not in family_system_name_db_class_map:
                 continue
-            if matching_db_record_exists(session, api_change) and same_or_newer_db_change_exists(session, api_change):
+            if matching_db_record_exists(session, api_change) \
+                and previously_processed_same_or_newer_change(session, api_change):
+                continue
+            if already_loaded_same_or_newer_change(session, api_change):
                 continue
 
             load_api_change(session, api_change)
