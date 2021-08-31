@@ -16,33 +16,6 @@ pure_api_record_type = 'external-persons'
 
 # functions:
 
-def api_external_person_exists_in_db(session, api_external_person):
-    api_external_person_modified = transformers.iso_8601_string_to_datetime(api_external_person.info.modifiedDate)
-
-    db_api_external_person_hst = (
-        session.query(PureApiExternalPersonHst)
-        .filter(and_(
-            PureApiExternalPersonHst.uuid == api_external_person.uuid,
-            PureApiExternalPersonHst.modified == api_external_person_modified,
-        ))
-        .one_or_none()
-    )
-    if db_api_external_person_hst:
-        return True
-
-    db_api_external_person = (
-        session.query(PureApiExternalPerson)
-        .filter(and_(
-            PureApiExternalPerson.uuid == api_external_person.uuid,
-            PureApiExternalPerson.modified == api_external_person_modified,
-        ))
-        .one_or_none()
-    )
-    if db_api_external_person:
-          return True
-
-    return False
-
 def already_loaded_same_api_external_person(session, api_external_person):
     api_external_person_modified = transformers.iso_8601_string_to_datetime(
         api_external_person.info.modifiedDate
@@ -92,15 +65,6 @@ def delete_merged_records(session, api_person):
         db_person = get_db_person(session, uuid)
         if db_person:
             delete_db_person(session, db_person)
-
-def db_person_newer_than_api_person(session, api_person):
-    api_person_modified = transformers.iso_8601_string_to_datetime(api_person.info.modifiedDate)
-    db_person = get_db_person(session, api_person.uuid)
-    # We need the replace(tzinfo=None) here, or we get errors like:
-    # TypeError: can't compare offset-naive and offset-aware datetimes
-    if db_person and db_person.pure_modified and db_person.pure_modified >= api_person_modified.replace(tzinfo=None):
-        return True
-    return False
 
 def db_person_same_or_newer_than_api_external_person(session, db_person, api_external_person):
     # We need the replace(tzinfo=None) here, or we get errors like:

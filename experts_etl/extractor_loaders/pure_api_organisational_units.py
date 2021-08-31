@@ -16,33 +16,6 @@ pure_api_record_type = 'organisational-units'
 
 # functions:
 
-def api_internal_org_exists_in_db(session, api_internal_org):
-    api_internal_org_modified = transformers.iso_8601_string_to_datetime(api_internal_org.info.modifiedDate)
-
-    db_api_internal_org_hst = (
-        session.query(PureApiInternalOrgHst)
-        .filter(and_(
-            PureApiInternalOrgHst.uuid == api_internal_org.uuid,
-            PureApiInternalOrgHst.modified == api_internal_org_modified,
-        ))
-        .one_or_none()
-    )
-    if db_api_internal_org_hst:
-        return True
-
-    db_api_internal_org = (
-        session.query(PureApiInternalOrg)
-        .filter(and_(
-            PureApiInternalOrg.uuid == api_internal_org.uuid,
-            PureApiInternalOrg.modified == api_internal_org_modified,
-        ))
-        .one_or_none()
-    )
-    if db_api_internal_org:
-        return True
-
-    return False
-
 def already_loaded_same_api_internal_org(session, api_internal_org):
     api_internal_org_modified = transformers.iso_8601_string_to_datetime(
         api_internal_org.info.modifiedDate
@@ -107,15 +80,6 @@ def delete_merged_records(session, api_org):
         db_org = get_db_org(session, uuid)
         if db_org:
             delete_db_org(session, db_org)
-
-def db_org_newer_than_api_org(session, api_org):
-    api_org_modified = transformers.iso_8601_string_to_datetime(api_org.info.modifiedDate)
-    db_org = get_db_org(session, api_org.uuid)
-    # We need the replace(tzinfo=None) here, or we get errors like:
-    # TypeError: can't compare offset-naive and offset-aware datetimes
-    if db_org and db_org.pure_modified and db_org.pure_modified >= api_org_modified.replace(tzinfo=None):
-        return True
-    return False
 
 def db_org_same_or_newer_than_api_internal_org(session, db_org, api_internal_org):
     # We need the replace(tzinfo=None) here, or we get errors like:

@@ -38,33 +38,6 @@ supported_pure_types = {
 
 # functions:
 
-def api_pub_exists_in_db(session, api_pub):
-    api_pub_modified = transformers.iso_8601_string_to_datetime(api_pub.info.modifiedDate)
-
-    db_api_pub_hst = (
-        session.query(PureApiPubHst)
-        .filter(and_(
-            PureApiPubHst.uuid == api_pub.uuid,
-            PureApiPubHst.modified == api_pub_modified,
-        ))
-        .one_or_none()
-    )
-    if db_api_pub_hst:
-        return True
-
-    db_api_pub = (
-        session.query(PureApiPub)
-        .filter(and_(
-            PureApiPub.uuid == api_pub.uuid,
-            PureApiPub.modified == api_pub_modified,
-        ))
-        .one_or_none()
-    )
-    if db_api_pub:
-        return True
-
-    return False
-
 def already_loaded_same_api_pub(session, api_pub):
     api_pub_modified = transformers.iso_8601_string_to_datetime(
         api_pub.info.modifiedDate
