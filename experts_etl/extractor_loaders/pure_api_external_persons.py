@@ -43,6 +43,22 @@ def api_external_person_exists_in_db(session, api_external_person):
 
     return False
 
+def already_loaded_same_api_external_person(session, api_external_person):
+    api_external_person_modified = transformers.iso_8601_string_to_datetime(
+        api_external_person.info.modifiedDate
+    )
+    db_api_external_person = (
+        session.query(PureApiExternalPerson)
+        .filter(and_(
+            PureApiExternalPerson.uuid == api_external_person.uuid,
+            PureApiExternalPerson.modified == api_external_person_modified,
+        ))
+        .one_or_none()
+    )
+    if db_api_external_person:
+        return True
+    return False
+
 def get_db_person(session, uuid):
     return (
         session.query(Person)
@@ -83,6 +99,16 @@ def db_person_newer_than_api_person(session, api_person):
     # We need the replace(tzinfo=None) here, or we get errors like:
     # TypeError: can't compare offset-naive and offset-aware datetimes
     if db_person and db_person.pure_modified and db_person.pure_modified >= api_person_modified.replace(tzinfo=None):
+        return True
+    return False
+
+def db_person_same_or_newer_than_api_external_person(session, db_person, api_external_person):
+    # We need the replace(tzinfo=None) here, or we get errors like:
+    # TypeError: can't compare offset-naive and offset-aware datetimes
+    api_external_person_modified = transformers.iso_8601_string_to_datetime(
+        api_external_person.info.modifiedDate
+    ).replace(tzinfo=None)
+    if db_person.pure_modified and db_person.pure_modified >= api_external_person_modified:
         return True
     return False
 
@@ -170,13 +196,11 @@ def run(
 
                 delete_merged_records(session, api_external_person)
 
-                load = True
-                if db_person_newer_than_api_person(session, api_external_person):
-                    load = False
-                if api_external_person_exists_in_db(session, api_external_person):
-                    load = False
-                if load:
-                    load_api_external_person(session, api_external_person, r.text)
+                if db_person and db_person_same_or_newer_than_api_external_person(session, db_person, api_external_person):
+                    continue
+                if already_loaded_same_api_external_person(session, api_external_person):
+                    continue
+                load_api_external_person(session, api_external_person, r.text)
 
                 processed_changes.extend(changes)
                 if len(processed_changes) >= transaction_record_limit:

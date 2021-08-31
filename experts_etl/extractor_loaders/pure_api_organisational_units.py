@@ -43,6 +43,22 @@ def api_internal_org_exists_in_db(session, api_internal_org):
 
     return False
 
+def already_loaded_same_api_internal_org(session, api_internal_org):
+    api_internal_org_modified = transformers.iso_8601_string_to_datetime(
+        api_internal_org.info.modifiedDate
+    )
+    db_api_internal_org = (
+        session.query(PureApiInternalOrg)
+        .filter(and_(
+            PureApiInternalOrg.uuid == api_internal_org.uuid,
+            PureApiInternalOrg.modified == api_internal_org_modified,
+        ))
+        .one_or_none()
+    )
+    if db_api_internal_org:
+        return True
+    return False
+
 def get_db_org(session, uuid):
     return (
         session.query(PureOrg)
@@ -98,6 +114,16 @@ def db_org_newer_than_api_org(session, api_org):
     # We need the replace(tzinfo=None) here, or we get errors like:
     # TypeError: can't compare offset-naive and offset-aware datetimes
     if db_org and db_org.pure_modified and db_org.pure_modified >= api_org_modified.replace(tzinfo=None):
+        return True
+    return False
+
+def db_org_same_or_newer_than_api_internal_org(session, db_org, api_internal_org):
+    # We need the replace(tzinfo=None) here, or we get errors like:
+    # TypeError: can't compare offset-naive and offset-aware datetimes
+    api_internal_org_modified = transformers.iso_8601_string_to_datetime(
+        api_internal_org.info.modifiedDate
+    ).replace(tzinfo=None)
+    if db_org.pure_modified and db_org.pure_modified >= api_internal_org_modified:
         return True
     return False
 
@@ -177,7 +203,6 @@ def run(
                 except Exception:
                     raise
 
-
                 api_internal_org = response.transform(
                     pure_api_record_type,
                     r.json(),
@@ -186,13 +211,11 @@ def run(
 
                 delete_merged_records(session, api_internal_org)
 
-                load = True
-                if db_org_newer_than_api_org(session, api_internal_org):
-                    load = False
-                if api_internal_org_exists_in_db(session, api_internal_org):
-                    load = False
-                if load:
-                    load_api_internal_org(session, api_internal_org, r.text)
+                if db_org and db_org_same_or_newer_than_api_internal_org(session, db_org, api_internal_org):
+                    continue
+                if already_loaded_same_api_internal_org(session, api_internal_org):
+                    continue
+                load_api_internal_org(session, api_internal_org, r.text)
 
                 processed_changes.extend(changes)
                 if len(processed_changes) >= transaction_record_limit:

@@ -65,6 +65,22 @@ def api_pub_exists_in_db(session, api_pub):
 
     return False
 
+def already_loaded_same_api_pub(session, api_pub):
+    api_pub_modified = transformers.iso_8601_string_to_datetime(
+        api_pub.info.modifiedDate
+    )
+    db_api_pub = (
+        session.query(PureApiPub)
+        .filter(and_(
+            PureApiPub.uuid == api_pub.uuid,
+            PureApiPub.modified == api_pub_modified,
+        ))
+        .one_or_none()
+    )
+    if db_api_pub:
+        return True
+    return False
+
 def get_db_pub(session, uuid):
     return (
         session.query(Pub)
@@ -93,12 +109,13 @@ def delete_merged_records(session, api_pub):
         if db_pub:
             delete_db_pub(session, db_pub)
 
-def db_pub_newer_than_api_pub(session, api_pub):
-    api_pub_modified = transformers.iso_8601_string_to_datetime(api_pub.info.modifiedDate)
-    db_pub = get_db_pub(session, api_pub.uuid)
+def db_pub_same_or_newer_than_api_pub(session, db_pub, api_pub):
     # We need the replace(tzinfo=None) here, or we get errors like:
     # TypeError: can't compare offset-naive and offset-aware datetimes
-    if db_pub and db_pub.pure_modified and db_pub.pure_modified >= api_pub_modified.replace(tzinfo=None):
+    api_pub_modified = transformers.iso_8601_string_to_datetime(
+        api_pub.info.modifiedDate
+    ).replace(tzinfo=None)
+    if db_pub.pure_modified and db_pub.pure_modified >= api_pub_modified:
         return True
     return False
 
@@ -190,20 +207,17 @@ def run(
                 type_uri_parts.reverse()
                 pure_subtype, pure_type, pure_parent_type = type_uri_parts[0:3]
 
-                load = True
                 if pure_type not in supported_pure_types or pure_subtype not in supported_pure_types[pure_type]:
                     # Check whether we previously loaded this research output: its type(/subtype)
                     # may have changed to a type(/subtype) we do not support. If so, delete:
-                    db_pub = get_db_pub(session, api_pub.uuid)
                     if db_pub:
                         delete_db_pub(session, db_pub)
-                    load = False
-                if db_pub_newer_than_api_pub(session, api_pub):
-                    load = False
-                if api_pub_exists_in_db(session, api_pub):
-                    load = False
-                if load:
-                    load_api_pub(session, api_pub, r.text)
+                    continue
+                if db_pub and db_pub_same_or_newer_than_api_pub(session, db_pub, api_pub):
+                    continue
+                if already_loaded_same_api_pub(session, api_pub):
+                    continue
+                load_api_pub(session, api_pub, r.text)
 
                 processed_changes.extend(changes)
                 if len(processed_changes) >= transaction_record_limit:

@@ -43,6 +43,22 @@ def api_external_org_exists_in_db(session, api_external_org):
 
     return False
 
+def already_loaded_same_api_external_org(session, api_external_org):
+    api_external_org_modified = transformers.iso_8601_string_to_datetime(
+        api_external_org.info.modifiedDate
+    )
+    db_api_external_org = (
+        session.query(PureApiExternalOrg)
+        .filter(and_(
+            PureApiExternalOrg.uuid == api_external_org.uuid,
+            PureApiExternalOrg.modified == api_external_org_modified,
+        ))
+        .one_or_none()
+    )
+    if db_api_external_org:
+        return True
+    return False
+
 def get_db_org(session, uuid):
     return (
         session.query(PureOrg)
@@ -69,12 +85,21 @@ def delete_merged_records(session, api_org):
         if db_org:
             delete_db_org(session, db_org)
 
-def db_org_newer_than_api_org(session, api_org):
+def db_org_newer_than_api_org(session, db_org, api_org):
     api_org_modified = transformers.iso_8601_string_to_datetime(api_org.info.modifiedDate)
-    db_org = get_db_org(session, api_org.uuid)
     # We need the replace(tzinfo=None) here, or we get errors like:
     # TypeError: can't compare offset-naive and offset-aware datetimes
-    if db_org and db_org.pure_modified and db_org.pure_modified >= api_org_modified.replace(tzinfo=None):
+    if db_org.pure_modified and db_org.pure_modified >= api_org_modified.replace(tzinfo=None):
+        return True
+    return False
+
+def db_org_same_or_newer_than_api_external_org(session, db_org, api_external_org):
+    # We need the replace(tzinfo=None) here, or we get errors like:
+    # TypeError: can't compare offset-naive and offset-aware datetimes
+    api_external_org_modified = transformers.iso_8601_string_to_datetime(
+        api_external_org.info.modifiedDate
+    ).replace(tzinfo=None)
+    if db_org.pure_modified and db_org.pure_modified >= api_external_org_modified:
         return True
     return False
 
@@ -162,13 +187,11 @@ def run(
 
                 delete_merged_records(session, api_external_org)
 
-                load = True
-                if db_org_newer_than_api_org(session, api_external_org):
-                    load = False
-                if api_external_org_exists_in_db(session, api_external_org):
-                    load = False
-                if load:
-                    load_api_external_org(session, api_external_org, r.text)
+                if db_org and db_org_same_or_newer_than_api_external_org(session, db_org, api_external_org):
+                    continue
+                if already_loaded_same_api_external_org(session, api_external_org):
+                    continue
+                load_api_external_org(session, api_external_org, r.text)
 
                 processed_changes.extend(changes)
                 if len(processed_changes) >= transaction_record_limit:
