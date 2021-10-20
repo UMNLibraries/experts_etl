@@ -142,7 +142,8 @@ def run(
     transaction_record_limit=transaction_record_limit,
     pure_api_record_logger=pure_api_record_logger,
     experts_etl_logger=None,
-    pure_api_config=None
+    pure_api_config=None,
+    force_load=False
 ):
     if experts_etl_logger is None:
         experts_etl_logger = loggers.experts_etl_logger()
@@ -167,7 +168,7 @@ def run(
                 db_pub_previously_existed = False
                 if db_pub:
                     db_pub_previously_existed = True
-                    if db_pub.pure_modified and db_pub.pure_modified >= db_api_pub.modified:
+                    if db_pub.pure_modified and db_pub.pure_modified >= db_api_pub.modified and not force_load:
                         # Skip this record, since we already have a newer one:
                         processed_api_pub_uuids.append(db_api_pub.uuid)
                         continue
