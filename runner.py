@@ -111,53 +111,53 @@ def run():
                 }
             )
 
-    api_version_collections_map = {}
-    with db.cx_oracle_connection() as connection:
-        cursor = connection.cursor()
-        #for api_version in pure_json.api_versions(cursor): # Later!
-        for api_version in ['518']: # For now, until we create tables for other versions.
-            collections = pure_json.collection_api_names_for_api_version(cursor, api_version=api_version)
-            api_version_collections_map[api_version] = collections
-
-    # Just 1 process for now, until we add other api_versions. But do we even need param? Defaults to os.cpu_count.
-    with mp.Pool(processes=1) as pool:
-        results = []
-        for api_version in api_version_collections_map:
-            try:
-                results.append(
-                    pool.apply_async(extract_load_changes, ({'api_version': api_version},))
-                )
-            except Exception as e:
-                formatted_exception = loggers.format_exception(e)
-                experts_etl_logger.error(
-                    f'attempt to extract/load changes raw json in a new process failed: {formatted_exception}',
-                    extra={
-                        'pid': str(os.getpid()),
-                        'ppid': str(os.getppid()),
-                    }
-                )
-        for result in results:
-            result.get()
-
-    with mp.Pool() as pool:
-        results = []
-        for api_version, collection_api_names in api_version_collections_map.items():
-            for collection_api_name in collection_api_names:
-                try:
-                    results.append(
-                        pool.apply_async(extract_load_collection, (collection_api_name, {'api_version': api_version},))
-                    )
-                except Exception as e:
-                    formatted_exception = loggers.format_exception(e)
-                    experts_etl_logger.error(
-                        f'attempt to extract/load {collection_api_name} raw json in a new process failed: {formatted_exception}',
-                        extra={
-                            'pid': str(os.getpid()),
-                            'ppid': str(os.getppid()),
-                        }
-                    )
-        for result in results:
-            result.get()
+#    api_version_collections_map = {}
+#    with db.cx_oracle_connection() as connection:
+#        cursor = connection.cursor()
+#        #for api_version in pure_json.api_versions(cursor): # Later!
+#        for api_version in ['518']: # For now, until we create tables for other versions.
+#            collections = pure_json.collection_api_names_for_api_version(cursor, api_version=api_version)
+#            api_version_collections_map[api_version] = collections
+#
+#    # Just 1 process for now, until we add other api_versions. But do we even need param? Defaults to os.cpu_count.
+#    with mp.Pool(processes=1) as pool:
+#        results = []
+#        for api_version in api_version_collections_map:
+#            try:
+#                results.append(
+#                    pool.apply_async(extract_load_changes, ({'api_version': api_version},))
+#                )
+#            except Exception as e:
+#                formatted_exception = loggers.format_exception(e)
+#                experts_etl_logger.error(
+#                    f'attempt to extract/load changes raw json in a new process failed: {formatted_exception}',
+#                    extra={
+#                        'pid': str(os.getpid()),
+#                        'ppid': str(os.getppid()),
+#                    }
+#                )
+#        for result in results:
+#            result.get()
+#
+#    with mp.Pool() as pool:
+#        results = []
+#        for api_version, collection_api_names in api_version_collections_map.items():
+#            for collection_api_name in collection_api_names:
+#                try:
+#                    results.append(
+#                        pool.apply_async(extract_load_collection, (collection_api_name, {'api_version': api_version},))
+#                    )
+#                except Exception as e:
+#                    formatted_exception = loggers.format_exception(e)
+#                    experts_etl_logger.error(
+#                        f'attempt to extract/load {collection_api_name} raw json in a new process failed: {formatted_exception}',
+#                        extra={
+#                            'pid': str(os.getpid()),
+#                            'ppid': str(os.getppid()),
+#                        }
+#                    )
+#        for result in results:
+#            result.get()
 
     experts_etl_logger.info(
         'ending: experts etl',
