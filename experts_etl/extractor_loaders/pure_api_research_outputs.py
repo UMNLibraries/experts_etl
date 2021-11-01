@@ -1,7 +1,9 @@
+from dateutil.parser import isoparse
+
 from sqlalchemy import and_, func
+
 from experts_dw import db
 from experts_dw.models import PureApiPub, PureApiPubHst, PureApiChange, PureApiChangeHst, Pub, PubPerson, PubPersonPureOrg, PubAuthorCollaboration
-from experts_etl import transformers
 from pureapi import client, response
 from pureapi.client import Config, PureAPIRequestException, PureAPIHTTPError
 from experts_etl import loggers
@@ -39,7 +41,7 @@ supported_pure_types = {
 # functions:
 
 def already_loaded_same_api_pub(session, api_pub):
-    api_pub_modified = transformers.iso_8601_string_to_datetime(
+    api_pub_modified = isoparse(
         api_pub.info.modifiedDate
     )
     db_api_pub = (
@@ -85,7 +87,7 @@ def delete_merged_records(session, api_pub):
 def db_pub_same_or_newer_than_api_pub(session, db_pub, api_pub):
     # We need the replace(tzinfo=None) here, or we get errors like:
     # TypeError: can't compare offset-naive and offset-aware datetimes
-    api_pub_modified = transformers.iso_8601_string_to_datetime(
+    api_pub_modified = isoparse(
         api_pub.info.modifiedDate
     ).replace(tzinfo=None)
     if db_pub.pure_modified and db_pub.pure_modified >= api_pub_modified:
@@ -96,7 +98,7 @@ def load_api_pub(session, api_pub, raw_json):
     db_api_pub = PureApiPub(
         uuid=api_pub.uuid,
         json=raw_json,
-        modified=transformers.iso_8601_string_to_datetime(api_pub.info.modifiedDate)
+        modified=isoparse(api_pub.info.modifiedDate)
     )
     session.add(db_api_pub)
 

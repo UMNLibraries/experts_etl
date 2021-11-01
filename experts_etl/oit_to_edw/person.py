@@ -8,7 +8,7 @@ from sqlalchemy import and_, func, text
 from experts_dw import db
 from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonDataScratch, PureSyncStaffOrgAssociationScratch, PureSyncUserDataScratch
 from experts_dw.sqlapi import sqlapi
-from experts_etl import loggers, transformers
+from experts_etl import loggers
 from experts_etl.demographics import latest_demographics_for_emplid, latest_not_null_internet_id_for_emplid
 from experts_etl.umn_data_error import record_person_no_job_data_error
 from . import affiliate_job, employee_job, poi_job

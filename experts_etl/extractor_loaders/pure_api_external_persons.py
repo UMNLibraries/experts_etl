@@ -1,7 +1,9 @@
+from dateutil.parser import isoparse
+
 from sqlalchemy import and_, func
+
 from experts_dw import db
 from experts_dw.models import PureApiExternalPerson, PureApiExternalPersonHst, PureApiChange, PureApiChangeHst, Person, PubPerson, PubPersonPureOrg, PersonPureOrg, PersonScopusId
-from experts_etl import transformers
 from pureapi import client, response
 from pureapi.client import Config, PureAPIRequestException, PureAPIHTTPError
 from experts_etl import loggers
@@ -17,7 +19,7 @@ pure_api_record_type = 'external-persons'
 # functions:
 
 def already_loaded_same_api_external_person(session, api_external_person):
-    api_external_person_modified = transformers.iso_8601_string_to_datetime(
+    api_external_person_modified = isoparse(
         api_external_person.info.modifiedDate
     )
     db_api_external_person = (
@@ -69,7 +71,7 @@ def delete_merged_records(session, api_person):
 def db_person_same_or_newer_than_api_external_person(session, db_person, api_external_person):
     # We need the replace(tzinfo=None) here, or we get errors like:
     # TypeError: can't compare offset-naive and offset-aware datetimes
-    api_external_person_modified = transformers.iso_8601_string_to_datetime(
+    api_external_person_modified = isoparse(
         api_external_person.info.modifiedDate
     ).replace(tzinfo=None)
     if db_person.pure_modified and db_person.pure_modified >= api_external_person_modified:
@@ -80,7 +82,7 @@ def load_api_external_person(session, api_external_person, raw_json):
     db_api_external_person = PureApiExternalPerson(
         uuid=api_external_person.uuid,
         json=raw_json,
-        modified=transformers.iso_8601_string_to_datetime(api_external_person.info.modifiedDate)
+        modified=isoparse(api_external_person.info.modifiedDate)
     )
     session.add(db_api_external_person)
 
