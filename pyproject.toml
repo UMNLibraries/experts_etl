@@ -16,6 +16,7 @@ python-daemon = "*"
 dotenv_switch = {git = "git://github.com/UMNLibraries/dotenv_switch.git"}
 python-json-logger = "*"
 schedule = "*"
+python-dateutil = "^2.8.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"

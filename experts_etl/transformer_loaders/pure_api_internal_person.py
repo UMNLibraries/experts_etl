@@ -1,10 +1,13 @@
 import json
 import re
 import uuid
-from experts_dw import db
+
+from dateutil.parser import isoparse
 from sqlalchemy import and_, func
+
+from experts_dw import db
 from experts_dw.models import PureApiInternalPerson, PureApiInternalPersonHst, Person, PureOrg, PersonPureOrg, UmnPersonPureOrg, PersonScopusId
-from experts_etl import loggers, transformers
+from experts_etl import loggers
 from pureapi import response
 from pureapi.client import Config
 
@@ -262,8 +265,8 @@ def run(
                             None
                         ).lower()),
 
-                        start_date = transformers.string_to_datetime(org_assoc.period.startDate),
-                        end_date = transformers.string_to_datetime(org_assoc.period.endDate) if org_assoc.period.endDate else None,
+                        start_date = isoparse(org_assoc.period.startDate),
+                        end_date = isoparse(org_assoc.period.endDate) if org_assoc.period.endDate else None,
                         primary = 'Y' if org_assoc.isPrimaryAssociation == True else 'N',
                     )
                     umn_person_pure_orgs.append(umn_person_pure_org)

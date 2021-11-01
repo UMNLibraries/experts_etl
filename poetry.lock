@@ -500,7 +500,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.3"
-content-hash = "c7edc53001f9f80c9b1bc3d650d4c05a72c9c01b72327b30cf7ab0d066aa37ec"
+content-hash = "c8833cd061c4d950dc4b29dadc692cfbccac1fd46f8910eefcecc22c7c0095fd"
 
 [metadata.files]
 addict = [

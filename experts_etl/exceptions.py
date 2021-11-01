@@ -4,13 +4,6 @@ import json
 class ExpertsEtlError(Exception):
     pass
 
-class ExpertsEtlUnkownDatetimeFormatError(ExpertsEtlError):
-    def __init__(self, datetime_string):
-        self.message = f'Unknown format for datetime string "{datetime_string}"'
-        super().__init__(
-            self.message
-        )
-
 class ExpertsEtlUmnDataError(ExpertsEtlError):
     ids = []
     attrs = [
