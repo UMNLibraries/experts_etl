@@ -7,7 +7,7 @@ def latest_demographics_for_emplid(session, emplid):
         session.query(PureEligibleDemogChngHst)
         .filter(
             PureEligibleDemogChngHst.emplid == emplid,
-            PureEligibleDemogChngHst.timestamp == subqry
+            PureEligibleDemogChngHst.timestamp == subqry.scalar_subquery()
         )
         .one_or_none()
     )
