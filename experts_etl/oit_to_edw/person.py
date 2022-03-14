@@ -6,6 +6,7 @@ import uuid
 from sqlalchemy import and_, func, text
 
 from experts_dw import db
+from experts_dw import expsql
 from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonDataScratch, PureSyncStaffOrgAssociationScratch, PureSyncUserDataScratch
 from experts_dw.sqlapi import sqlapi
 from experts_etl import loggers
@@ -58,24 +59,33 @@ def run(
                 session.commit()
                 load_count = 0
 
-        update_targets_from_scratch()
+        # We now use a cx_oracle connection to prepare our target tables
+        with db.cx_oracle_connection() as connection:
+            update_targets_from_scratch(connection)
 
         session.commit()
 
     experts_etl_logger.info('ending: oit -> edw', extra={'pure_sync_job': 'person'})
 
-def update_targets_from_scratch():
-    with sqlapi.transaction():
-        sqlapi.update_pure_sync_person_data()
-        sqlapi.insert_pure_sync_person_data()
+def update_targets_from_scratch(connection):
+    try:
+        cur = connection.cursor()
 
-        sqlapi.update_pure_sync_user_data()
-        sqlapi.insert_pure_sync_user_data()
+        cur.execute(update_pure_sync_person_data)
+        cur.execute(insert_pure_sync_person_data)
 
-        sqlapi.update_pure_sync_staff_org_association()
-        sqlapi.insert_pure_sync_staff_org_association()
+        cur.execute(update_pure_sync_user_data)
+        cur.execute(insert_pure_sync_user_data)
 
-        sqlapi.delete_obsolete_primary_jobs()
+        cur.execute(update_pure_sync_staff_org_association)
+        cur.execute(insert_pure_sync_staff_org_association)
+
+        cur.execute(delete_obsolete_primary_jobs)
+
+        connection.commit()
+    except:
+        connection.rollback()
+        raise
 
 def load_into_scratch(session, person_dict):
     pure_sync_person_data = PureSyncPersonDataScratch(
