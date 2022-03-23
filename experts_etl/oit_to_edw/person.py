@@ -6,7 +6,7 @@ import uuid
 from sqlalchemy import and_, func, text
 
 from experts_dw import db
-from experts_dw import expsql
+from experts_dw.rawsql import update_pure_sync_person_data, insert_pure_sync_person_data, update_pure_sync_user_data, insert_pure_sync_user_data, update_pure_sync_staff_org_association, insert_pure_sync_staff_org_association, delete_obsolete_primary_jobs
 from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonDataScratch, PureSyncStaffOrgAssociationScratch, PureSyncUserDataScratch
 from experts_dw.sqlapi import sqlapi
 from experts_etl import loggers
