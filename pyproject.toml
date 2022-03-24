@@ -8,15 +8,17 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.6.3"
-experts_dw = {git = "git://github.com/UMNLibraries/experts_dw.git", branch="main", tag="7.15.0"}
+#experts_dw = {git = "git://github.com/UMNLibraries/experts_dw.git", branch="main", tag="7.15.0"}
+experts_dw = {url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-7.18.0.tar.gz"}
 jinja2 = ">=2.11.3"
-pandas = "*"
-pureapi = {git = "git://github.com/UMNLibraries/pureapi.git", branch="main", tag="4.2.0"}
-python-daemon = "*"
-dotenv_switch = {git = "git://github.com/UMNLibraries/dotenv_switch.git"}
-python-json-logger = "*"
-schedule = "*"
+pandas = "^1.1.5"
+dotenv_switch = {url = "https://github.com/UMNLibraries/dotenv_switch/raw/master/dist/dotenv_switch-0.1.2.tar.gz"}
+pureapi = {url = "https://github.com/UMNLibraries/pureapi/raw/main/dist/pureapi-4.3.3.tar.gz"}
+python-daemon = "^2.3.0"
+python-json-logger = "^2.0.2"
+schedule = "^1.1.0"
 python-dateutil = "^2.8.2"
 
 [tool.poetry.dev-dependencies]
-pytest = "*"
+#pytest = ">=6.2.5"
+pytest = "^7.0.1"
