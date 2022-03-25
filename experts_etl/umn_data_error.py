@@ -1,9 +1,11 @@
 from datetime import datetime
 from experts_dw import db
+from experts_dw.rawsql import unreported_umn_data_errors, record_reporting_of_umn_data_errors, count_pure_eligible_persons_in_dept
 from experts_dw.models import UmnDataError
-from experts_dw.sqlapi import sqlapi
 from experts_etl.exceptions import *
 from experts_etl import loggers
+
+from sqlalchemy.sql import text
 
 import os
 import csv
@@ -23,9 +25,6 @@ def run(
     from_address=None,
     ticket_address=None
 ):
-    # This connection API in general needs work. Including this here for the sake of consistency
-    # with other ETL module.run() functions.
-    sqlapi.setengine(db.engine(db_name))
 
     if experts_etl_logger is None:
         experts_etl_logger = loggers.experts_etl_logger()
@@ -38,17 +37,26 @@ def run(
     if ticket_address is None:
         ticket_address = os.environ.get('EXPERTS_ETL_TICKET_EMAIL_ADDRESS')
 
-    with sqlapi.transaction():
-        report_via_email(smtp_server=smtp_server, from_address=from_address, ticket_address=ticket_address)
+    with db.cx_oracle_connection() as connection:
+        report_via_email(connection, experts_etl_logger, smtp_server=smtp_server, from_address=from_address, ticket_address=ticket_address)
     smtp_server.quit()
 
     experts_etl_logger.info('ending: error reporting', extra={'pure_sync_job': 'error_reporting'})
 
-def report_via_email(smtp_server, from_address, ticket_address):
-    unreported_errors = list(sqlapi.unreported_umn_data_errors())
+def report_via_email(connection, experts_etl_logger, smtp_server, from_address, ticket_address):
+    report_cursor = connection.cursor()
+    report_cursor.execute(unreported_umn_data_errors)
+    report_cursor.rowfactory = lambda *args: dict(
+        zip([col[0] for col in report_cursor.description], args)
+    )
+    # Return a list of dicts
+    unreported_errors = report_cursor.fetchall()
+    report_cursor.close()
+
     if len(unreported_errors) == 0:
         return
 
+    # Build and send e-mail with csv attachment of errors
     datetime_string = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
     message = MIMEMultipart()
@@ -70,7 +78,17 @@ def report_via_email(smtp_server, from_address, ticket_address):
 
     smtp_server.send_message(message)
 
-    sqlapi.record_reporting_of_umn_data_errors()
+    # Open another cursor and record the reporting
+    try:
+        record_cursor = connection.cursor()
+        record_cursor.execute(record_reporting_of_umn_data_errors)
+        connection.commit()
+    except Exception as e:
+        connection.rollback()
+        formatted_exception = loggers.format_exception(e)
+        experts_etl_logger.error(
+            f'Exception encountered during recording of data errors: {formatted_exception}'
+        )
 
 def create_csv_report(unreported_errors):
     # Remove fields which may confuse people doing data entry:
@@ -123,7 +141,8 @@ def record_unknown_dept_errors(
     um_campus_descr=None,
 ):
     if persons_in_dept is None:
-        persons_in_dept = sqlapi.count_pure_eligible_persons_in_dept(deptid=deptid)
+        # We are using a SQL Alchemy session to execute a count statement. A workaround from having to introduce new connection objects into the process.
+        persons_in_dept = session.execute(text(count_pure_eligible_persons_in_dept), {"deptid": deptid}).scalars().one_or_none()
 
     session.add(
         find_or_create_umn_data_error(
