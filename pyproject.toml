@@ -9,6 +9,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.9"
 experts_dw = {url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-7.18.0.tar.gz"}
+markupsafe = "2.0.1"
 jinja2 = ">=2.11.3"
 pandas = ">=1.4.1"
 dotenv_switch = {url = "https://github.com/UMNLibraries/dotenv_switch/raw/master/dist/dotenv_switch-0.1.2.tar.gz"}
