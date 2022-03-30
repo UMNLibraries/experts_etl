@@ -30,32 +30,44 @@ def run(
         experts_etl_logger = loggers.experts_etl_logger()
     experts_etl_logger.info('starting: error reporting', extra={'pure_sync_job': 'error_reporting'})
 
-    if smtp_server is None:
-        smtp_server = smtplib.SMTP('localhost', 25)
-    if from_address is None:
-        from_address = os.environ.get('EXPERTS_ETL_FROM_EMAIL_ADDRESS')
-    if ticket_address is None:
-        ticket_address = os.environ.get('EXPERTS_ETL_TICKET_EMAIL_ADDRESS')
 
     with db.cx_oracle_connection() as connection:
-        report_via_email(connection, experts_etl_logger, smtp_server=smtp_server, from_address=from_address, ticket_address=ticket_address)
-    smtp_server.quit()
+        unreported_errors = get_unreported_errors(connection)
+        if len(unreported_errors) > 0:
+            if smtp_server is None:
+                smtp_server = smtplib.SMTP('localhost', 25)
+            if from_address is None:
+                from_address = os.environ.get('EXPERTS_ETL_FROM_EMAIL_ADDRESS')
+            if ticket_address is None:
+                ticket_address = os.environ.get('EXPERTS_ETL_TICKET_EMAIL_ADDRESS')
+
+            message = generate_error_report_message(unreported_errors, from_address, ticket_address)
+            message_sent_successfully = False
+            try:
+                smtp_server.send_message(message)
+                message_sent_successfully = True
+            except Exception as e:
+                formatted_exception = loggers.format_exception(e)
+                experts_etl_logger.error(
+                    f'Exception encountered during sending of error report message: {formatted_exception}'
+                )
+            smtp_server.quit()
+            if message_sent_successfully:
+                record_reporting_of_errors(connection, experts_etl_logger)           
 
     experts_etl_logger.info('ending: error reporting', extra={'pure_sync_job': 'error_reporting'})
 
-def report_via_email(connection, experts_etl_logger, smtp_server, from_address, ticket_address):
-    report_cursor = connection.cursor()
-    report_cursor.execute(unreported_umn_data_errors)
-    report_cursor.rowfactory = lambda *args: dict(
-        zip([col[0] for col in report_cursor.description], args)
+def get_unreported_errors(connection):
+    cursor = connection.cursor()
+    cursor.execute(unreported_umn_data_errors)
+    cursor.rowfactory = lambda *args: dict(
+        zip([col[0] for col in cursor.description], args)
     )
-    # Return a list of dicts
-    unreported_errors = report_cursor.fetchall()
-    report_cursor.close()
+    unreported_errors = cursor.fetchall()
+    cursor.close()
+    return unreported_errors
 
-    if len(unreported_errors) == 0:
-        return
-
+def generate_error_report_message(unreported_errors, from_address, ticket_address):
     # Build and send e-mail with csv attachment of errors
     datetime_string = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
@@ -76,12 +88,12 @@ def report_via_email(connection, experts_etl_logger, smtp_server, from_address, 
     part.add_header('Content-Disposition', f'attachment; filename="umn-data-errors-{datetime_string}.csv"')
     message.attach(part)
 
-    smtp_server.send_message(message)
+    return message
 
-    # Open another cursor and record the reporting
+def record_reporting_of_errors(connection, experts_etl_logger):
     try:
-        record_cursor = connection.cursor()
-        record_cursor.execute(record_reporting_of_umn_data_errors)
+        cursor = connection.cursor()
+        cursor.execute(record_reporting_of_umn_data_errors)
         connection.commit()
     except Exception as e:
         connection.rollback()
