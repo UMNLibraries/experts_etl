@@ -10,8 +10,9 @@ OIT Legacy Data Warehouse and Pure systems hosted by Elsevier.
 
 ### Installing and Running Remotely
 
-To provision remote environments, and to install and deploy Experts ETL for
-running in those environemtns, see
+To provision remote environments, to install and deploy Experts ETL for
+running in those environemtns, and for general documentation about our
+deployment of Experts ETL in those remote environments, see 
 [experts-ansible on UMN GitHub](https://github.umn.edu/Libraries/experts-ansible).
 
 ### Installing and Running Locally
