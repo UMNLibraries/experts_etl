@@ -90,10 +90,8 @@ via environment variables:
   * `EXPERTS_DB_USER`
   * `EXPERTS_DB_PASS`
   * `EXPERTS_DB_HOSTNAME`
+  * `EXPERTS_DB_PORT`
   * `EXPERTS_DB_SERVICE_NAME`
-* UMN LDAP
-  * `UMN_LDAP_DOMAIN`
-  * `UMN_LDAP_PORT`
 
 Some tests are integration tests that connect to these external services, so
 these variables must be set for testing. One option is to set these
