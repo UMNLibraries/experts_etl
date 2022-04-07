@@ -38,12 +38,6 @@ Both the OIT Legacy Data Warehouse and the Experts Data Warehouse are Oracle
 databases. See [experts\_dw on GitHub](https://github.com/UMNLibraries/experts_dw)
 for supported versions of the required Oracle InstanctClient library.
 
-#### LDAP
-
-Experts ETL uses LDAP to search for some student researcher information. See the
-[python-ldap build prerequisites](https://www.python-ldap.org/en/python-ldap-3.3.0/installing.html#build-prerequisites)
-for the required system libraries to install in your local environment.
-
 ### pyenv, venv, and poetry
 
 To install and manage Python versions we use

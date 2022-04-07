@@ -6,8 +6,8 @@ import uuid
 from sqlalchemy import and_, func, text
 
 from experts_dw import db
+from experts_dw.rawsql import update_pure_sync_person_data, insert_pure_sync_person_data, update_pure_sync_user_data, insert_pure_sync_user_data, update_pure_sync_staff_org_association, insert_pure_sync_staff_org_association, delete_obsolete_primary_jobs
 from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonDataScratch, PureSyncStaffOrgAssociationScratch, PureSyncUserDataScratch
-from experts_dw.sqlapi import sqlapi
 from experts_etl import loggers
 from experts_etl.demographics import latest_demographics_for_emplid, latest_not_null_internet_id_for_emplid
 from experts_etl.umn_data_error import record_person_no_job_data_error
@@ -25,9 +25,6 @@ def run(
     transaction_record_limit=transaction_record_limit,
     experts_etl_logger=None
 ):
-    # This connection API in general needs work. Including this here for the sake of consistency
-    # with other ETL module.run() functions.
-    sqlapi.setengine(db.engine(db_name))
 
     if experts_etl_logger is None:
         experts_etl_logger = loggers.experts_etl_logger()
@@ -58,24 +55,36 @@ def run(
                 session.commit()
                 load_count = 0
 
-        update_targets_from_scratch()
+        # We now use cx_oracle_connection() to prepare our target tables
+        with db.cx_oracle_connection() as connection:
+            update_targets_from_scratch(connection, experts_etl_logger)
 
         session.commit()
 
     experts_etl_logger.info('ending: oit -> edw', extra={'pure_sync_job': 'person'})
 
-def update_targets_from_scratch():
-    with sqlapi.transaction():
-        sqlapi.update_pure_sync_person_data()
-        sqlapi.insert_pure_sync_person_data()
+def update_targets_from_scratch(connection, experts_etl_logger):
+    try:
+        cur = connection.cursor()
 
-        sqlapi.update_pure_sync_user_data()
-        sqlapi.insert_pure_sync_user_data()
+        cur.execute(update_pure_sync_person_data)
+        cur.execute(insert_pure_sync_person_data)
 
-        sqlapi.update_pure_sync_staff_org_association()
-        sqlapi.insert_pure_sync_staff_org_association()
+        cur.execute(update_pure_sync_user_data)
+        cur.execute(insert_pure_sync_user_data)
 
-        sqlapi.delete_obsolete_primary_jobs()
+        cur.execute(update_pure_sync_staff_org_association)
+        cur.execute(insert_pure_sync_staff_org_association)
+
+        cur.execute(delete_obsolete_primary_jobs)
+
+        connection.commit()
+    except Exception as e:
+        connection.rollback()
+        formatted_exception = loggers.format_exception(e)
+        experts_etl_logger.error(
+            f'Exception encountered during updating pure_sync_data tables: {formatted_exception}'
+        )
 
 def load_into_scratch(session, person_dict):
     pure_sync_person_data = PureSyncPersonDataScratch(
