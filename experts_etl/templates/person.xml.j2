@@ -42,6 +42,30 @@
       <jobDescription><v3:text lang="en">{{ job.job_description }}</v3:text></jobDescription>
     </staffOrganisationAssociation>
     {%- endfor %}
+    {%- for program in programs %}
+    <studentOrganisationAssociation id="{{ program.student_org_association_id }}" managedInPure="false">
+      <affiliationId>{{ program.affiliation_id }}</affiliationId>
+      {%- if program.email_address %}
+      <emails>
+        <v3:classifiedEmail id="personStudentAssocEmail1">
+          <v3:classification>email</v3:classification>
+          <v3:value>{{ program.email_address }}</v3:value>
+        </v3:classifiedEmail>
+      </emails>
+      {%- endif %}
+      <organisation>
+        <v3:source_id>{{ program.org_id }}</v3:source_id>
+      </organisation>
+      <period>
+        <v3:startDate>{{ program.period_start_date.strftime('%d-%m-%Y') }}</v3:startDate>
+        {%- if program.period_end_date %}
+        <v3:endDate>{{ program.period_end_date.strftime('%d-%m-%Y') }}</v3:endDate>
+        {%- endif %}
+      </period>
+      <status>{{ program.status }}</status>
+      <studentTypeDescription>{{ program.student_type_description }}</studentTypeDescription>
+    </studentOrganisationAssociation>
+    {%- endfor %}
   </organisationAssociations>
   {%- if internet_id %}
   <user id="{{ person_id }}">
