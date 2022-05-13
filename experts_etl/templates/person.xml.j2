@@ -53,6 +53,8 @@
         </v3:classifiedEmail>
       </emails>
       {%- endif %}
+      <employmenttype>{{ program.affiliation_id }}</employmenttype>
+      <primaryAssociation>false</primaryAssociation>
       <organisation>
         <v3:source_id>{{ program.org_id }}</v3:source_id>
       </organisation>
@@ -62,8 +64,13 @@
         <v3:endDate>{{ program.period_end_date.strftime('%d-%m-%Y') }}</v3:endDate>
         {%- endif %}
       </period>
-      <status>{{ program.status }}</status>
-      <studentTypeDescription>{{ program.student_type_description }}</studentTypeDescription>
+      <keywords>
+        <v3:logicalGroup logicalName="/dk/atira/pure/person/studentregistrationstatus">
+      	  <v3:structuredKeywords>
+      	    <v3:structuredKeyword classification="{{ program.status }}" />
+      	  </v3:structuredKeywords>
+        </v3:logicalGroup>
+      </keywords>
     </studentOrganisationAssociation>
     {%- endfor %}
   </organisationAssociations>
