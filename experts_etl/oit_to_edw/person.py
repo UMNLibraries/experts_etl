@@ -11,7 +11,7 @@ from experts_dw.sqlapi import sqlapi
 from experts_etl import loggers
 from experts_etl.demographics import latest_demographics_for_emplid, latest_not_null_internet_id_for_emplid
 from experts_etl.umn_data_error import record_person_no_job_data_error
-from . import affiliate_job, employee_job, poi_job
+from . import affiliate_job, employee_job, poi_job, graduate_program
 
 # defaults:
 
