@@ -87,7 +87,7 @@ type = "url"
 url = "https://github.com/UMNLibraries/dotenv_switch/raw/master/dist/dotenv_switch-0.1.2.tar.gz"
 [[package]]
 name = "experts-dw"
-version = "7.20.1"
+version = "7.21.0"
 description = "Tools for working with the Experts@Minnesota Data Warehouse."
 category = "main"
 optional = false
@@ -95,7 +95,7 @@ python-versions = ">=3.6.3,<4.0.0"
 
 [package.dependencies]
 cx-oracle = ">=8.0.1,<9.0.0"
-Jinja2 = "2.10.1"
+Jinja2 = ">=3.0.1,<4.0.0"
 pugsql = ">=0.2.3,<0.3.0"
 sqlalchemy = ">=1.4,<2.0"
 sqlalchemy_mptt = ">=0.2.5,<0.3.0"
@@ -103,7 +103,7 @@ sqlparse = ">=0.4.2,<0.5.0"
 
 [package.source]
 type = "url"
-url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-7.20.1.tar.gz"
+url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-7.21.0.tar.gz"
 [[package]]
 name = "greenlet"
 version = "1.1.2"
@@ -150,17 +150,17 @@ python-versions = "*"
 
 [[package]]
 name = "jinja2"
-version = "2.10.1"
-description = "A small but fast and easy to use stand-alone template engine written in pure python."
+version = "3.1.2"
+description = "A very fast and expressive template engine."
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 
 [package.dependencies]
-MarkupSafe = ">=0.23"
+MarkupSafe = ">=2.0"
 
 [package.extras]
-i18n = ["Babel (>=0.8)"]
+i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "lockfile"
@@ -504,7 +504,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1,<4.0.0"
-content-hash = "370373a0c6a6e72f1840a16d06b92e2a7ae4caaeee1bdb29f4873de4174d5c9f"
+content-hash = "430bcccf58a9b1b31809d2443a3e60830d8f59f0a97451791141130871977bed"
 
 [metadata.files]
 addict = [
@@ -625,8 +625,8 @@ iniconfig = [
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
 ]
 jinja2 = [
-    {file = "Jinja2-2.10.1-py2.py3-none-any.whl", hash = "sha256:14dd6caf1527abb21f08f86c784eac40853ba93edb79552aa1e4b8aef1b61c7b"},
-    {file = "Jinja2-2.10.1.tar.gz", hash = "sha256:065c4f02ebe7f7cf559e49ee5a95fb800a9e4528727aec6f24402a5374c65013"},
+    {file = "Jinja2-3.1.2-py3-none-any.whl", hash = "sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"},
+    {file = "Jinja2-3.1.2.tar.gz", hash = "sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"},
 ]
 lockfile = [
     {file = "lockfile-0.12.2-py2.py3-none-any.whl", hash = "sha256:6c3cb24f344923d30b2785d5ad75182c8ea7ac1b6171b08657258ec7429d50fa"},
