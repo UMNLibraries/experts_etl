@@ -113,10 +113,10 @@ def load_into_scratch(session, person_dict):
     for program in person_dict['programs']:
         pure_sync_student_org_association = PureSyncStudentOrgAssociationScratch(
             affiliation_id=program['affiliation_id'],
-            student_org_association_id=program['student_org_assoc_id'],
+            student_org_association_id=program['student_org_association_id'],
             person_id=person_dict['person_id'],
-            period_start_date=program['start_date'],
-            period_end_date=program['end_date'],
+            period_start_date=program['period_start_date'],
+            period_end_date=program['period_end_date'],
             org_id=program['org_id'],
             status=program['status'],
             email_address=program['email_address'],
