@@ -87,7 +87,7 @@ type = "url"
 url = "https://github.com/UMNLibraries/dotenv_switch/raw/master/dist/dotenv_switch-0.1.2.tar.gz"
 [[package]]
 name = "experts-dw"
-version = "7.21.1"
+version = "7.21.2"
 description = "Tools for working with the Experts@Minnesota Data Warehouse."
 category = "main"
 optional = false
@@ -103,7 +103,7 @@ sqlparse = ">=0.4.2,<0.5.0"
 
 [package.source]
 type = "url"
-url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-7.21.1.tar.gz"
+url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-7.21.2.tar.gz"
 [[package]]
 name = "greenlet"
 version = "1.1.2"
@@ -504,7 +504,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1,<4.0.0"
-content-hash = "0eae0958ffea2eaef1539dd970fbee3dc253d72de19508517257399a0f5f2a96"
+content-hash = "a37bde14a77b9617431a5320b42e72fe2f155e4d842070cdb10d746c69b25f93"
 
 [metadata.files]
 addict = [
