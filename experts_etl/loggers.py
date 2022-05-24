@@ -71,7 +71,7 @@ def experts_etl_logger(name='experts_etl', dirname=dirname):
     backupCount=365
   )
   handler.setFormatter(ExpertsEtlFormatter(
-    '%(timestamp)s %(levelname)s %(name)s %(message)s %(pathname)s %(funcName)s %(lineno)d'
+    '%(timestamp)s %(levelname)s %(name)s %(message)s %(pathname)s %(funcName)s %(lineno)i'
   ))
   handler.rotator = rotator
   handler.namer = namer

@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from experts_dw import db
-from experts_dw.models import PureSyncPersonData, PureSyncStaffOrgAssociation
+from experts_dw.models import PureSyncPersonData, PureSyncStaffOrgAssociation, PureSyncStudentOrgAssociation
 from experts_etl import loggers
 
 from jinja2 import Environment, PackageLoader, Template, select_autoescape
@@ -42,6 +42,12 @@ def run(
                 ).all():
                     job_dict = {c.name: getattr(job, c.name) for c in job.__table__.columns}
                     person_dict['jobs'].append(job_dict)
+                person_dict['programs'] = []
+                for program in session.query(PureSyncStudentOrgAssociation).filter(
+                    PureSyncStudentOrgAssociation.person_id == person.person_id
+                ).all():
+                    program_dict = {c.name: getattr(program, c.name) for c in program.__table__.columns}
+                    person_dict['programs'].append(program_dict)
                 output_file.write(template.render(person_dict))
 
         output_file.write('</persons>')

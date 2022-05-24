@@ -6,12 +6,12 @@ import uuid
 from sqlalchemy import and_, func, text
 
 from experts_dw import db
-from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonDataScratch, PureSyncStaffOrgAssociationScratch, PureSyncUserDataScratch
+from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonDataScratch, PureSyncStaffOrgAssociationScratch, PureSyncStudentOrgAssociationScratch, PureSyncUserDataScratch
 from experts_dw.sqlapi import sqlapi
 from experts_etl import loggers
 from experts_etl.demographics import latest_demographics_for_emplid, latest_not_null_internet_id_for_emplid
 from experts_etl.umn_data_error import record_person_no_job_data_error
-from . import affiliate_job, employee_job, poi_job
+from . import affiliate_job, employee_job, poi_job, graduate_program
 
 # defaults:
 
@@ -45,7 +45,7 @@ def run(
             if demog.emplid == '8004768':
                 continue
             person_dict = transform(session, extract(session, demog.emplid))
-            if len(person_dict['jobs']) == 0:
+            if len(person_dict['jobs']) == 0 and len(person_dict['programs']) == 0:
                 record_person_no_job_data_error(
                     session=session,
                     emplid=demog.emplid,
@@ -77,6 +77,9 @@ def update_targets_from_scratch():
 
         sqlapi.delete_obsolete_primary_jobs()
 
+        sqlapi.update_pure_sync_student_org_association()
+        sqlapi.insert_pure_sync_student_org_association()
+
 def load_into_scratch(session, person_dict):
     pure_sync_person_data = PureSyncPersonDataScratch(
         person_id=person_dict['person_id'],
@@ -107,6 +110,19 @@ def load_into_scratch(session, person_dict):
         )
         session.add(pure_sync_staff_org_association)
 
+    for program in person_dict['programs']:
+        pure_sync_student_org_association = PureSyncStudentOrgAssociationScratch(
+            affiliation_id=program['affiliation_id'],
+            student_org_association_id=program['student_org_association_id'],
+            person_id=person_dict['person_id'],
+            period_start_date=program['period_start_date'],
+            period_end_date=program['period_end_date'],
+            org_id=program['org_id'],
+            status=program['status'],
+            email_address=program['email_address'],
+        )
+        session.add(pure_sync_student_org_association)
+
     if person_dict['internet_id'] is not None:
         pure_sync_user_data = PureSyncUserDataScratch(
             person_id=person_dict['person_id'],
@@ -120,6 +136,7 @@ def load_into_scratch(session, person_dict):
 def prepare_target_scratch_tables(engine):
     engine.execute('delete pure_sync_user_data_scratch')
     engine.execute('delete pure_sync_staff_org_association_scratch')
+    engine.execute('delete pure_sync_student_org_association_scratch')
     engine.execute('delete pure_sync_person_data_scratch')
 
 def prepare_source_tables(engine, session):
@@ -167,7 +184,7 @@ select
   tenure_flag,
   tenure_track_flag,
   to_char(primary_empl_rcdno)
-from pure_eligible_demog
+from pure_eligible_demographics
 minus
 select
   pe1.emplid,
@@ -239,6 +256,8 @@ def transform(session, person_dict):
         person_dict['middle_initial']
     )
 
+    person_dict['programs'] = graduate_program.extract_transform(session, person_dict['emplid'])
+
     employee_jobs = employee_job.extract_transform(session, person_dict['emplid'])
     poi_jobs = poi_job.extract_transform(session, person_dict['emplid'])
     affiliate_jobs = affiliate_job.extract_transform(session, person_dict['emplid'])
@@ -249,12 +268,13 @@ def transform(session, person_dict):
         person_dict['primary_empl_rcdno']
     )
 
+    person_dict['profiled'] = False
+    person_dict['visibility'] = 'Restricted'
     if len(jobs_with_primary) > 0:
         jobs = transform_staff_type(jobs_with_primary)
         person_dict['profiled'] = transform_profiled(jobs)
         person_dict['jobs'] = transform_staff_org_assoc_id(jobs, person_dict['person_id'])
 
-        person_dict['visibility'] = 'Restricted'
         for job in person_dict['jobs']:
             job['email_address'] = person_dict['instl_email_addr']
             if job['visibility'] == 'Public':
