@@ -107,6 +107,7 @@ def load_into_scratch(session, person_dict):
             primary_association=job['primary'],
             job_description=job['job_description'],
             email_address=job['email_address'],
+            deptid=job['deptid'],
         )
         session.add(pure_sync_staff_org_association)
 
