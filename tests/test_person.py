@@ -134,6 +134,7 @@ def test_transform(session):
     'tenure_track_flag': 'N',
     'visibility': 'Public',
     'profiled': True,
+    'programs': [],
     'jobs': [
       {
         'affiliation_id': '9402',
@@ -209,7 +210,7 @@ def test_serialize():
         'profiled': True,
         'staff_org_assoc_id': 'autoid:8185-IHRBIHRB-Assistant Professor-faculty-2014-08-29',
       },
-    ],
+    ]
   }
   person_xml = person.serialize(transformed_person_dict)
 
