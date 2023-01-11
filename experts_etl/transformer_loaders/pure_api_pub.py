@@ -4,6 +4,7 @@ import itertools
 import uuid
 from experts_dw import db
 from sqlalchemy import and_, func
+from sqlalchemy.exc import MultipleResultsFound
 from experts_dw.models import PureApiPub, PureApiPubHst, Pub, Person, PubPerson, PureOrg, PubPersonPureOrg, AuthorCollaboration, PubAuthorCollaboration
 from experts_etl import loggers
 from pureapi import response
@@ -303,9 +304,16 @@ def run(
                         missing_person_pure_uuid = True
                         break
 
-                    db_person = session.query(Person).filter(
-                        Person.pure_uuid == person_pure_uuid
-                    ).one_or_none()
+                    db_person = None
+                    try:
+                        db_person = session.query(Person).filter(
+                            Person.pure_uuid == person_pure_uuid
+                        ).one_or_none()
+                    except MultipleResultsFound:
+                        experts_etl_logger.error(
+                            f'multiple rows in EDW for person with Pure UUID {person_pure_uuid}',
+                            extra={'pure_uuid': api_pub.uuid, 'pure_api_record_type': pure_api_record_type}
+                        )
                     if db_person == None:
                         missing_person = True
                         break
@@ -361,6 +369,11 @@ def run(
                         break
 
                 if missing_person:
+                    experts_etl_logger.info(
+                        #'skipping updates: one or more associated persons do not exist in EDW.',
+                        'skipping updates: one or more associated persons do not exist, or have duplicates, in EDW.',
+                        extra={'pure_uuid': api_pub.uuid, 'pure_api_record_type': pure_api_record_type}
+                    )
                     experts_etl_logger.info(
                         'skipping updates: one or more associated persons do not exist in EDW.',
                         extra={'pure_uuid': api_pub.uuid, 'pure_api_record_type': pure_api_record_type}
