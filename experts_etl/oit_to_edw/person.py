@@ -41,11 +41,14 @@ def run(
 
         load_count = 0
         for demog in session.query(PureEligibleDemogChngHst.emplid).distinct().all():
+            emplid = demog.emplid
             # Stop-gap prevention of unique key constraint violation:
-            if demog.emplid == '8004768':
+            if emplid == '8004768':
                 continue
-            person_dict = transform(session, extract(session, demog.emplid))
-            if len(person_dict['jobs']) == 0 and len(person_dict['programs']) == 0:
+            person_dict = transform(session, extract(session, emplid))
+            if (len(person_dict['jobs']) == 0 and not person_has_future_staff_associations(session, emplid) \
+                and len(person_dict['programs']) == 0 and not person_has_previous_student_associations(session, emplid)
+            ):
                 record_person_no_job_data_error(
                     session=session,
                     emplid=demog.emplid,
@@ -63,6 +66,26 @@ def run(
         session.commit()
 
     experts_etl_logger.info('ending: oit -> edw', extra={'pure_sync_job': 'person'})
+
+def person_has_future_staff_associations(session, emplid):
+    # A common data entry pattern is that new employees with pure eligible jobs appear with current employment dates,
+    # which are later changed to future employment start dates, with a status flag of 'F' for 'Future', which then
+    # makes those jobs pure ineligible. Because those jobs will become eligible again after the future start dates,
+    # we check for that here to prevent treating these cases as errors.
+    staff_assocs = session.execute(f"SELECT * FROM pure_sync_staff_org_association WHERE person_id='{emplid}'").fetchall()
+    for staff_assoc in staff_assocs:
+        jobcode, deptid = staff_assoc['affiliation_id'], staff_assoc['deptid']
+        if session.execute(
+            f"SELECT COUNT(*) FROM ps_dwhr_job@dweprd.oit WHERE emplid='{emplid}' AND status_flg='F' AND jobcode='{jobcode}' AND deptid='{deptid}'"
+        ).scalar():
+            return True
+    return False
+
+def person_has_previous_student_associations(session, emplid):
+    # Because UMN creates new student data tables for each new term, some students who had data in previous tables
+    # may not have data in the newest table, for example if they have finished their programs. We check for that
+    # here to prevent treating the lack of data in our views, based on the newest table, as an error.
+    return session.execute(f"SELECT COUNT(*) FROM pure_sync_student_org_association WHERE person_id='{emplid}'").scalar()
 
 def update_targets_from_scratch():
     with sqlapi.transaction():
