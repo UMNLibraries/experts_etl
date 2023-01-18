@@ -6,6 +6,7 @@ import uuid
 from sqlalchemy import and_, func, text
 
 from experts_dw import db
+from experts_dw.grad_program import update_pure_eligible_graduate_program_view
 from experts_dw.models import PureEligiblePersonNew, PureEligiblePersonChngHst, PureEligibleDemogNew, PureEligibleDemogChngHst, Person, PureSyncPersonDataScratch, PureSyncStaffOrgAssociationScratch, PureSyncStudentOrgAssociationScratch, PureSyncUserDataScratch
 from experts_dw.sqlapi import sqlapi
 from experts_etl import loggers
@@ -164,6 +165,11 @@ def prepare_target_scratch_tables(engine):
     engine.execute('delete pure_sync_person_data_scratch')
 
 def prepare_source_tables(engine, session):
+    # Yes, this is an ugly way to use a cx_Oracle cursor. Will have to do
+    # for now, until we modify this whole codebase to use them.
+    with db.cx_oracle_connection() as conn:
+        update_pure_eligible_graduate_program_view(conn.cursor())
+
     update_pure_eligible_persons(engine, session)
     update_pure_eligible_demographics(engine, session)
 
