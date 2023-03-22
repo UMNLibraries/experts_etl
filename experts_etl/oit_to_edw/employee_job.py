@@ -207,7 +207,7 @@ def group_entries(entries):
     return []
 
   df = pd.DataFrame(data=entries)
-  position_nbr_groups = df.groupby(['position_nbr'])
+  position_nbr_groups = df.groupby('position_nbr')
 
   entry_groups = []
   for position_nbr, position_entry_rows in position_nbr_groups:
