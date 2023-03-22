@@ -40,7 +40,6 @@ def entries_to_group(request):
   yield entries_set
 
 def test_group_entries(entries_to_group):
-  print(entries_to_group.entry_groups)
   assert poi_job.group_entries(entries_to_group.entries) == entries_to_group.entry_groups
   assert poi_job.group_entries([]) == []
 
