@@ -48,15 +48,6 @@ def run(
             for api_document in client.filter_all_by_uuid_transformed(collection_api_name, uuids=uuids, config=client_config):
                 uuids_in_pure.append(api_document.uuid)
 
-                if pure_json.document_exists(
-                    cursor,
-                    uuid=api_document.uuid,
-                    collection_api_name=collection_api_name,
-                    api_version=api_version,
-                    staging=True
-                ):
-                    continue
-
                 documents_to_insert[f'{api_document.uuid}:{api_document.version}'] = {
                     'uuid': api_document.uuid,
                     'pure_created': datetime.strptime(api_document.info.createdDate, iso_8601_format),

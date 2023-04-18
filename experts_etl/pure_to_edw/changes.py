@@ -34,25 +34,6 @@ def required_fields_exist(api_document):
             return False
     return True
 
-def same_or_newer_db_change_exists(cursor, api_document, api_version):
-    max_change_version = pure_json.max_pure_version_for_change_uuid(
-        cursor,
-        uuid=api_document.uuid,
-        api_version=api_version
-    )
-    if max_change_version is not None and max_change_version >= api_document.version:
-        return True
-
-    max_change_history_version = pure_json.max_pure_version_for_change_history_uuid(
-        cursor,
-        uuid=api_document.uuid,
-        api_version=api_version
-    )
-    if max_change_history_version is not None and max_change_history_version >= api_document.version:
-        return True
-
-    return False
-
 # entry point/public api:
 
 def run(
@@ -85,8 +66,6 @@ def run(
                 if not required_fields_exist(api_document):
                     continue
                 if api_document.familySystemName not in family_system_names:
-                    continue
-                if same_or_newer_db_change_exists(cursor, api_document, api_version):
                     continue
 
                 # We make this a dict with unique keys to avoid attempts to insert duplicates:
