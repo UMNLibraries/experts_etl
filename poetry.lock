@@ -87,7 +87,7 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "experts-dw"
-version = "7.25.0"
+version = "7.25.1"
 description = "Tools for working with the Experts@Minnesota Data Warehouse."
 category = "main"
 optional = false
@@ -103,7 +103,7 @@ sqlparse = ">=0.4.2,<0.5.0"
 
 [package.source]
 type = "url"
-url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-7.25.0.tar.gz"
+url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-7.25.1.tar.gz"
 [[package]]
 name = "greenlet"
 version = "2.0.2"
@@ -465,7 +465,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "b958e3514c0a01a4c6b8368df31c0a37ed8ab27af5e79ba4b45bddfa2f2c7d9e"
+content-hash = "dc96e8b279af394e995d38bc0303c7546143449cc2cc191a728c9c3c7d6ae1e7"
 
 [metadata.files]
 addict = [
