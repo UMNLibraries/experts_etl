@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "experts_etl"
-version = "5.19.2"
+version = "5.19.3"
 description = "Moves data from UMN to Pure (Experts@Minnesota), and vice versa."
 readme = "README.md"
 authors = ["David Naughton <naughton@umn.edu>", "Michael Berkowski <mjb@umn.edu"]
@@ -8,7 +8,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-experts_dw = {url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-7.25.2.tar.gz"}
+experts_dw = {url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-7.25.3.tar.gz"}
 jinja2 = "^3.0.1"
 pandas = ">=1.3"
 pureapi = {url = "https://github.com/UMNLibraries/pureapi/raw/main/dist/pureapi-4.5.0.tar.gz"}
