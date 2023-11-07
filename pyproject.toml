@@ -3,7 +3,7 @@ name = "experts_etl"
 version = "5.19.6"
 description = "Moves data from UMN to Pure (Experts@Minnesota), and vice versa."
 readme = "README.md"
-authors = ["David Naughton <naughton@umn.edu>", "Michael Berkowski <mjb@umn.edu>"]
+authors = ["David Naughton <naughton@umn.edu>", "Michael Berkowski <mjb@umn.edu>", "John Barneson <barne102@umn.edu>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
