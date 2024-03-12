@@ -1,5 +1,3 @@
-from dateutil.parser import isoparse
-
 from sqlalchemy import and_, func
 
 from experts_dw import db
@@ -8,6 +6,7 @@ from pureapi import client, response
 from pureapi.client import Config, PureAPIRequestException, PureAPIHTTPError
 from experts_etl import loggers
 from experts_etl.changes_buffer_managers import changes_for_family_ordered_by_uuid_version, record_changes_as_processed
+from experts_etl.iso_datestr_parser import datetime_sans_ms_tz
 
 # defaults:
 
@@ -19,7 +18,7 @@ pure_api_record_type = 'persons'
 # functions:
 
 def already_loaded_same_api_internal_person(session, api_internal_person):
-    api_internal_person_modified = isoparse(
+    api_internal_person_modified = datetime_sans_ms_tz(
         api_internal_person.info.modifiedDate
     )
     db_api_internal_person = (
@@ -73,20 +72,21 @@ def delete_merged_records(session, api_person):
             delete_db_person(session, db_person)
 
 def db_person_same_or_newer_than_api_internal_person(session, db_person, api_internal_person):
-    # We need the replace(tzinfo=None) here, or we get errors like:
-    # TypeError: can't compare offset-naive and offset-aware datetimes
-    api_internal_person_modified = isoparse(
+    api_internal_person_modified = datetime_sans_ms_tz(
         api_internal_person.info.modifiedDate
-    ).replace(tzinfo=None)
+    )
     if db_person.pure_modified and db_person.pure_modified >= api_internal_person_modified:
         return True
     return False
 
 def load_api_internal_person(session, api_internal_person, raw_json):
+    api_internal_person_modified = datetime_sans_ms_tz(
+        api_internal_person.info.modifiedDate
+    )
     db_api_internal_person = PureApiInternalPerson(
         uuid=api_internal_person.uuid,
         json=raw_json,
-        modified=isoparse(api_internal_person.info.modifiedDate)
+        modified=api_internal_person_modified
     )
     session.add(db_api_internal_person)
 

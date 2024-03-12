@@ -1,5 +1,3 @@
-from dateutil.parser import isoparse
-
 from sqlalchemy import and_, func
 
 from experts_dw import db
@@ -8,6 +6,7 @@ from pureapi import client, response
 from pureapi.client import Config, PureAPIRequestException, PureAPIHTTPError
 from experts_etl import loggers
 from experts_etl.changes_buffer_managers import changes_for_family_ordered_by_uuid_version, record_changes_as_processed
+from experts_etl.iso_datestr_parser import datetime_sans_ms_tz
 
 # defaults:
 
@@ -19,7 +18,7 @@ pure_api_record_type = 'organisational-units'
 # functions:
 
 def already_loaded_same_api_internal_org(session, api_internal_org):
-    api_internal_org_modified = isoparse(
+    api_internal_org_modified = datetime_sans_ms_tz(
         api_internal_org.info.modifiedDate
     )
     db_api_internal_org = (
@@ -84,20 +83,21 @@ def delete_merged_records(session, api_org):
             delete_db_org(session, db_org)
 
 def db_org_same_or_newer_than_api_internal_org(session, db_org, api_internal_org):
-    # We need the replace(tzinfo=None) here, or we get errors like:
-    # TypeError: can't compare offset-naive and offset-aware datetimes
-    api_internal_org_modified = isoparse(
+    api_internal_org_modified = datetime_sans_ms_tz(
         api_internal_org.info.modifiedDate
-    ).replace(tzinfo=None)
+    )
     if db_org.pure_modified and db_org.pure_modified >= api_internal_org_modified:
         return True
     return False
 
 def load_api_internal_org(session, api_internal_org, raw_json):
+    api_internal_org_modified = datetime_sans_ms_tz(
+        api_internal_org.info.modifiedDate
+    )
     db_api_internal_org = PureApiInternalOrg(
         uuid=api_internal_org.uuid,
         json=raw_json,
-        modified=isoparse(api_internal_org.info.modifiedDate)
+        modified=api_internal_org_modified
     )
     session.add(db_api_internal_org)
 

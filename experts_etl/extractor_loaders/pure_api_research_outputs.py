@@ -1,4 +1,4 @@
-from dateutil.parser import isoparse
+import json
 
 from sqlalchemy import and_, func
 
@@ -8,6 +8,19 @@ from pureapi import client, response
 from pureapi.client import Config, PureAPIRequestException, PureAPIHTTPError
 from experts_etl import loggers
 from experts_etl.changes_buffer_managers import changes_for_family_ordered_by_uuid_version, record_changes_as_processed
+from experts_etl.iso_datestr_parser import datetime_sans_ms_tz
+from experts_etl.extractor_loaders.pure_api_external_persons import \
+    get_db_person, \
+    db_person_same_or_newer_than_api_external_person, \
+    already_loaded_same_api_external_person, \
+    load_api_external_person, \
+    external_person_external_org_uuids, \
+    load_external_orgs
+from experts_etl.extractor_loaders.pure_api_external_organisations import \
+    get_db_org, \
+    db_org_same_or_newer_than_api_external_org, \
+    already_loaded_same_api_external_org, \
+    load_api_external_org
 
 # defaults:
 
@@ -40,8 +53,31 @@ supported_pure_types = {
 
 # functions:
 
+def pub_external_person_uuids(api_pub):
+    return {
+        person_assoc.externalPerson.uuid
+        for person_assoc in api_pub.personAssociations
+        if 'externalPerson' in person_assoc
+    }
+
+def load_external_persons(session, external_person_uuids: set):
+    external_org_uuids = set()
+    for api_external_person in client.filter_all_by_uuid_transformed('external-persons', uuids=list(external_person_uuids)):
+        db_person = get_db_person(session, api_external_person.uuid)
+        if db_person and db_person_same_or_newer_than_api_external_person(session, db_person, api_external_person):
+            continue
+        if already_loaded_same_api_external_person(session, api_external_person):
+            continue
+        load_api_external_person(session, api_external_person, json.dumps(api_external_person))
+
+        external_org_uuids.update(
+            external_person_external_org_uuids(api_external_person)
+        )
+
+    return external_org_uuids
+
 def already_loaded_same_api_pub(session, api_pub):
-    api_pub_modified = isoparse(
+    api_pub_modified = datetime_sans_ms_tz(
         api_pub.info.modifiedDate
     )
     db_api_pub = (
@@ -85,20 +121,21 @@ def delete_merged_records(session, api_pub):
             delete_db_pub(session, db_pub)
 
 def db_pub_same_or_newer_than_api_pub(session, db_pub, api_pub):
-    # We need the replace(tzinfo=None) here, or we get errors like:
-    # TypeError: can't compare offset-naive and offset-aware datetimes
-    api_pub_modified = isoparse(
+    api_pub_modified = datetime_sans_ms_tz(
         api_pub.info.modifiedDate
-    ).replace(tzinfo=None)
+    )
     if db_pub.pure_modified and db_pub.pure_modified >= api_pub_modified:
         return True
     return False
 
 def load_api_pub(session, api_pub, raw_json):
+    api_pub_modified = datetime_sans_ms_tz(
+        api_pub.info.modifiedDate
+    )
     db_api_pub = PureApiPub(
         uuid=api_pub.uuid,
         json=raw_json,
-        modified=isoparse(api_pub.info.modifiedDate)
+        modified=api_pub_modified
     )
     session.add(db_api_pub)
 
@@ -124,6 +161,7 @@ def run(
 
     try:
         with db.session(db_name) as session:
+            external_person_uuids = set()
             processed_changes = []
             for changes in changes_for_family_ordered_by_uuid_version(session, 'ResearchOutput'):
                 latest_change = changes[0]
@@ -192,6 +230,10 @@ def run(
                     continue
                 if already_loaded_same_api_pub(session, api_pub):
                     continue
+
+                external_person_uuids.update(
+                    pub_external_person_uuids(api_pub)
+                )
                 load_api_pub(session, api_pub, r.text)
 
                 processed_changes.extend(changes)
@@ -200,6 +242,10 @@ def run(
                     processed_changes = []
                     session.commit()
 
+            load_external_orgs(
+                session,
+                load_external_persons(session, external_person_uuids)
+            )
             record_changes_as_processed(session, processed_changes)
             session.commit()
 

@@ -1,5 +1,3 @@
-from dateutil.parser import isoparse
-
 from sqlalchemy import and_, func
 
 from experts_dw import db
@@ -8,6 +6,7 @@ from pureapi import client, response
 from pureapi.client import Config, PureAPIRequestException, PureAPIHTTPError
 from experts_etl import loggers
 from experts_etl.changes_buffer_managers import changes_for_family_ordered_by_uuid_version, record_changes_as_processed
+from experts_etl.iso_datestr_parser import datetime_sans_ms_tz
 
 # defaults:
 
@@ -19,9 +18,10 @@ pure_api_record_type = 'external-organisations'
 # functions:
 
 def already_loaded_same_api_external_org(session, api_external_org):
-    api_external_org_modified = isoparse(
+    api_external_org_modified = datetime_sans_ms_tz(
         api_external_org.info.modifiedDate
     )
+
     db_api_external_org = (
         session.query(PureApiExternalOrg)
         .filter(and_(
@@ -61,20 +61,21 @@ def delete_merged_records(session, api_org):
             delete_db_org(session, db_org)
 
 def db_org_same_or_newer_than_api_external_org(session, db_org, api_external_org):
-    # We need the replace(tzinfo=None) here, or we get errors like:
-    # TypeError: can't compare offset-naive and offset-aware datetimes
-    api_external_org_modified = isoparse(
+    api_external_org_modified = datetime_sans_ms_tz(
         api_external_org.info.modifiedDate
-    ).replace(tzinfo=None)
+    )
     if db_org.pure_modified and db_org.pure_modified >= api_external_org_modified:
         return True
     return False
 
 def load_api_external_org(session, api_external_org, raw_json):
+    api_external_org_modified = datetime_sans_ms_tz(
+        api_external_org.info.modifiedDate
+    )
     db_api_external_org = PureApiExternalOrg(
         uuid=api_external_org.uuid,
         json=raw_json,
-        modified=isoparse(api_external_org.info.modifiedDate)
+        modified=api_external_org_modified
     )
     session.add(db_api_external_org)
 

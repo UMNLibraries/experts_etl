@@ -1,4 +1,4 @@
-from dateutil.parser import isoparse
+import json
 
 from sqlalchemy import and_, func
 
@@ -8,6 +8,12 @@ from pureapi import client, response
 from pureapi.client import Config, PureAPIRequestException, PureAPIHTTPError
 from experts_etl import loggers
 from experts_etl.changes_buffer_managers import changes_for_family_ordered_by_uuid_version, record_changes_as_processed
+from experts_etl.iso_datestr_parser import datetime_sans_ms_tz
+from experts_etl.extractor_loaders.pure_api_external_organisations import \
+    get_db_org, \
+    db_org_same_or_newer_than_api_external_org, \
+    already_loaded_same_api_external_org, \
+    load_api_external_org
 
 # defaults:
 
@@ -18,8 +24,20 @@ pure_api_record_type = 'external-persons'
 
 # functions:
 
+def external_person_external_org_uuids(api_external_person):
+    return {org.uuid for org in api_external_person.externalOrganisations}
+
+def load_external_orgs(session, external_org_uuids: set):
+    for api_external_org in client.filter_all_by_uuid_transformed('external-organisations', uuids=list(external_org_uuids)):
+        db_org = get_db_org(session, api_external_org.uuid)
+        if db_org and db_org_same_or_newer_than_api_external_org(session, db_org, api_external_org):
+            continue
+        if already_loaded_same_api_external_org(session, api_external_org):
+            continue
+        load_api_external_org(session, api_external_org, json.dumps(api_external_org))
+
 def already_loaded_same_api_external_person(session, api_external_person):
-    api_external_person_modified = isoparse(
+    api_external_person_modified = datetime_sans_ms_tz(
         api_external_person.info.modifiedDate
     )
     db_api_external_person = (
@@ -69,20 +87,21 @@ def delete_merged_records(session, api_person):
             delete_db_person(session, db_person)
 
 def db_person_same_or_newer_than_api_external_person(session, db_person, api_external_person):
-    # We need the replace(tzinfo=None) here, or we get errors like:
-    # TypeError: can't compare offset-naive and offset-aware datetimes
-    api_external_person_modified = isoparse(
+    api_external_person_modified = datetime_sans_ms_tz(
         api_external_person.info.modifiedDate
-    ).replace(tzinfo=None)
+    )
     if db_person.pure_modified and db_person.pure_modified >= api_external_person_modified:
         return True
     return False
 
 def load_api_external_person(session, api_external_person, raw_json):
+    api_external_person_modified = datetime_sans_ms_tz(
+        api_external_person.info.modifiedDate
+    )
     db_api_external_person = PureApiExternalPerson(
         uuid=api_external_person.uuid,
         json=raw_json,
-        modified=isoparse(api_external_person.info.modifiedDate)
+        modified=api_external_person_modified
     )
     session.add(db_api_external_person)
 
@@ -108,6 +127,7 @@ def run(
 
     try:
         with db.session(db_name) as session:
+            external_org_uuids = set()
             processed_changes = []
             for changes in changes_for_family_ordered_by_uuid_version(session, 'ExternalPerson'):
                 latest_change = changes[0]
@@ -166,6 +186,10 @@ def run(
                     continue
                 if already_loaded_same_api_external_person(session, api_external_person):
                     continue
+
+                external_org_uuids.update(
+                    external_person_external_org_uuids(api_external_person)
+                )
                 load_api_external_person(session, api_external_person, r.text)
 
                 processed_changes.extend(changes)
@@ -174,6 +198,7 @@ def run(
                     processed_changes = []
                     session.commit()
 
+            load_external_orgs(session, external_org_uuids)
             record_changes_as_processed(session, processed_changes)
             session.commit()
 
