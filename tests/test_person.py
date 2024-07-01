@@ -1,220 +1,254 @@
-import datetime, pytest
+from datetime import datetime
+from importlib import import_module
+
+import pytest
+from pytest_unordered import unordered
+
 from experts_dw import db
 from experts_etl.oit_to_edw import person
 
 @pytest.fixture
 def session():
-  with db.session('hotel') as session:
-    yield session
+    with db.session('hotel') as session:
+        yield session
 
 def test_extract(session):
-  person_dict = person.extract(session, '5150075')
-
-  expected_person_dict = {
-    'scival_id': '8185',
-    'emplid': '5150075',
-    'internet_id': 'mbezada',
-    'name': 'Bezada Vierma,Maximiliano J',
-    'first_name': 'Maximiliano',
-    'middle_initial': ' ',
-    'last_name': 'Bezada',
-    'name_suffix': None,
-    'instl_email_addr': 'mbezada@umn.edu',
-    'tenure_flag': 'Y',
-    'tenure_track_flag': 'N',
-    'primary_empl_rcdno': '0',
-    'timestamp': datetime.datetime(2020,8,13,10,10,3),
-  }
-
-  assert person_dict == expected_person_dict
+    person_dict = person.extract(session, emplid='5150075')
+  
+    expected_person_dict = {
+        'scival_id': '8185',
+        'emplid': '5150075',
+        'internet_id': 'mbezada',
+        'name': 'Bezada Vierma,Maximiliano J',
+        'first_name': 'Maximiliano',
+        'middle_initial': ' ',
+        'last_name': 'Bezada',
+        'name_suffix': None,
+        'instl_email_addr': 'mbezada@umn.edu',
+        'tenure_flag': 'Y',
+        'tenure_track_flag': 'N',
+        'primary_empl_rcdno': '0',
+        'timestamp': datetime(2020,8,13,10,10,3),
+    }
+  
+    assert person_dict == expected_person_dict
 
 def test_transform_person_id():
-  scival_id = '8185'
-  emplid = '5150075'
-
-  assert person.transform_person_id(emplid, scival_id) == scival_id
-  # Case where scival_id == emplid:
-  assert person.transform_person_id(emplid, emplid) == emplid
-  assert person.transform_person_id(emplid, None) == emplid
+    scival_id = '8185'
+    emplid = '5150075'
+  
+    assert person.transform_person_id(emplid, scival_id) == scival_id
+    # Case where scival_id == emplid:
+    assert person.transform_person_id(emplid, emplid) == emplid
+    assert person.transform_person_id(emplid, None) == emplid
 
 def test_transform_first_name():
-  first_name = 'Alex'
-  middle_initial = 'J'
+    first_name = 'Alex'
+    middle_initial = 'J'
+  
+    assert person.transform_first_name(first_name, middle_initial) == 'Alex J'
+    assert person.transform_first_name(first_name, ' ') == 'Alex'
+    assert person.transform_first_name(first_name, None) == 'Alex'
 
-  assert person.transform_first_name(first_name, middle_initial) == 'Alex J'
-  assert person.transform_first_name(first_name, ' ') == 'Alex'
-  assert person.transform_first_name(first_name, None) == 'Alex'
+def load_person_data(emplid):
+    return import_module(f'..data.emplid_{emplid}.person', package=__name__)
 
-@pytest.fixture
-def jobs():
-  from . import employee_jobs_1217312
-  return employee_jobs_1217312
+def load_multi_person_data(emplids):
+    return {
+        emplid: load_person_data(emplid)
+        for emplid in emplids
+    }
 
-def test_transform_staff_org_assoc_id(jobs):
-  # Trouble-shooting queries:
-  # select * from pure_eligible_emp_job where emplid = '1217312' order by effdt, effseq;
+employee_only_emplids = ['4604830','2110507']
+persons_employee_only_datasets = load_multi_person_data(employee_only_emplids)
+@pytest.fixture(params=employee_only_emplids)
+def person_employee_only_data(request):
+    yield persons_employee_only_datasets[request.param]
+def test_transform_jobs_employee_only(person_employee_only_data):
+    assert person.transform_primary_job(
+        affiliate_jobs=[],
+        poi_jobs=[],
+        employee_jobs=person_employee_only_data.employee_jobs,
+        primary_empl_rcdno=person_employee_only_data.primary_empl_rcdno,
+    ) == unordered(person_employee_only_data.jobs_with_primary)
 
-  # select emplid, status_flg, count(*) from pure_eligible_emp_job where status_flg = 'C' group by emplid, status_flg having count(*) > 1;
-  # select * from pure_eligible_emp_job where emplid = '8003946' order by effdt, effseq;
-  assert person.transform_staff_org_assoc_id(jobs.jobs_with_primary, '6030') == jobs.jobs_with_staff_org_assoc_id
+def test_transform_primary_job_both_employee_and_affiliate():
+    # In this case, the only current job is an affiliate job, so it should be primary.
+    data = load_person_data(emplid='1905842')
+    assert person.transform_primary_job(
+        affiliate_jobs=data.affiliate_jobs,
+        poi_jobs=[],
+        employee_jobs=data.employee_jobs,
+        primary_empl_rcdno=data.primary_empl_rcdno,
+    ) == unordered(data.jobs_with_primary)
 
-@pytest.fixture(params=['4604830','2110507'])
-def jobs_before_after_primary(request):
-  from . import emp_job_entries_4604830
-  from . import employee_jobs_2110507
-  job_sets = {
-    '4604830': emp_job_entries_4604830,
-    '2110507': employee_jobs_2110507,
-  }
-  job_set = job_sets[request.param]
-  yield job_set
+def test_transform_primary_job_both_employee_and_poi():
+    data = load_person_data(emplid='2898289')
+    assert person.transform_primary_job(
+        affiliate_jobs=[],
+        poi_jobs=data.poi_jobs,
+        employee_jobs=data.employee_jobs,
+        primary_empl_rcdno=data.primary_empl_rcdno
+    ) == unordered(data.jobs_with_primary)
 
-def test_transform_primary_job(jobs_before_after_primary):
-  assert person.transform_primary_job([], [], jobs_before_after_primary.jobs, '0') == jobs_before_after_primary.jobs_with_primary
+def test_transform_primary_job_poi_only():
+    data = load_person_data(emplid='5575725')
+    assert person.transform_primary_job(
+        affiliate_jobs=[],
+        poi_jobs=data.poi_jobs,
+        employee_jobs=[],
+        primary_empl_rcdno=data.primary_empl_rcdno
+    ) == unordered(data.jobs_with_primary)
 
-@pytest.fixture(params=['1217312','2110507'])
-def jobs_with_transformed_staff_type(request):
-  from . import employee_jobs_1217312
-  from . import employee_jobs_2110507
-  job_sets = {
-    '1217312': employee_jobs_1217312,
-    '2110507': employee_jobs_2110507,
-  }
-  job_set = job_sets[request.param]
-  yield job_set
+def test_transform_staff_org_assoc_id():
+    data = load_person_data(emplid='1217312')
+    # Trouble-shooting queries:
+    # select * from pure_eligible_emp_job where emplid = '1217312' order by effdt, effseq;
+  
+    # select emplid, status_flg, count(*) from pure_eligible_emp_job where status_flg = 'C' group by emplid, status_flg having count(*) > 1;
+    # select * from pure_eligible_emp_job where emplid = '8003946' order by effdt, effseq;
+    assert person.transform_staff_org_assoc_id(
+        jobs=data.jobs_with_primary,
+        person_id=data.person_id,
+    ) == unordered(data.jobs_with_staff_org_assoc_id)
 
-def test_transform_staff_type(jobs_with_transformed_staff_type):
-  assert person.transform_staff_type(jobs_with_transformed_staff_type.jobs_with_primary) == jobs_with_transformed_staff_type.jobs_with_transformed_staff_type
+emplids_with_staff_type = ['1217312','2110507','2898289','5575725']
+persons_with_staff_type_datasets = load_multi_person_data(emplids_with_staff_type)
+@pytest.fixture(params=emplids_with_staff_type)
+def person_with_staff_type_data(request):
+    yield persons_with_staff_type_datasets[request.param]
 
-@pytest.fixture(params=['1217312','2110507'])
-def jobs_with_transformed_profiled(request):
-  from . import employee_jobs_1217312
-  from . import employee_jobs_2110507
-  from . import emp_job_entries_1082441
-  job_sets = {
-    '1217312': employee_jobs_1217312,
-    '2110507': employee_jobs_2110507,
-    '1082441': emp_job_entries_1082441,
-  }
-  job_set = job_sets[request.param]
-  yield job_set
+def test_transform_staff_type(person_with_staff_type_data):
+    assert person.transform_staff_type(
+        jobs_with_primary=person_with_staff_type_data.jobs_with_primary
+    ) == unordered(person_with_staff_type_data.jobs_with_transformed_staff_type)
 
-def test_transform_profiled(jobs_with_transformed_profiled):
-  assert person.transform_profiled(jobs_with_transformed_profiled.jobs_with_primary) == jobs_with_transformed_profiled.transformed_profiled
+emplids_with_profiled = ['1217312','2110507','1082441','2898289','5575725']
+persons_with_profiled_datasets = load_multi_person_data(emplids_with_profiled)
+@pytest.fixture(params=emplids_with_profiled)
+def person_with_profiled_data(request):
+    yield persons_with_profiled_datasets[request.param]
+
+def test_transform_profiled(person_with_profiled_data):
+    assert person.transform_profiled(
+        jobs_with_primary=person_with_profiled_data.jobs_with_primary
+    ) == person_with_profiled_data.transformed_profiled
 
 def test_transform(session):
-  person_dict = {
-    'scival_id': '8185',
-    'emplid': '5150075',
-    'internet_id': 'mbezada',
-    'name': 'Bezada Vierma,Maximiliano J',
-    'first_name': 'Maximiliano',
-    'middle_initial': ' ',
-    'last_name': 'Bezada',
-    'name_suffix': None,
-    'instl_email_addr': 'mbezada@umn.edu',
-    'tenure_flag': 'Y',
-    'tenure_track_flag': 'N',
-    'primary_empl_rcdno': '0',
-  }
-  transformed_person_dict = person.transform(session, person_dict)
-  expected_transformed_person_dict = {
-    'emplid': '5150075',
-    'first_name': 'Maximiliano',
-    'instl_email_addr': 'mbezada@umn.edu',
-    'internet_id': 'mbezada',
-    'last_name': 'Bezada',
-    'middle_initial': ' ',
-    'name': 'Bezada Vierma,Maximiliano J',
-    'name_suffix': None,
-    'person_id': '8185',
-    'primary_empl_rcdno': '0',
-    'scival_id': '8185',
-    'tenure_flag': 'Y',
-    'tenure_track_flag': 'N',
-    'visibility': 'Public',
-    'profiled': True,
-    'programs': [],
-    'jobs': [
-      {
-        'affiliation_id': '9402',
-        'deptid': '11130',
-        'email_address': 'mbezada@umn.edu',
-        'um_campus': 'TXXX',
-        'empl_rcdno': '0',
-        'employment_type': 'faculty',
-        'end_date': None,
-        'job_title': 'Associate Professor',
-        'job_description': 'Associate Professor',
-        'org_id': 'IHRBIHRB',
-        'staff_type': 'academic',
-        'start_date': datetime.datetime(2020, 8, 31, 0, 0),
-        'primary': True,
+    transformed_person_dict = person.transform(
+        session,
+        person_dict={
+            'scival_id': '8185',
+            'emplid': '5150075',
+            'internet_id': 'mbezada',
+            'name': 'Bezada Vierma,Maximiliano J',
+            'first_name': 'Maximiliano',
+            'middle_initial': ' ',
+            'last_name': 'Bezada',
+            'name_suffix': None,
+            'instl_email_addr': 'mbezada@umn.edu',
+            'tenure_flag': 'Y',
+            'tenure_track_flag': 'N',
+            'primary_empl_rcdno': '0',
+        }
+    )
+    expected_transformed_person_dict = {
+        'emplid': '5150075',
+        'first_name': 'Maximiliano',
+        'instl_email_addr': 'mbezada@umn.edu',
+        'internet_id': 'mbezada',
+        'last_name': 'Bezada',
+        'middle_initial': ' ',
+        'name': 'Bezada Vierma,Maximiliano J',
+        'name_suffix': None,
+        'person_id': '8185',
+        'primary_empl_rcdno': '0',
+        'scival_id': '8185',
+        'tenure_flag': 'Y',
+        'tenure_track_flag': 'N',
         'visibility': 'Public',
         'profiled': True,
-        'staff_org_assoc_id': 'autoid:8185-IHRBIHRB-Associate Professor-faculty-2020-08-31',
-      },
-      {
-        'affiliation_id': '9403',
-        'deptid': '11130',
-        'email_address': 'mbezada@umn.edu',
-        'um_campus': 'TXXX',
-        'empl_rcdno': '0',
-        'employment_type': 'faculty',
-        'end_date': datetime.datetime(2020, 8, 31, 0, 0),
-        'job_title': 'Assistant Professor',
-        'job_description': 'Assistant Professor',
-        'org_id': 'IHRBIHRB',
-        'staff_type': 'nonacademic',
-        'start_date': datetime.datetime(2014, 8, 29, 0, 0),
-        'primary': False,
-        'visibility': 'Restricted',
-        'profiled': False,
-        'staff_org_assoc_id': 'autoid:8185-IHRBIHRB-Assistant Professor-faculty-2014-08-29',
-      },
-    ],
-  }
-  assert transformed_person_dict == expected_transformed_person_dict
+        'programs': [],
+        'jobs': [
+            {
+                'affiliation_id': '9402',
+                'deptid': '11130',
+                'email_address': 'mbezada@umn.edu',
+                'um_campus': 'TXXX',
+                'empl_rcdno': '0',
+                'employment_type': 'faculty',
+                'end_date': None,
+                'job_title': 'Associate Professor',
+                'job_description': 'Associate Professor',
+                'org_id': 'IHRBIHRB',
+                'staff_type': 'academic',
+                'start_date': datetime(2020, 8, 31, 0, 0),
+                'primary': True,
+                'visibility': 'Public',
+                'profiled': True,
+                'staff_org_assoc_id': 'autoid:8185-IHRBIHRB-Associate Professor-faculty-2020-08-31',
+            },
+            {
+                'affiliation_id': '9403',
+                'deptid': '11130',
+                'email_address': 'mbezada@umn.edu',
+                'um_campus': 'TXXX',
+                'empl_rcdno': '0',
+                'employment_type': 'faculty',
+                'end_date': datetime(2020, 8, 31, 0, 0),
+                'job_title': 'Assistant Professor',
+                'job_description': 'Assistant Professor',
+                'org_id': 'IHRBIHRB',
+                'staff_type': 'nonacademic',
+                'start_date': datetime(2014, 8, 29, 0, 0),
+                'primary': False,
+                'visibility': 'Restricted',
+                'profiled': False,
+                'staff_org_assoc_id': 'autoid:8185-IHRBIHRB-Assistant Professor-faculty-2014-08-29',
+            },
+        ],
+    }
+    assert transformed_person_dict == expected_transformed_person_dict
 
 @pytest.mark.skip(reason="serialization moved to edw_to_pure modules")
 def test_serialize():
-  transformed_person_dict = {
-    'emplid': '5150075',
-    'first_name': 'Maximiliano',
-    'instl_email_addr': 'mbezada@umn.edu',
-    'internet_id': 'mbezada',
-    'last_name': 'Bezada',
-    'middle_initial': ' ',
-    'name': 'Bezada Vierma,Maximiliano J',
-    'name_suffix': None,
-    'person_id': '8185',
-    'primary_empl_rcdno': '0',
-    'scival_id': '8185',
-    'tenure_flag': 'N',
-    'tenure_track_flag': 'Y',
-    'visibility': 'Public',
-    'profiled': True,
-    'jobs': [
-      {
-        'deptid': '11130',
-        'jobcode': '9403',
-        'empl_rcdno': '0',
-        'employment_type': 'faculty',
-        'end_date': None,
-        'job_title': 'Assistant Professor',
-        'org_id': 'IHRBIHRB',
-        'staff_type': 'academic',
-        'start_date': datetime.datetime(2014, 8, 29, 0, 0),
-	'primary': True,
+    transformed_person_dict = {
+        'emplid': '5150075',
+        'first_name': 'Maximiliano',
+        'instl_email_addr': 'mbezada@umn.edu',
+        'internet_id': 'mbezada',
+        'last_name': 'Bezada',
+        'middle_initial': ' ',
+        'name': 'Bezada Vierma,Maximiliano J',
+        'name_suffix': None,
+        'person_id': '8185',
+        'primary_empl_rcdno': '0',
+        'scival_id': '8185',
+        'tenure_flag': 'N',
+        'tenure_track_flag': 'Y',
         'visibility': 'Public',
         'profiled': True,
-        'staff_org_assoc_id': 'autoid:8185-IHRBIHRB-Assistant Professor-faculty-2014-08-29',
-      },
-    ]
-  }
-  person_xml = person.serialize(transformed_person_dict)
+        'jobs': [
+            {
+                'deptid': '11130',
+                'jobcode': '9403',
+                'empl_rcdno': '0',
+                'employment_type': 'faculty',
+                'end_date': None,
+                'job_title': 'Assistant Professor',
+                'org_id': 'IHRBIHRB',
+                'staff_type': 'academic',
+                'start_date': datetime(2014, 8, 29, 0, 0),
+        	    'primary': True,
+                'visibility': 'Public',
+                'profiled': True,
+                'staff_org_assoc_id': 'autoid:8185-IHRBIHRB-Assistant Professor-faculty-2014-08-29',
+            },
+        ]
+    }
+    person_xml = person.serialize(transformed_person_dict)
 
-  expected_person_xml = """<person id="8185">
+    expected_person_xml = """<person id="8185">
   <name>
     <v3:firstname>Maximiliano</v3:firstname>
     <v3:lastname>Bezada</v3:lastname>
@@ -246,13 +280,13 @@ def test_serialize():
   <profiled>true</profiled>
 </person>"""
 
-  assert person_xml == expected_person_xml
+    assert person_xml == expected_person_xml
 
 @pytest.mark.skip(reason="serialization moved to edw_to_pure modules")
 def test_extract_transform_serialize(session):
-  person_xml = person.extract_transform_serialize(session, '5150075')
+    person_xml = person.extract_transform_serialize(session, '5150075')
 
-  expected_person_xml = """<person id="8185">
+    expected_person_xml = """<person id="8185">
   <name>
     <v3:firstname>Maximiliano</v3:firstname>
     <v3:lastname>Bezada</v3:lastname>
@@ -284,11 +318,11 @@ def test_extract_transform_serialize(session):
   <profiled>true</profiled>
 </person>"""
 
-  assert person_xml == expected_person_xml
+    assert person_xml == expected_person_xml
 
-  person_xml_2 = person.extract_transform_serialize(session, '2585238')
+    person_xml_2 = person.extract_transform_serialize(session, '2585238')
 
-  expected_person_xml_2 = """<person id="898">
+    expected_person_xml_2 = """<person id="898">
   <name>
     <v3:firstname>Abigail</v3:firstname>
     <v3:lastname>Gewirtz</v3:lastname>
@@ -408,4 +442,4 @@ def test_extract_transform_serialize(session):
   <profiled>false</profiled>
 </person>"""
 
-  assert person_xml_2 == expected_person_xml_2
+    assert person_xml_2 == expected_person_xml_2

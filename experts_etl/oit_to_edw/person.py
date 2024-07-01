@@ -301,9 +301,9 @@ def transform(session, person_dict):
     person_dict['profiled'] = False
     person_dict['visibility'] = 'Restricted'
     if len(jobs_with_primary) > 0:
-        jobs = transform_staff_type(jobs_with_primary)
-        person_dict['profiled'] = transform_profiled(jobs)
-        person_dict['jobs'] = transform_staff_org_assoc_id(jobs, person_dict['person_id'])
+        person_dict['profiled'] = transform_profiled(jobs_with_primary)
+        jobs_with_staff_type = transform_staff_type(jobs_with_primary)
+        person_dict['jobs'] = transform_staff_org_assoc_id(jobs_with_staff_type, person_dict['person_id'])
 
         for job in person_dict['jobs']:
             job['email_address'] = person_dict['instl_email_addr']
@@ -369,157 +369,72 @@ def transform_staff_org_assoc_id(jobs, person_id):
 def transform_primary_job(affiliate_jobs, poi_jobs, employee_jobs, primary_empl_rcdno):
     # Handle some easy cases first:
 
+    # If there are no jobs, there's nothing to do:
     if (len(affiliate_jobs) == 0 and len(poi_jobs) == 0 and len(employee_jobs) == 0):
         return []
 
-    transformed_aff_jobs = affiliate_jobs.copy()
-    transformed_emp_poi_jobs = employee_jobs.copy() + poi_jobs.copy()
-    transformed_jobs = []
-    primary_job_set = False
+    # Start by setting primary to False for all jobs:
+    transformed_aff_jobs = [{**d, **{'primary': False}} for d in affiliate_jobs.copy()]
+    transformed_emp_poi_jobs = [{**d, **{'primary': False}} for d in employee_jobs.copy() + poi_jobs.copy()]
 
-    # Affiliate jobs have no empl_rcdno, and thus no primary_empl_rcdno will ever match them,
-    # so they default to false:
-    for job in transformed_aff_jobs:
-        job['primary'] = False
+    # If there is only one job, it must be primary:
+    all_jobs = transformed_aff_jobs + transformed_emp_poi_jobs
+    if len(all_jobs) == 1:
+        all_jobs[0]['primary'] = True
+        return all_jobs
 
-    # Since affiliate jobs have no empl_rcdno, if there is only one employee/poi job, it must
-    # be primary:
-    if (len(transformed_emp_poi_jobs) == 1):
-        transformed_emp_poi_jobs[0]['primary'] = True
-        primary_job_set = True
+    # Separate active and inactive jobs:
+    active_aff_jobs = [job for job in transformed_aff_jobs if job['end_date'] is None]
+    active_emp_poi_jobs = [job for job in transformed_emp_poi_jobs if job['end_date'] is None]
+    all_active_jobs = active_aff_jobs + active_emp_poi_jobs
+    inactive_aff_jobs = [job for job in transformed_aff_jobs if job['end_date']]
+    inactive_emp_poi_jobs = [job for job in transformed_emp_poi_jobs if job['end_date']]
+    all_inactive_jobs = inactive_aff_jobs + inactive_emp_poi_jobs
 
-    # If the only job we have is one affiliate job, it also must be primary:
-    elif (len(transformed_emp_poi_jobs) == 0 and len(transformed_aff_jobs) == 1):
-        transformed_aff_jobs[0]['primary'] = True
-        primary_job_set = True
+    # If there is only one active job, it must be primary:
+    if len(all_active_jobs) == 1:
+        all_active_jobs[0]['primary'] = True
+        return all_active_jobs + all_inactive_jobs
 
-    if primary_job_set:
-        transformed_jobs.extend(transformed_emp_poi_jobs)
-        transformed_jobs.extend(transformed_aff_jobs)
-
-        primary_job = next((job for job in transformed_jobs if job['primary'] is True), None)
-        if primary_job is None:
-            raise RuntimeError('failed to set a primary association')
-
-        return transformed_jobs
-
-    # End of the easy cases.
-
-    # Some data we may need later, because now we will treat active and inactive jobs differently:
-    inactive_emp_poi_jobs = []
-    active_emp_poi_jobs = []
-    active_earliest_start_dates = []
-
-    # Any currently-active jobs are likely to be at or near the end of the list:
-    transformed_emp_poi_jobs.reverse()
-    for job in transformed_emp_poi_jobs:
-        job['primary'] = False
-
-        if job['end_date'] == None:
-            # Try to use an active job as the primary job:
-            if not primary_job_set and re.match(r'^\d$', job['empl_rcdno']) and job['empl_rcdno'] == str(primary_empl_rcdno):
-                job['primary'] = True
-                primary_job_set = True
-
-            active_emp_poi_jobs.append(job)
-            if len(active_earliest_start_dates) == 0 or job['start_date'] < min(active_earliest_start_dates):
-                active_earliest_start_dates = [job['start_date']]
-            elif job['start_date'] == min(active_earliest_start_dates):
-                active_earliest_start_dates.append(job['start_date'])
-
-        else:
-            inactive_emp_poi_jobs.append(job)
-
-    # From Jan Fransen on setting a primary position in email, 2018-01-23:
-    # Rather than being completely arbitrary, make the position with the earliest
-    # effective date the primary. If they have the same effective date, then
-    # choose the lowest empl_rcdno. Hopefully it's not duplicated to that level,
-    # but if it is then just pick one.
-
-    if not primary_job_set and active_emp_poi_jobs:
-        if len(active_earliest_start_dates) == 1:
-            for job in active_emp_poi_jobs:
-                if job['start_date'] == active_earliest_start_dates[0]:
-                    job['primary'] = True
-                    primary_job_set = True
-                    break
-        else:
-            active_lowest_empl_rcdnos = []
-            for job in active_emp_poi_jobs:
-                if job['start_date'] == min(active_earliest_start_dates):
-                    if len(active_lowest_empl_rcdnos) == 0 or job['empl_rcdno'] < min(active_lowest_empl_rcdnos):
-                        active_lowest_empl_rcdnos = [job['empl_rcdno']]
-                    elif job['empl_rcdno'] == min(active_lowest_empl_rcdnos):
-                        active_lowest_empl_rcdnos.append(job['empl_rcdno'])
-
-            if len(active_lowest_empl_rcdnos) == 1:
-                for job in active_emp_poi_jobs:
-                    if job['empl_rcdno'] == active_lowest_empl_rcdnos[0] and job['start_date'] == min(active_earliest_start_dates):
-                        job['primary'] = True
-                        primary_job_set = True
-                        break
-            else:
-                # Just pick one of the active jobs with the earliest start date and lowest empl_rcdno:
-                for job in active_emp_poi_jobs:
-                    if job['empl_rcdno'] == min(active_lowest_empl_rcdnos) and job['start_date'] == min(active_earliest_start_dates):
-                        job['primary'] = True
-                        primary_job_set = True
-                        break
-
-    if not primary_job_set:
-        # This must mean that there were no active employee/poi jobs, so choose any active
-        # affiliate job as the primary:
-        for job in transformed_aff_jobs:
-            if job['end_date'] == None:
-                job['primary'] = True
-                primary_job_set = True
-                break
-
-    if not primary_job_set and inactive_emp_poi_jobs:
-        # There must be no active jobs of any kind, so try to set as primary any inactive employee/poi
-        # job that matches the primary_empl_rcdno:
-        for job in inactive_emp_poi_jobs:
-            if not primary_job_set and re.match(r'^\d$', job['empl_rcdno']) and job['empl_rcdno'] == str(primary_empl_rcdno):
+    # If there is at least one active non-affiliate job, and one such job is associated with
+    # the primary employee record number, set that job as primary. Otherwise, set the first in
+    # the list of those jobs as primary:
+    if len(active_emp_poi_jobs) >= 1:
+        primary_job_set = False
+        for job in active_emp_poi_jobs:
+            if re.match(r'^\d$', job['empl_rcdno']) and job['empl_rcdno'] == str(primary_empl_rcdno):
                 job['primary'] = True
                 primary_job_set = True
                 break
         if not primary_job_set:
-            # In this case none of the inactive emp/poi jobs matched the primary_empl_rcdno, so just pick one:
-            inactive_emp_poi_jobs[0]['primary'] = True
-            primary_job_set = True
+            active_emp_poi_jobs[0]['primary'] = True
+        return active_emp_poi_jobs + active_aff_jobs + all_inactive_jobs
 
-    if not primary_job_set:
-        # In this case the person must have nothing but inactive affiliate jobs. Just pick one:
-        transformed_aff_jobs[0]['primary'] = True
-        primary_job_set = True
+    # If there are no active non-affiliate jobs, but there are active affiliate jobs,
+    # set as primary the first active affiliate job:
+    if len(active_emp_poi_jobs) == 0 and len(active_aff_jobs) > 0:
+        active_aff_jobs[0]['primary'] = True
+        return active_aff_jobs + all_inactive_jobs
 
-    if not primary_job_set:
-        # This should never happen!
-        raise RuntimeError('failed to set a primary association')
-
-    transformed_jobs = active_emp_poi_jobs
-    transformed_jobs.extend(inactive_emp_poi_jobs)
-    transformed_jobs.extend(transformed_aff_jobs)
-
-    # This is redundant, but is a better check than what we were doing previously.
-    primary_job = next((job for job in transformed_jobs if job['primary'] is True), None)
-    if primary_job is None:
-        raise RuntimeError('failed to set a primary association')
-
-    return transformed_jobs
+    # If we get here, there are no active jobs, so set as primary the job with the latest end date:
+    all_jobs_reverse_date_sorted = sorted(all_jobs, key=lambda d: d['end_date'], reverse=True)
+    all_jobs_reverse_date_sorted[0]['primary'] = True
+    return all_jobs_reverse_date_sorted
 
 def transform_staff_type(jobs_with_primary):
     primary_job = next((job for job in jobs_with_primary if job['primary'] is True), None)
     if primary_job['staff_type'] == 'academic':
         return jobs_with_primary
 
+    # If the staff_type of the primary job is not 'academic', We set the staff type of all 
+    # jobs to 'nonacademic', to help stay under our contractual limit of academic persons.
     transformed_jobs = jobs_with_primary.copy()
     for job in transformed_jobs:
         job['staff_type'] = 'nonacademic'
     return transformed_jobs
 
-def transform_profiled(jobs):
-    primary_job = next((job for job in jobs if job['primary'] is True), None)
+def transform_profiled(jobs_with_primary):
+    primary_job = next((job for job in jobs_with_primary if job['primary'] is True), None)
     if primary_job['profiled'] is True and primary_job['end_date'] is None:
         return True
     else:

@@ -144,6 +144,9 @@ def transform_entry_groups(session, entry_groups):
     ).one()
     job['job_description'] = jobcode_defaults.pure_job_description
     job['employment_type'] = jobcode_defaults.default_employed_as
+
+    # We set the staff type of all former jobs (with end dates) to 'nonacademic',
+    # to help stay under our contractual limit of academic persons.
     if job['end_date'] is not None:
         job['staff_type'] = 'nonacademic'
     else:
