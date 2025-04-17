@@ -158,6 +158,14 @@ class ExpertsEtlPersonNoJobData(ExpertsEtlUmnDataError):
     def __init__(self, *, emplid, internet_id):
         super().__init__('unable to find or generate any job data for person', **{'emplid':emplid, 'internet_id':internet_id})
 
+class ExpertsEtlPersonNoOrgAssociations(ExpertsEtlUmnDataError):
+    '''This should never happen, yet it has happened at least once. We use this
+    exception to prevent submitting person records to Pure XML bulk loading,
+    because it will cause a fatal error that kills the entire process.'''
+    ids = ['emplid']
+    def __init__(self, *, emplid, internet_id):
+        super().__init__('person has no organisation associations', **{'emplid':emplid, 'internet_id':internet_id})
+
 # The rest of these should never happen, because the associated columns are not nullable in EDW.
 # Will uncomment if we happen to need them, for some strange reason.
 #

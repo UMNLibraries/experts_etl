@@ -107,6 +107,15 @@ def record_person_no_job_data_error(session, *, emplid, internet_id=None):
     )
     session.commit()
 
+def record_person_no_org_associations_error(session, *, emplid, internet_id=None):
+    session.add(
+        find_or_create_umn_data_error(
+            session=session,
+            exception=ExpertsEtlPersonNoOrgAssociations(emplid=emplid, internet_id=internet_id),
+        )
+    )
+    session.commit()
+
 def record_unknown_dept_errors(
     session,
     *,

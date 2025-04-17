@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from experts_dw import db
 from experts_dw.models import PureSyncPersonData, PureSyncStaffOrgAssociation, PureSyncStudentOrgAssociation
+from experts_etl.umn_data_error import record_person_no_org_associations_error
 from experts_etl import loggers
 
 from jinja2 import Environment, PackageLoader, Template, select_autoescape
@@ -48,6 +49,13 @@ def run(
                 ).all():
                     program_dict = {c.name: getattr(program, c.name) for c in program.__table__.columns}
                     person_dict['programs'].append(program_dict)
+                if len(person_dict['jobs']) == 0 and len(person_dict['programs']) == 0:
+                    record_person_no_org_associations_error(
+                        session=session,
+                        emplid=person_dict['emplid'],
+                        internet_id=person_dict['internet_id'],
+                    )
+                    continue
                 output_file.write(template.render(person_dict))
 
         output_file.write('</persons>')
