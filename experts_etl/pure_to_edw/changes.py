@@ -59,7 +59,8 @@ def run(
             )
 
             if startdate_str is None:
-                startdate_str = ensure_valid_startdate(cursor, api_version, startdate).isoformat()
+                #startdate_str = ensure_valid_startdate(cursor, api_version, startdate).isoformat()
+                startdate_str = ensure_valid_startdate(cursor, api_version, startdate).strftime('%Y-%m-%d')
 
             documents_to_insert = {}
             for api_document in client.get_all_changes_transformed(startdate_str, config=client_config):
