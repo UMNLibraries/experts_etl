@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="v1.upmproject.pure.atira.dk"
+           xmlns:commons="v3.commons.pure.atira.dk"
+           attributeFormDefault="unqualified" elementFormDefault="qualified"
+           targetNamespace="v1.upmproject.pure.atira.dk">
+
+    <xs:import schemaLocation="commons.xsd" namespace="v3.commons.pure.atira.dk" />
+
+    <xs:element name="upmprojects">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="upmproject" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="resumptionToken" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="upmproject">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="activityTypes" type="activityTypes" minOccurs="0" />
+                <xs:element name="title" type="commons:localized_string">
+                    <xs:annotation>
+                        <xs:documentation>The title of the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="shortTitle" type="commons:localized_string" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The short title of the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="acronym" type="commons:string_64" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The acronym of the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="descriptions" type="commons:descriptions" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The descriptions of the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="ids" type="commons:ids" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The ids of the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="internalParticipants" type="internalParticipants" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The internal persons related to the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="internalParticipantsResearcherCommitment" type="researcherCommitmentList" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The participants researcher commitment for the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="externalParticipants" type="externalParticipants" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The external persons related to the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="coManagingOrganisations" type="organisations" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The Co-ManagingOrganisations, can not be the managedByOrganisation</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="organisations" type="organisations" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The internal organisations related to the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="externalOrganisations" type="commons:externalOrganisationAssociations" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The external organisations related to the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="managedByOrganisation" type="organisation">
+                    <xs:annotation>
+                        <xs:documentation>The organisation that manages the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="startDate" type="commons:date" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The start date of the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="endDate" type="commons:date" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The end date of the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="curtailed" type="curtailed" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Specifies that the project is curtailed</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="collaborative" type="xs:boolean" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Specifiy whether it is a collaborative project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="collaborators" type="commons:externalCollaborators" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The collaborative partners on the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="relatedAwards" type="relatedAwards" minOccurs="0" />
+                <xs:element name="relatedApplications" type="relatedApplications" minOccurs="0" />
+                <xs:element name="relatedProjects" type="relatedProjects" minOccurs="0" />
+                <xs:element name="relatedPublications" type="relatedPublications" minOccurs="0" />
+                <xs:element name="relatedActivities" type="relatedActivities" minOccurs="0" />
+                <xs:element name ="documents" type="commons:upmdocuments" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Documents attached to the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="keywords" type="commons:keywords" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The keywords for the project</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="links" type="commons:links" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The links for the project. Available from Pure version 5.2 (4.21)</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="visibility" type="commons:visibility"/>
+                <xs:element name="workflow" type="xs:string" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Basic Workflow valid values: entryInProgress, forApproval, approved, validated
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:all>
+            <xs:attribute type="xs:string" name="id" use="required"/>
+            <xs:attribute name="type" type="commons:classification" use="required">
+                <xs:annotation>
+                    <xs:documentation>token from the classification scheme /dk/atira/pure/upmproject/upmprojecttypes</xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute type="xs:boolean" name="managedInPure" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="activityTypes">
+        <xs:sequence>
+            <xs:element name="activityType" type="commons:classification" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>token from the classification scheme /dk/atira/pure/upm/nature</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="curtailed">
+        <xs:all>
+            <xs:element name="date" type="commons:date"/>
+            <xs:element name="reason" type="xs:string" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="organisations">
+        <xs:sequence>
+            <xs:element name="organisation" type="organisation" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="organisation">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="id" type="commons:string_400" use="required">
+                    <xs:annotation>
+                        <xs:documentation>The source ID of the organisation</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="internalParticipants">
+        <xs:sequence>
+            <xs:element name="internalParticipant" type="internalParticipant" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="internalParticipant">
+        <xs:sequence>
+            <xs:element name="personId" type="commons:string_400">
+                <xs:annotation>
+                    <xs:documentation>The source id of the person</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:choice>
+                <xs:element name="organisationId" type="commons:string_400">
+                    <xs:annotation>
+                        <xs:documentation>The source id of the organisation</xs:documentation>
+                        <xs:documentation>DEPRECATED: This element has been replaced by organisationIds</xs:documentation>
+                        <xs:documentation>Will be deleted in Pure 5.13.0</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="organisationIds" type="organisations" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The source id of the organisation</xs:documentation>
+                        <xs:documentation>The internal organisations related to the participant</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:choice>
+            <xs:element name="role" type="commons:classification">
+                <xs:annotation>
+                    <xs:documentation>token from the classification scheme /dk/atira/pure/upmproject/roles/upmproject</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="academicOwnership" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The academic ownership percentage of the project for this participant</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="plannedResearcherCommitment" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The planned researcher commitment of the project for this participant</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="associationStartDate" type="commons:date" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The date when the project participant association to the project started</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="associationEndDate" type="commons:date" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The date when the project participant association to the project ended</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="researcherCommitmentList">
+        <xs:sequence>
+            <xs:element name="researcherCommitment" type="researcherCommitment" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="researcherCommitment">
+        <xs:sequence>
+            <xs:element name="personId" type="commons:string_400">
+                <xs:annotation>
+                    <xs:documentation>The source id of the person</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="year" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>The year of this researcher commitment</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="month" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>The month of this researcher commitment</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="plannedCommitment" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The planned researcher commitment</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="actualCommitment" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The actual researcher commitment</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="externalParticipants">
+        <xs:sequence>
+            <xs:element name="externalParticipant" type="externalParticipant" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="externalParticipant">
+        <xs:sequence>
+            <xs:element name="externalPersonId" type="commons:string_400" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The source id of the external person</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="firstName" type="commons:string_1024">
+                <xs:annotation>
+                    <xs:documentation>First name of the participant</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="lastName" type="commons:string_1024">
+                <xs:annotation>
+                    <xs:documentation>Last name of the participant</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="country" type="commons:classification" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>token from the classification scheme /dk/atira/pure/core/countries</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="role" type="commons:classification">
+                <xs:annotation>
+                    <xs:documentation>token from the classification scheme /dk/atira/pure/upmproject/roles/upmproject</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgName" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Name of an external organisation for this participant</xs:documentation>
+                    <xs:documentation>DEPRECATED: This element has been replaced by externalOrganisations</xs:documentation>
+                    <xs:documentation>Will be deleted in Pure 5.14.0</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgType" type="commons:classification" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>token from the classification scheme /dk/atira/pure/ueoexternalorganisation/ueoexternalorganisationtypes</xs:documentation>
+                    <xs:documentation>DEPRECATED: This element has been replaced by externalOrganisations</xs:documentation>
+                    <xs:documentation>Will be deleted in Pure 5.14.0</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgId" type="commons:string_400" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Source id of an external organisation</xs:documentation>
+                    <xs:documentation>DEPRECATED: This element has been replaced by externalOrganisations</xs:documentation>
+                    <xs:documentation>Will be deleted in Pure 5.14.0</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrganisations" type="commons:externalOrganisationAssociations" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The external organisations related to the participant</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="period" type="commons:dateRange" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The period during which the external participant was involved in the project</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="commons:string_400" use="optional">
+            <xs:annotation>
+                <xs:documentation>The ID of the external participant association</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="relatedProjects">
+        <xs:sequence>
+            <xs:element name="relatedProject" type="relatedProject" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="relatedAwards">
+        <xs:sequence>
+            <xs:element name="relatedAwardId" type="commons:string_400" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="relatedApplications">
+        <xs:sequence>
+            <xs:element name="relatedApplicationId" type="commons:string_400" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="relatedPublications">
+        <xs:sequence>
+            <xs:element name="relatedPublicationId" type="commons:string_400" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="relatedActivities">
+        <xs:sequence>
+            <xs:element name="relatedActivityId" type="commons:string_400" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="relatedProject">
+        <xs:sequence>
+            <xs:element name="targetProjectId" type="commons:string_400">
+                <xs:annotation>
+                    <xs:documentation>The id of the content, used for matching the content</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="relationType" type="commons:classification">
+                <xs:annotation>
+                    <xs:documentation>token from the classification scheme /dk/atira/pure/association/bidirectional/upmproject</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

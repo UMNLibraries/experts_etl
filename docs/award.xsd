@@ -1,0 +1,1022 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns="v1.upmaward.pure.atira.dk" 
+           xmlns:commons="v3.commons.pure.atira.dk" 
+           attributeFormDefault="unqualified" elementFormDefault="qualified"
+           targetNamespace="v1.upmaward.pure.atira.dk">
+    
+    <xs:import schemaLocation="commons.xsd" namespace="v3.commons.pure.atira.dk" />
+    
+    <xs:element name="upmawards">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="upmaward" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="resumptionToken" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="upmaward">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="activityTypes" type="activityTypes" minOccurs="0" />
+                <xs:element name="title" type="commons:localized_string">
+                    <xs:annotation>
+                        <xs:documentation>The title of the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="shortTitle" type="commons:localized_string" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The short title of the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="acronym" type="commons:string_64" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The acronym of the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="descriptions" type="commons:descriptions" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The descriptions of the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="ids" type="commons:ids" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The ids of the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="internalAwardholders" type="internalAwardholders" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The internal persons related to the award.</xs:documentation>
+                        <xs:documentation>NOTE there need to be at least an element here or in "externalAwardholders"</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="internalAwardHolderResearcherCommitment" type="researcherCommitmentList" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The participants researcher commitment for the application</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+
+                <xs:element name="externalAwardholders" type="externalAwardholders" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The external persons related to the award</xs:documentation>
+                        <xs:documentation>NOTE there need to be at least an element here or in "internalAwardholders"</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+
+                <xs:element name="coManagingOrganisations" type="organisations" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The Co-ManagingOrganisations, can not be the managedByOrganisation</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+
+                <xs:element name="organisations" type="organisations" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The internal organisations related to the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="externalOrganisations" type="commons:externalOrganisationAssociations" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The external organisations related to the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="managedByOrganisation" type="organisation">
+                    <xs:annotation>
+                        <xs:documentation>The organisation that manages the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="expectedStartDate" type="commons:date" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The expected start date of the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="expectedEndDate" type="commons:date" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The expected end date of the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="actualStartDate" type="commons:date" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The actual start date of the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="actualEndDate" type="commons:date" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The actual end date of the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="awardDate" type="commons:date" >
+                    <xs:annotation>
+                        <xs:documentation>The date this award was or will be awarded</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="curtailed" type="curtailed" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Specifies that the project is curtailed</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="fundingAgencyStatus" type="commons:classification" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The funding agency status. Provide the last two tokens from a classification from the /dk/atira/pure/award/fundingagencystatus schema (e.g. "active/approved"). Can only be used when the funding agency module is enabled</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="collaborative" type="xs:boolean" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Specifiy whether it is a collaborative award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="collaborators" type="commons:externalCollaborators" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The collaborative partners on the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+		<xs:element name="financialFundings" type="financialFundings" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The financial fundings added to the award. At least one of either financialFunding or nonFinancialFunding must field must be mandatory.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="nonFinancialFundings" type="nonFinancialFundings" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The non financial fundings added to the award. At least one of either financialFunding or nonFinancialFunding field must be mandatory.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="relatedAwards" type="relatedAwards" minOccurs="0" >
+                    <xs:annotation>
+                        <xs:documentation>Other awards related to the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="relatedApplications" type="relatedApplications" minOccurs="0" >
+                    <xs:annotation>
+                        <xs:documentation>Related applications to the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name ="documents" type="commons:upmdocuments" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Documents attached to the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="keywords" type="commons:keywords" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The keywords for the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="links" type="commons:links" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The links for the project. Available from Pure version 5.2 (4.21)</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="visibility" type="commons:visibility">
+                    <xs:annotation>
+                        <xs:documentation>The visibility of the award</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="relatedProjectId" type="commons:non_explicit_id" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The id of the project the award in question should be related to</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="milestones" type="milestones" minOccurs="0" />
+                <xs:element name="status" type="status" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The status of the award. Award management is needed for this.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="workflow" type="xs:string" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Basic Workflow valid values: entryInProgress, forApproval, approved, validated
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:all>
+            <xs:attribute type="xs:string" name="id" use="required">
+                <xs:annotation>
+                    <xs:documentation>Id of the award in the source system</xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="type" type="commons:classification" use="required">
+                <xs:annotation>
+                    <xs:documentation>key token from the classification /dk/atira/pure/award/awardtypes/award, found in classification scheme /dk/atira/pure/award/awardtypes/. Key must whole part after uri, eg. researchcouncils/award</xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute type="xs:boolean" name="managedInPure" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="activityTypes">
+        <xs:sequence>
+            <xs:element name="activityType" type="commons:classification" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>key token from the classification scheme /dk/atira/pure/upm/nature, eg. fellowship</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="curtailed">
+        <xs:all>
+            <xs:element name="date" type="commons:date">
+                <xs:annotation>
+                    <xs:documentation>Date the project is curtailed</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="reason" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Reason the project is curtailed</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="organisations">
+        <xs:sequence>
+            <xs:element name="organisation" type="organisation" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="organisation">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="id" type="commons:string_400">
+                    <xs:annotation>
+                        <xs:documentation>The source ID of the organisation</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="internalAwardholders">
+        <xs:sequence>
+            <xs:element name="internalAwardholder" type="internalAwardholder" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="internalAwardholder">
+        <xs:sequence>
+            <xs:element name="personId" type="commons:string_400">
+                <xs:annotation>
+                    <xs:documentation>The source id of the person</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:choice>
+                <xs:element name="organisationId" type="commons:string_400">
+                    <xs:annotation>
+                        <xs:documentation>The source id of the organisation</xs:documentation>
+                        <xs:documentation>DEPRECATED: This element has been replaced by organisationIds</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="organisationIds" type="organisations" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The source id of the organisation</xs:documentation>
+                        <xs:documentation>The internal organisations related to the award holder</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:choice>
+            <xs:element name="role" type="commons:classification">
+                <xs:annotation>
+                    <xs:documentation>token from the classification scheme /dk/atira/pure/award/roles/award, eg pi</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="academicOwnership" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The academic ownership percentage of the award for this participant</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="associationStartDate" type="commons:date" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The date when the project participant award to the project started</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="associationEndDate" type="commons:date" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The date when the project participant award to the project ended</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="plannedResearcherCommitment" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The planned researcher commitment for this awardholder</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="externalAwardholders">
+        <xs:sequence>
+            <xs:element name="externalAwardholder" type="externalAwardholder" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="externalAwardholder">
+        <xs:sequence>
+            <xs:element name="externalPersonId" type="commons:string_400" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The source id of the external person</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="firstName" type="commons:string_1024">
+                <xs:annotation>
+                    <xs:documentation>First name of the participant</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="lastName" type="commons:string_1024">
+                <xs:annotation>
+                    <xs:documentation>Last name of the participant</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="country" type="commons:classification" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>key token from the classification scheme /dk/atira/pure/core/countries, eg dk</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="role" type="commons:classification">
+                <xs:annotation>
+                    <xs:documentation>key token from the classification scheme /dk/atira/pure/award/roles/award, eg coi</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgName" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Name of an external organisation for this participant</xs:documentation>
+                    <xs:documentation>DEPRECATED: This element has been replaced by externalOrganisations</xs:documentation>
+                    <xs:documentation>Will be deleted in Pure 5.14.0</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgType" type="commons:classification" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>key token from the classification scheme /dk/atira/pure/ueoexternalorganisation/ueoexternalorganisationtypes, eg ueoexternalorganisation/researchFundingBody</xs:documentation>
+                    <xs:documentation>DEPRECATED: This element has been replaced by externalOrganisations</xs:documentation>
+                    <xs:documentation>Will be deleted in Pure 5.14.0</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgId" type="commons:string_400" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Source id of an external organisation</xs:documentation>
+                    <xs:documentation>DEPRECATED: This element has been replaced by externalOrganisations</xs:documentation>
+                    <xs:documentation>Will be deleted in Pure 5.14.0</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrganisations" type="commons:externalOrganisationAssociations" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The external organisations related to the award holder</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="period" type="commons:dateRange" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The period during which the external award holder was involved in the award</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="commons:string_400" use="optional">
+            <xs:annotation>
+                <xs:documentation>The ID of the external awardholder</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="financialFundings">
+        <xs:sequence>
+            <xs:element name="financialFunding" type="financialFunding" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="financialFunding">
+        <xs:all>
+            <xs:element name="budgets" type="budgets" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The budgets related to the financial funding</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgName" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Name of an external organisation for this participant</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgType" type="commons:classification" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>key token from the classification scheme /dk/atira/pure/ueoexternalorganisation/ueoexternalorganisationtypes, eg ueoexternalorganisation/researchFundingBody</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgId" type="commons:string_400" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Source id of an external organisation</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+			<xs:element name="fundingSource" type="commons:classification" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>DEPRECATED: This element has been replaced by fundingSources. Key token from the classification scheme /dk/atira/pure/project/financingsources, e.g. publicResearchCouncil</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="fundingSources" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="fundingSource" type="commons:classification" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>The uri of a classification, where the scheme is linked to the /dk/atira/pure/upm/funding scheme</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+            <xs:element name="fundingProjectScheme" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Funding project scheme</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="awardedCurrency" type="commons:classification" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>token from classification scheme /dk/atira/pure/core/isocurrencies, eg GBP</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="awardedAmountAwardedCurrency" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The amount to apply for (in the awarded currency)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="awardedAmount" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The amount to apply for (in the system currency)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="institutionalContribution" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>amount contributed by institution</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="institutionalFEC" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>the total value for the funding</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="fECPercentage" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>fEC percentage to be used, values between 0 and 1</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="institutionalPart" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Should only be provided if this is a collaborative award</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="fundingProgrammeId" type="commons:string_400" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The ID of the related funding programme</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="fundingCollaborators" type="fundingCollaborators" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Collaborators, and their contributions, on this funding</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="costCode" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Financial account code</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="visibility" type="commons:visibility" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Visibility of the funding</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+        <xs:attribute name="id" type="commons:string_400" use="required">
+            <xs:annotation>
+                <xs:documentation>id of the funding</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="nonFinancialFundings">
+        <xs:sequence>
+            <xs:element name="nonFinancialFunding" type="nonFinancialFunding" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="nonFinancialFunding">
+        <xs:all>
+            <xs:element name="budgets" type="budgets" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The budgets related to the non-financial funding</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgName" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Name of an external organisation for this participant</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgType" type="commons:classification" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>key token from the classification scheme /dk/atira/pure/ueoexternalorganisation/ueoexternalorganisationtypes, eg ueoexternalorganisation/researchFundingBody</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="externalOrgId" type="commons:string_400" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Source id of an external organisation</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="fundingProjectScheme" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Funding project scheme</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="estimatedValue" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>estimated value of the funding</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="institutionalEstimatedValue" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Should only be provided if this is a collaborative award.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Description</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="fundingCollaborators" type="fundingCollaborators" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Collaborators, and their contributions, on this funding</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="visibility" type="commons:visibility" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Visibility of the funding</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+        <xs:attribute name="id" type="commons:string_400" use="required">
+            <xs:annotation>
+                <xs:documentation>id of the funding</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="budgets">
+        <xs:sequence>
+            <xs:element name="budget" type="budget" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="budget">
+        <xs:all>
+            <xs:element name="budgetLines" type="budgetLines">
+                <xs:annotation>
+                    <xs:documentation>The budget lines of the budget</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="budgetLinesYearlyBudget" type="budgetLinesYearlyBudget" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The budget lines of the yearly budget</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="expenditures" type="expenditures" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The expenditures of the budget</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="organisationId" type="commons:string_400" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The ID of the organisation this budget is associated with
+                        If you have more than one budget per funding then this field is mandatory.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="costCenter" type="commons:classification" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The cost center this budget is associated with, if you have more than one budget per funding then this field is mandatory.
+                        key token from the classification scheme /dk/atira/pure/upm/costcenter
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="costCode" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Financial account code</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+        <xs:attribute name="id" type="commons:string_400" use="required">
+            <xs:annotation>
+                <xs:documentation>id of the budget</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="budgetLines">
+        <xs:sequence>
+            <xs:element name="budgetLine" type="budgetLine" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="budgetLine">
+        <xs:all>
+            <xs:element name="budgetLine" type="commons:string_1024" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        The budget line to add the budget value for. If you do not want to provide budget against individual budget lines, please make sure the module the module is configured for this and that the budget line classification schema only contains one single classification value called Total. Please consult your Atira project manager to make sure this is setup correctly.
+                        Key token from the classification scheme /dk/atira/pure/award/account
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="budgetValue" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The actual budget value to add to the award
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="costCenter" type="commons:classification" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The cost center this budget is associated with, if you have more than one budget per funding then this field is mandatory.
+                        key token from the classification scheme /dk/atira/pure/upm/costcenter
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="specification" type="commons:string_256" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        A descriptive text for this budget line.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="fec" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The FEC of the budget line
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="funderContributionGBP" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The funder contribution GBP
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="budgetLinesYearlyBudget">
+        <xs:sequence>
+            <xs:element name="budgetLineYearlyBudget" type="budgetLineYearlyBudget" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="budgetLineYearlyBudget">
+        <xs:all>
+            <xs:element name="budgetLine" type="commons:string_1024" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        The budget line to add the budget value for. If you do not want to provide budget against individual budget lines, please make sure the module the module is configured for this and that the budget line classification schema only contains one single classification value called Total. Please consult your Atira project manager to make sure this is setup correctly.
+                        Key token from the classification scheme /dk/atira/pure/award/account
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="budgetValue" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The actual budget value to add to the award
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="year" type="xs:integer" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        The year for the budget value. Eg. 2012
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="expenditures">
+        <xs:sequence>
+            <xs:element name="expenditure" type="expenditure" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="expenditure">
+        <xs:all>
+            <xs:element name="budgetLine" type="commons:string_1024" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        The budget line to add the budget value for. If you do not want to provide budget against individual budget lines, please make sure the module the module is configured for this and that the budget line classification schema only contains one single classification value called Total. Please consult your Atira project manager to make sure this is setup correctly.
+                        Key token from the classification scheme /dk/atira/pure/award/account
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="year" type="xs:integer" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        The year for the expenditure value. Eg. 2012
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="month" type="xs:integer" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        The month for the expenditure value. Eg. 10
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="expenditureValue" type="xs:double" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        The actual expenditure value to add to the award
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="relatedAwards">
+        <xs:sequence>
+            <xs:element name="relatedAwardId" type="commons:string_400" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>Id of related award</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="relatedApplications">
+        <xs:sequence>
+            <xs:element name="relatedApplicationId" type="commons:string_400" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>Id of related application</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="status">
+        <xs:all>
+            <xs:element name="status" type="statusState" minOccurs="0" />
+            <xs:element name="statusDate" type="commons:date" minOccurs="0" />
+            <xs:element name="statusReason" type="statusStateReason" minOccurs="0" />
+            <xs:element name="statusReasonDescription" type="commons:string_1024" minOccurs="0" />
+        </xs:all>
+    </xs:complexType>
+
+    <xs:simpleType name="statusState">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="InternallyApproved"/>
+            <xs:enumeration value="Terminated"/>
+            <xs:enumeration value="ContractNegotiation"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="statusStateReason">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Curtailed"/>
+            <xs:enumeration value="Declined"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="milestones">
+        <xs:sequence>
+            <xs:element name="milestone" type="milestone" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="milestone">
+        <xs:all>
+            <xs:element name="name" type="commons:string_256">
+                <xs:annotation>
+                    <xs:documentation>The name of the milestone</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="translatedNames" type="translatedNames" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Translated titles of the milestone. Use if title is different in another language</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The description of the milestone</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="translatedDescriptions" type="translatedDescriptions" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Translated description of the milestone. Use if description is different in another language</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="responsibleRole" type="role" minOccurs="1" default="pi">
+                <xs:annotation>
+                    <xs:documentation>
+                        The responsible role for the milestone. Valid roles depends on the type.
+                        If type is academic, valid role is a token of a classification from the /dk/atira/pure/award/roles/award classification scheme
+                        If type is administrative, valid roles are award roles and can be editor, validator or administrator
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="reminders" type="reminders" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The email reminders of the milestone</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="documents" type="documents" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The files attached to the milestone</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="deadline" type="commons:date" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The deadline for the milestone</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="completed" type="xs:boolean" minOccurs="0" default="false">
+                <xs:annotation>
+                    <xs:documentation>Specify whether the milestone was completed</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="completedDate" type="commons:date" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The date the milestone was completed. Specify this date if the milestone is set to completed, otherwise the completed date will be set to the day the milestone is created in Pure</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="completedBy" type="commons:string_256" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The user who completed the milestone, if none is specified the currently logged in user will be used</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+        <xs:attribute type="xs:string" name="id" use="required">
+            <xs:annotation>
+                <xs:documentation>Id of the milestone in the source system</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="role">
+        <xs:simpleContent>
+            <xs:extension base="commons:string_256">
+                <xs:attribute name="type" type="typeAttribute" default="academic" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>The type of the role responsible for the milestone</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="typeAttribute">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="academic"/>
+            <xs:enumeration value="administrative"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="translatedNames">
+        <xs:sequence>
+            <xs:element name="name" type="commons:localized_text_256_lang" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="translatedDescriptions">
+        <xs:sequence>
+            <xs:element name="description" type="commons:localized_text_1024_lang" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="reminders">
+        <xs:sequence>
+            <xs:element name="reminder" type="reminder" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="reminder">
+        <xs:simpleContent>
+            <xs:annotation>
+                <xs:documentation>Email reminder will be sent to the responsible role the specified time before deadline</xs:documentation>
+            </xs:annotation>
+            <xs:extension base="xs:integer">
+                <xs:attribute type="xs:string" name="id" use="required">
+                    <xs:annotation>
+                        <xs:documentation>Id of the reminder</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute type="timeUnit" name="timeUnit" use="optional" default="week">
+                    <xs:annotation>
+                        <xs:documentation>Unit of the reminder</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="timeUnit">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="month"/>
+            <xs:enumeration value="week"/>
+            <xs:enumeration value="day"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="documents">
+        <xs:sequence>
+            <xs:element name="document" type="milestonedocument" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="milestonedocument">
+        <xs:all>
+            <xs:element name="fileLocation" type="commons:string_1024" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        Location where Pure can read the file from. Must be prefixed with protocol either
+                        http or https. Https is only supported if the remote server uses a trusted
+                        certificate. If the remote server uses a self-signed certificate,
+                        the JVM running Pure will need an updated keystore.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="name" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Name of the document</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="filename" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Filename of the document</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="mimetype" type="commons:string_1024" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Mimetype of the document</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="visibility" type="commons:visibility" minOccurs="0"/>
+        </xs:all>
+        <xs:attribute type="commons:string_400" name="id" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="fundingCollaborators">
+        <xs:sequence>
+            <xs:element name="fundingCollaborator" type="fundingCollaborator" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="fundingCollaborator">
+        <xs:all>
+            <xs:element name="collaborator" type="commons:externalOrganisation" minOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        The collaborator external organisation
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="institutionalPart" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The institutional part for this collaborator (on financial fundings)
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="estimatedValue" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The estimated value of the contribution by this collaborator (on non-financial fundings)
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="researcherCommitmentList">
+        <xs:sequence>
+            <xs:element name="researcherCommitment" type="researcherCommitment" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="researcherCommitment">
+        <xs:sequence>
+            <xs:element name="personId" type="commons:string_400">
+                <xs:annotation>
+                    <xs:documentation>The source id of the person</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="year" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>The year of this researcher commitment</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="month" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>The month of this researcher commitment</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="plannedCommitment" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The planned researcher commitment</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="actualCommitment" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The actual researcher commitment</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
