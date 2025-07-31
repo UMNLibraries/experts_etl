@@ -2,6 +2,9 @@ import json
 from datetime import datetime, timedelta
 
 from experts_dw import db, pure_json
+from experts_dw.pure_json_collection_meta import \
+    get_change_meta, \
+    collection_family_system_names_for_api_version
 from experts_etl import loggers
 from pureapi import client
 
@@ -13,10 +16,10 @@ pure_api_record_type = 'changes'
 
 # functions:
 
-def ensure_valid_startdate(cursor, api_version, startdate=None):
+def ensure_valid_startdate(cursor, meta, startdate=None):
     if startdate is None:
-        change_history_date = pure_json.max_change_history_inserted_date(cursor, api_version=api_version)
-        change_date = pure_json.max_change_inserted_date(cursor, api_version=api_version)
+        change_history_date = pure_json.max_change_history_inserted_date(cursor, meta=meta)
+        change_date = pure_json.max_change_inserted_date(cursor, meta=meta)
         if change_history_date is None and change_date is not None:
             startdate = change_date
         if change_date is None and change_history_date is not None:
@@ -53,7 +56,11 @@ def run(
     with db.cx_oracle_connection() as connection:
         try:
             cursor = connection.cursor()
-            family_system_names = pure_json.collection_family_system_names_for_api_version(
+            meta = get_change_meta(
+                cursor=cursor,
+                api_version=api_version,
+            )
+            family_system_names = collection_family_system_names_for_api_version(
                 cursor,
                 api_version=api_version
             )
@@ -83,7 +90,7 @@ def run(
                     pure_json.insert_change_documents(
                         cursor,
                         documents=list(documents_to_insert.values()),
-                        api_version=api_version
+                        meta=meta,
                     )
                     documents_to_insert = {}
                     connection.commit()
@@ -92,7 +99,7 @@ def run(
                 pure_json.insert_change_documents(
                     cursor,
                     documents=list(documents_to_insert.values()),
-                    api_version=api_version
+                    meta=meta,
                 )
             connection.commit()
 

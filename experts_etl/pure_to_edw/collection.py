@@ -3,6 +3,8 @@ from datetime import datetime
 import json
 
 from experts_dw import db, pure_json
+from experts_dw.pure_json_collection_meta import \
+    get_collection_meta_by_api_name
 from experts_etl import loggers
 from pureapi import client
 
@@ -31,17 +33,20 @@ def run(
     with db.cx_oracle_connection() as connection:
         try:
             cursor = connection.cursor()
+            meta = get_collection_meta_by_api_name(
+                cursor,
+                api_version=api_version,
+                api_name=collection_api_name,
+            )
 
             pure_json.process_changes_matching_previous_uuids(
                 cursor,
-                collection_api_name=collection_api_name,
-                api_version=api_version
+                meta=meta,
             )
 
             uuids = pure_json.distinct_change_uuids_for_collection(
                 cursor,
-                collection_api_name=collection_api_name,
-                api_version=api_version
+                meta=meta,
             )
             uuids_in_pure = []
             documents_to_insert = {}
@@ -61,9 +66,8 @@ def run(
                     pure_json.insert_documents(
                         cursor,
                         documents=list(documents_to_insert.values()),
-                        collection_api_name=collection_api_name,
+                        meta=meta,
                         staging=True,
-                        api_version=api_version
                     )
                     connection.commit()
                     documents_to_insert = {}
@@ -72,16 +76,14 @@ def run(
                 pure_json.insert_documents(
                     cursor,
                     documents=list(documents_to_insert.values()),
-                    collection_api_name=collection_api_name,
+                    meta=meta,
                     staging=True,
-                    api_version=api_version
                 )
             connection.commit()
 
             pure_json.process_changes_matching_staging(
                 cursor,
-                collection_api_name=collection_api_name,
-                api_version=api_version
+                meta=meta,
             )
 
             missing_uuids = list((Counter(uuids) - Counter(uuids_in_pure)).elements())
@@ -89,20 +91,17 @@ def run(
                 pure_json.delete_documents_and_changes_matching_uuids(
                     cursor,
                     uuids=missing_uuids_sublist,
-                    collection_api_name=collection_api_name,
-                    api_version=api_version
+                    meta=meta,
                 )
 
             pure_json.load_documents_from_staging(
                 cursor,
-                collection_api_name=collection_api_name,
-                api_version=api_version
+                meta=meta,
             )
 
             pure_json.process_changes_matching_previous_uuids(
                 cursor,
-                collection_api_name=collection_api_name,
-                api_version=api_version
+                meta=meta,
             )
 
         except Exception as e:
