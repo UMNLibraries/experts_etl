@@ -5,7 +5,7 @@ import multiprocessing as mp
 import os
 import time
 
-from experts_dw import db, pure_json
+from experts_dw import db, pure_json_collection_meta
 from experts_etl import loggers, sync_file_rotator
 from experts_etl.pure_to_edw import changes, collection
 
@@ -116,7 +116,7 @@ def run():
         cursor = connection.cursor()
         #for api_version in pure_json.api_versions(cursor): # Later!
         for api_version in ['524']: # For now, until we create tables for other versions.
-            collections = pure_json.collection_api_names_for_api_version(cursor, api_version=api_version)
+            collections = pure_json_collection_meta.collection_api_names_for_api_version(cursor, api_version=api_version)
             api_version_collections_map[api_version] = collections
 
     # Just 1 process for now, until we add other api_versions. But do we even need param? Defaults to os.cpu_count.
