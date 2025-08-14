@@ -116,6 +116,9 @@ def load_into_scratch(session, person_dict):
         postnominal=person_dict['name_suffix'],
     )
     session.add(pure_sync_person_data)
+    # Some of the following inserts have fk constraints on this table, so
+    # we commit here to ensure that those constraints will hold:
+    session.commit()
 
     for job in person_dict['jobs']:
         pure_sync_staff_org_association = PureSyncStaffOrgAssociationScratch(
