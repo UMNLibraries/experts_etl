@@ -39,8 +39,11 @@ syncers = list(map(
     lambda x: 'experts_etl.' + x,
     [
         'oit_to_edw.person',
+        'oit_to_edw.award_project',
         'edw_to_pure.person',
         'edw_to_pure.user',
+        'edw_to_pure.award',
+        'edw_to_pure.project',
         'umn_data_error',
         'sync_file_rotator',
     ]

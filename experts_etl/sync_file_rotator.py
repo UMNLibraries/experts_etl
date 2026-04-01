@@ -7,6 +7,8 @@ keep_limit = int(os.environ['EXPERTS_ETL_SYNC_KEEP_LIMIT'])
 sync_types = [
     'person',
     'user',
+    'award',
+    'project',
 ]
 
 def run(

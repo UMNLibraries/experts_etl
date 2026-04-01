@@ -1,0 +1,77 @@
+{% autoescape true %}
+<award:upmaward id="{{ AWARD_ID }}" type="other/award">
+  <award:activityTypes>
+    <award:activityType>research</award:activityType>
+  </award:activityTypes>
+  <award:title>
+    <common:text lang="en" country="US">{{ TITLE }}</common:text>
+  </award:title>
+  {%- if SHORT_TITLE %}
+  <award:shortTitle>
+    <common:text lang="en" country="US">{{ SHORT_TITLE }}</common:text>
+  </award:shortTitle>
+  {%- endif %}
+  <award:ids>
+    <common:id type="um_award_number">{{ PROJECT_ID }}</common:id>
+    {%- if SPONSOR_AWARD_NUMBER %}
+    <common:id type="sponsor_award_number">{{ SPONSOR_AWARD_NUMBER }}</common:id>
+    {%- endif %}
+    {%- if PRIMARY_SPONSOR_AWARD_NUMBER %}
+    <common:id type="primary_sponsor_award_number">{{ PRIMARY_SPONSOR_AWARD_NUMBER }}</common:id>
+    {%- endif %}
+  </award:ids>
+  <award:internalAwardholders>
+    {%- for holder in internal_holders %}
+    <award:internalAwardholder>
+      <award:personId>{{ holder.PERSON_ID }}</award:personId>
+      <award:organisationIds>
+        <award:organisation id="{{ holder.ORGANISATION_ID }}"></award:organisation>
+      </award:organisationIds>
+      <award:role>{{ holder.ROLE }}</award:role>
+      {%- if holder.ASSOCIATION_START_DATE %}
+      <award:associationStartDate>{{ holder.ASSOCIATION_START_DATE.strftime('%Y-%m-%d') }}</award:associationStartDate>
+      {%- endif %}
+      {%- if holder.ASSOCIATION_END_DATE %}
+      <award:associationEndDate>{{ holder.ASSOCIATION_END_DATE.strftime('%Y-%m-%d') }}</award:associationEndDate>
+      {%- endif %}
+    </award:internalAwardholder>
+    {%- endfor %}
+  </award:internalAwardholders>
+  <award:externalAwardholders>
+    {%- for holder in external_holders %}
+    <award:externalAwardholder>
+      <award:firstName>{{ holder.FIRST_NAME }}</award:firstName>
+      <award:lastName>{{ holder.LAST_NAME }}</award:lastName>
+      <award:role>{{ holder.ROLE }}</award:role>
+    </award:externalAwardholder>
+    {%- endfor %}
+  </award:externalAwardholders>
+  <award:managedByOrganisation id="{{ MANAGED_BY_ORGANISATION_ID }}"></award:managedByOrganisation>
+  {%- if ACTUAL_START_DATE %}
+  <award:actualStartDate>{{ ACTUAL_START_DATE.strftime('%Y-%m-%d') }}</award:actualStartDate>
+  {%- endif %}
+  {%- if ACTUAL_END_DATE %}
+  <award:actualEndDate>{{ ACTUAL_END_DATE.strftime('%Y-%m-%d') }}</award:actualEndDate>
+  {%- endif %}
+  <award:awardDate>{{ AWARD_DATE }}</award:awardDate>
+  <award:financialFundings>
+    {%- if FINANCIAL_FUNDING_ID %}
+    <award:financialFunding id="{{ FINANCIAL_FUNDING_ID }}">
+      {%- if FINANCIAL_FUNDING_EXTERNAL_ORG_NAME %}
+      <award:externalOrgName>{{ FINANCIAL_FUNDING_EXTERNAL_ORG_NAME }}</award:externalOrgName>
+      {%- endif %}
+      <award:externalOrgType>sponsor</award:externalOrgType>
+    </award:financialFunding>
+    {%- endif %}
+    {%- if FINANCIAL_FUNDING_PRIMARY_ID %}
+    <award:financialFunding id="{{ FINANCIAL_FUNDING_PRIMARY_ID }}">
+      {%- if FINANCIAL_FUNDING_PRIMARY_EXTERNAL_ORG_NAME %}
+      <award:externalOrgName>{{ FINANCIAL_FUNDING_PRIMARY_EXTERNAL_ORG_NAME }}</award:externalOrgName>
+      {%- endif %}
+      <award:externalOrgType>primary_sponsor</award:externalOrgType>
+    </award:financialFunding>
+    {%- endif %}
+  </award:financialFundings>
+  <award:visibility>Public</award:visibility>
+</award:upmaward>
+{% endautoescape %}

@@ -1,0 +1,55 @@
+{% autoescape true %}
+<project:upmproject id="{{ PROJECT_ID }}" type="research">
+  <project:title>
+    <common:text lang="en" country="US">{{ TITLE }}</common:text>
+  </project:title>
+  {%- if SHORT_TITLE %}
+  <project:shortTitle>
+    <common:text lang="en" country="US">{{ SHORT_TITLE }}</common:text>
+  </project:shortTitle>
+  {%- endif %}
+  <project:ids>
+    <common:id type="um_award_number">{{ PROJECT_ID }}</common:id>
+    {%- if SPONSOR_AWARD_NUMBER %}
+    <common:id type="sponsor_award_number">{{ SPONSOR_AWARD_NUMBER }}</common:id>
+    {%- endif %}
+  </project:ids>
+  {%- if internal_participants %}
+  <project:internalParticipants>
+    {%- for participant in internal_participants %}
+    <project:internalParticipant>
+      <project:personId>{{ participant.PERSON_ID }}</project:personId>
+      <project:organisationIds>
+        <project:organisation id="{{ participant.ORGANISATION_ID }}"></project:organisation>
+      </project:organisationIds>
+      <project:role>{{ participant.ROLE }}</project:role>
+    </project:internalParticipant>
+    {%- endfor %}
+  </project:internalParticipants>
+  {%- endif %}
+  {%- if external_participants %}
+  <project:externalParticipants>
+    {%- for participant in external_participants %}
+    <project:externalParticipant>
+      <project:firstName>{{ participant.FIRST_NAME }}</project:firstName>
+      <project:lastName>{{ participant.LAST_NAME }}</project:lastName>
+      <project:role>{{ participant.ROLE }}</project:role>
+    </project:externalParticipant>
+    {%- endfor %}
+  </project:externalParticipants>
+  {%- endif %}
+  <project:managedByOrganisation id="{{ MANAGED_BY_ORGANISATION_ID }}"></project:managedByOrganisation>
+  {%- if START_DATE %}
+  <project:startDate>{{ START_DATE.strftime('%Y-%m-%d') }}</project:startDate>
+  {%- endif %}
+  {%- if END_DATE %}
+  <project:endDate>{{ END_DATE.strftime('%Y-%m-%d') }}</project:endDate>
+  {%- endif %}
+  <project:relatedAwards>
+    {%- for related_award in related_awards %}
+    <project:relatedAwardId>{{ related_award.AWARD_ID }}</project:relatedAwardId>
+    {%- endfor %}
+  </project:relatedAwards>
+  <project:visibility>Public</project:visibility>
+</project:upmproject>
+{% endautoescape %}
