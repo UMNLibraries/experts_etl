@@ -45,11 +45,13 @@
   {%- if END_DATE %}
   <project:endDate>{{ END_DATE.strftime('%Y-%m-%d') }}</project:endDate>
   {%- endif %}
+  {%- if related_awards %}
   <project:relatedAwards>
     {%- for related_award in related_awards %}
     <project:relatedAwardId>{{ related_award.AWARD_ID }}</project:relatedAwardId>
     {%- endfor %}
   </project:relatedAwards>
+  {%- endif %}
   <project:visibility>Public</project:visibility>
 </project:upmproject>
 {% endautoescape %}
