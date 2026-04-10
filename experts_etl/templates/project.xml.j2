@@ -8,12 +8,13 @@
     <common:text lang="en" country="US">{{ SHORT_TITLE }}</common:text>
   </project:shortTitle>
   {%- endif %}
+  {%- if umn_project_ids %}
   <project:ids>
-    <common:id type="um_award_number">{{ PROJECT_ID }}</common:id>
-    {%- if SPONSOR_AWARD_NUMBER %}
-    <common:id type="sponsor_award_number">{{ SPONSOR_AWARD_NUMBER }}</common:id>
-    {%- endif %}
+    {%- for umn_project_id in umn_project_ids %}
+    <common:id type="umn_project_id">{{ umn_project_id.UMN_PROJECT_ID }}</common:id>
+    {%- endfor %}
   </project:ids>
+  {%- endif %}
   {%- if internal_participants %}
   <project:internalParticipants>
     {%- for participant in internal_participants %}
@@ -45,13 +46,9 @@
   {%- if END_DATE %}
   <project:endDate>{{ END_DATE.strftime('%Y-%m-%d') }}</project:endDate>
   {%- endif %}
-  {%- if related_awards %}
   <project:relatedAwards>
-    {%- for related_award in related_awards %}
-    <project:relatedAwardId>{{ related_award.AWARD_ID }}</project:relatedAwardId>
-    {%- endfor %}
+    <project:relatedAwardId> PROJECT_ID }}</project:relatedAwardId>
   </project:relatedAwards>
-  {%- endif %}
   <project:visibility>Public</project:visibility>
 </project:upmproject>
 {% endautoescape %}

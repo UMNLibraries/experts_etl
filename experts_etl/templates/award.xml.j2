@@ -12,12 +12,18 @@
   </award:shortTitle>
   {%- endif %}
   <award:ids>
-    <common:id type="um_award_number">{{ PROJECT_ID }}</common:id>
+    <common:id type="umn_award_contract_number">{{ UMN_AWARD_CONTRACT_NUMBER }}</common:id>
+    {%- if UMN_PREVIOUS_AWARD_CONTRACT_NUMBER %}
+    <common:id type="umn_previous_award_contract_number">{{ UMN_PREVIOUS_AWARD_CONTRACT_NUMBER }}</common:id>
+    {%- endif %}
     {%- if SPONSOR_AWARD_NUMBER %}
     <common:id type="sponsor_award_number">{{ SPONSOR_AWARD_NUMBER }}</common:id>
     {%- endif %}
     {%- if PRIMARY_SPONSOR_AWARD_NUMBER %}
     <common:id type="primary_sponsor_award_number">{{ PRIMARY_SPONSOR_AWARD_NUMBER }}</common:id>
+    {%- endif %}
+    {%- if FEDERAL_AWARD_NUMBER %}
+    <common:id type="federal_award_number">{{ FEDERAL_AWARD_NUMBER }}</common:id>
     {%- endif %}
   </award:ids>
   {%- if internal_holders %}
@@ -29,12 +35,6 @@
         <award:organisation id="{{ holder.ORGANISATION_ID }}"></award:organisation>
       </award:organisationIds>
       <award:role>{{ holder.ROLE }}</award:role>
-      {%- if holder.ASSOCIATION_START_DATE %}
-      <award:associationStartDate>{{ holder.ASSOCIATION_START_DATE.strftime('%Y-%m-%d') }}</award:associationStartDate>
-      {%- endif %}
-      {%- if holder.ASSOCIATION_END_DATE %}
-      <award:associationEndDate>{{ holder.ASSOCIATION_END_DATE.strftime('%Y-%m-%d') }}</award:associationEndDate>
-      {%- endif %}
     </award:internalAwardholder>
     {%- endfor %}
   </award:internalAwardholders>

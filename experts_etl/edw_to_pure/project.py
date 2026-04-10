@@ -33,6 +33,16 @@ def run(
         cursor = connection.cursor()
 
         # Preload these to avoid the n+1 queries problem:
+        umn_project_ids = select_keyed_lists_of_dicts(
+            cursor, '''
+            SELECT project_id, umn_project_id
+            FROM pure_sync_project_internal_participant_transform_vw
+            UNION
+            SELECT project_id, umn_project_id
+            FROM pure_sync_project_external_participant_transform_vw
+            ''',
+            key_column_name='PROJECT_ID',
+        )
         internal_participants = select_keyed_lists_of_dicts(
             cursor,
             'SELECT * FROM pure_sync_project_internal_participant',
@@ -43,20 +53,15 @@ def run(
             'SELECT * FROM pure_sync_project_external_participant',
             key_column_name='PROJECT_ID',
         )
-        related_awards = select_keyed_lists_of_dicts(
-            cursor,
-            'SELECT DISTINCT project_id, award_id FROM pure_sync_award',
-            key_column_name='PROJECT_ID',
-        )
 
         output_file.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n')
         output_file.write('<project:upmprojects xmlns:common="v3.commons.pure.atira.dk" xmlns:project="v1.upmproject.pure.atira.dk">\n')
 
         for project in select_list_of_dicts(cursor, 'SELECT * FROM pure_sync_project'):
             project_id = project['PROJECT_ID']
+            project['umn_project_ids'] = umn_project_ids[project_id] if project_id in umn_project_ids else []
             project['internal_participants'] = internal_participants[project_id] if project_id in internal_participants else []
             project['external_participants'] = external_participants[project_id] if project_id in external_participants else []
-            project['related_awards'] = related_awards[project_id] if project_id in related_awards else []
             output_file.write(template.render(project))
 
         output_file.write('</project:upmprojects>')
