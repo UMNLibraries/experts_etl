@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 from datetime import datetime
-from experts_dw.models import PureEligibleDemogChngHst, PureEligibleEmployeeJob, PureEligibleEmployeeJobcode, UmnDeptPureOrg
+from experts_dw.models import PureEligibleDemogChngHst, PureEligibleEmployeeJob, PureEligibleEmployeeJobcode, UmnDeptPureOrgMvw
 from experts_etl.demographics import latest_demographics_for_emplid
 from experts_etl.umn_data_error import record_unknown_dept_errors
 
@@ -53,8 +53,8 @@ def transform(session, entries):
 def get_org_id(session, deptid):
     org_id = None
     umn_dept_pure_org = (
-        session.query(UmnDeptPureOrg)
-        .filter(UmnDeptPureOrg.deptid == deptid)
+        session.query(UmnDeptPureOrgMvw)
+        .filter(UmnDeptPureOrgMvw.deptid == deptid)
         .one_or_none()
     )
     if umn_dept_pure_org:

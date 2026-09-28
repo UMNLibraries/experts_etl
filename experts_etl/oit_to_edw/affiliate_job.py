@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-from experts_dw.models import PureEligibleAffiliateJob, PureEligibleAffiliateJobcode, UmnDeptPureOrg
+from experts_dw.models import PureEligibleAffiliateJob, PureEligibleAffiliateJobcode, UmnDeptPureOrgMvw
 from experts_etl.demographics import latest_demographics_for_emplid
 from experts_etl.umn_data_error import record_unknown_dept_errors
 from sqlalchemy import and_
@@ -40,8 +40,8 @@ def transform(session, entries):
 
 def get_org_id(session, deptid):
     umn_dept_pure_org = (
-        session.query(UmnDeptPureOrg)
-        .filter(UmnDeptPureOrg.deptid == deptid)
+        session.query(UmnDeptPureOrgMvw)
+        .filter(UmnDeptPureOrgMvw.deptid == deptid)
         .one_or_none()
     )
     if umn_dept_pure_org:

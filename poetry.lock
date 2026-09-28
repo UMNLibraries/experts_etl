@@ -246,13 +246,13 @@ url = "https://github.com/UMNLibraries/dotenv_switch/raw/master/dist/dotenv_swit
 
 [[package]]
 name = "experts_dw"
-version = "10.14.0"
+version = "10.17.0"
 description = "Tools for working with the Experts@Minnesota Data Warehouse."
 optional = false
 python-versions = ">=3.12,<4.0"
 groups = ["main"]
 files = [
-    {file = "experts_dw-10.14.0.tar.gz", hash = "sha256:e043771c11fdce60dce99ffdfcf70e8107d0f66dd645a21503af0e962c67ef34"},
+    {file = "experts_dw-10.17.0.tar.gz", hash = "sha256:e5996e816d6400a7b16f043f07f46d78a9960ae1c2a73cc7c7419fcee8e88be2"},
 ]
 
 [package.dependencies]
@@ -266,7 +266,7 @@ sqlparse = ">=0.4.2,<0.5.0"
 
 [package.source]
 type = "url"
-url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-10.14.0.tar.gz"
+url = "https://github.com/UMNLibraries/experts_dw/raw/main/dist/experts_dw-10.17.0.tar.gz"
 
 [[package]]
 name = "idna"
@@ -968,4 +968,4 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "6ab9c5832baede785c18175319a019c20fddbfad243b3062550b439dc14f22cd"
+content-hash = "f07222a2e486efafa81bb5e44ca5743aa7e51c65dc0fa6de56fb294f10901af1"
