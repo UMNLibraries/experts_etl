@@ -17,7 +17,8 @@ extractor_loaders = list(map(
     [
         'pure_api_changes',
         'pure_api_external_organisations',
-        'pure_api_organisational_units',
+        # Some orgs new have multiple parents, which may cause breakage:
+        #'pure_api_organisational_units',
         'pure_api_external_persons',
         'pure_api_persons',
         'pure_api_research_outputs',
@@ -28,7 +29,8 @@ transformer_loaders = list(map(
     lambda x: 'experts_etl.transformer_loaders.' + x,
     [
         'pure_api_external_org',
-        'pure_api_internal_org',
+        # Some orgs new have multiple parents, which may cause breakage:
+        #'pure_api_internal_org',
         'pure_api_external_person',
         'pure_api_internal_person',
         'pure_api_pub',
