@@ -31,7 +31,7 @@ def run(
         experts_etl_logger = loggers.experts_etl_logger()
     experts_etl_logger.info('starting: edw -> pure', extra={'pure_sync_job': 'person'})
 
-    with open(output_filename, 'w') as output_file, db.cx_oracle_connection() as connection:
+    with open(output_filename, 'w') as output_file, db.cx_oracle_connection() as connection, db.session() as session:
         cursor = connection.cursor()
 
         # Preload these to avoid the n+1 queries problem:
@@ -54,7 +54,7 @@ def run(
             person['programs'] = programs[person_id] if person_id in programs else []
             if len(person['jobs']) == 0 and len(person['programs']) == 0:
                 record_person_no_org_associations_error(
-                    session=db.session(),
+                    session=session,
                     emplid=person['EMPLID'],
                     internet_id=person['INTERNET_ID'],
                 )
