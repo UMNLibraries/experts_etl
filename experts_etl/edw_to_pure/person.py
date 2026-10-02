@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from experts_dw import db
-from experts_dw.models import PureSyncPersonData, PureSyncStaffOrgAssociation, PureSyncStudentOrgAssociation
+from experts_dw.cx_oracle_helpers import select_list_of_dicts, select_keyed_lists_of_dicts
 from experts_etl.umn_data_error import record_person_no_org_associations_error
 from experts_etl import loggers
 
@@ -31,32 +31,35 @@ def run(
         experts_etl_logger = loggers.experts_etl_logger()
     experts_etl_logger.info('starting: edw -> pure', extra={'pure_sync_job': 'person'})
 
-    with open(output_filename, 'w') as output_file:
+    with open(output_filename, 'w') as output_file, db.cx_oracle_connection() as connection:
+        cursor = connection.cursor()
+
+        # Preload these to avoid the n+1 queries problem:
+        jobs = select_keyed_lists_of_dicts(
+            cursor,
+            "SELECT * FROM pure_sync_staff_org_association",
+            key_column_name='PERSON_ID',
+        )
+        programs = select_keyed_lists_of_dicts(
+            cursor,
+            "SELECT * FROM pure_sync_student_org_association",
+            key_column_name='PERSON_ID',
+        )
+
         output_file.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n')
         output_file.write('<persons xmlns="v1.unified-person-sync.pure.atira.dk" xmlns:v3="v3.commons.pure.atira.dk">\n')
-        with db.session(db_name) as session:
-            for person in session.query(PureSyncPersonData).all():
-                person_dict = {c.name: getattr(person, c.name) for c in person.__table__.columns}
-                person_dict['jobs'] = []
-                for job in session.query(PureSyncStaffOrgAssociation).filter(
-                    PureSyncStaffOrgAssociation.person_id == person.person_id
-                ).all():
-                    job_dict = {c.name: getattr(job, c.name) for c in job.__table__.columns}
-                    person_dict['jobs'].append(job_dict)
-                person_dict['programs'] = []
-                for program in session.query(PureSyncStudentOrgAssociation).filter(
-                    PureSyncStudentOrgAssociation.person_id == person.person_id
-                ).all():
-                    program_dict = {c.name: getattr(program, c.name) for c in program.__table__.columns}
-                    person_dict['programs'].append(program_dict)
-                if len(person_dict['jobs']) == 0 and len(person_dict['programs']) == 0:
-                    record_person_no_org_associations_error(
-                        session=session,
-                        emplid=person_dict['emplid'],
-                        internet_id=person_dict['internet_id'],
-                    )
-                    continue
-                output_file.write(template.render(person_dict))
+        for person in select_list_of_dicts(cursor, 'SELECT * FROM pure_sync_person_data'):
+            person_id = person['PERSON_ID']
+            person['jobs'] = jobs[person_id] if person_id in jobs else []
+            person['programs'] = programs[person_id] if person_id in programs else []
+            if len(person['jobs']) == 0 and len(person['programs']) == 0:
+                record_person_no_org_associations_error(
+                    session=db.session(),
+                    emplid=person['EMPLID'],
+                    internet_id=person['INTERNET_ID'],
+                )
+                continue
+            output_file.write(template.render(person))
 
         output_file.write('</persons>')
 

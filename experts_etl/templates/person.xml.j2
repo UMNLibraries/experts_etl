@@ -1,15 +1,15 @@
 {% autoescape true %}
-<person id="{{ person_id }}">
+<person id="{{ PERSON_ID }}">
   <name>
-    <v3:firstname>{{ first_name }}</v3:firstname>
-    <v3:lastname>{{ last_name }}</v3:lastname>
+    <v3:firstname>{{ FIRST_NAME }}</v3:firstname>
+    <v3:lastname>{{ LAST_NAME }}</v3:lastname>
   </name>
-  {%- if postnominal %}
+  {%- if POSTNOMINAL %}
   <titles>
-    <title id="{{ emplid }}">
+    <title id="{{ EMPLID }}">
       <typeClassification>postnominal</typeClassification>
       <value>
-        <v3:text lang="en" country="US">{{ postnominal }}</v3:text>
+        <v3:text lang="en" country="US">{{ POSTNOMINAL }}</v3:text>
       </value>
     </title>
   </titles>
@@ -17,76 +17,76 @@
   <gender>unknown</gender>
   <organisationAssociations>
     {%- for job in jobs %}
-    <staffOrganisationAssociation id="{{ job.staff_org_association_id }}" managedInPure="false">
-      <affiliationId>{{ job.affiliation_id }}</affiliationId>
-      {%- if job.email_address %}
+    <staffOrganisationAssociation id="{{ job.STAFF_ORG_ASSOCIATION_ID }}" managedInPure="false">
+      <affiliationId>{{ job.AFFILIATION_ID }}</affiliationId>
+      {%- if job.EMAIL_ADDRESS %}
       <emails>
         <v3:classifiedEmail id="personStaffAssocEmail1">
           <v3:classification>email</v3:classification>
-          <v3:value>{{ job.email_address }}</v3:value>
+          <v3:value>{{ job.EMAIL_ADDRESS }}</v3:value>
         </v3:classifiedEmail>
       </emails>
       {%- endif %}
-      <employmentType>{{ job.employment_type }}</employmentType>
-      <primaryAssociation>{% if job.primary_association %}true{% else %}false{% endif %}</primaryAssociation>
+      <employmentType>{{ job.EMPLOYMENT_TYPE }}</employmentType>
+      <primaryAssociation>{% if job.PRIMARY_ASSOCIATION %}true{% else %}false{% endif %}</primaryAssociation>
       <organisation>
-        <v3:source_id>{{ job.org_id }}</v3:source_id>
+        <v3:source_id>{{ job.ORG_ID }}</v3:source_id>
       </organisation>
       <period>
-        <v3:startDate>{{ job.period_start_date.strftime('%d-%m-%Y') }}</v3:startDate>
-        {%- if job.period_end_date %}
-        <v3:endDate>{{ job.period_end_date.strftime('%d-%m-%Y') }}</v3:endDate>
+        <v3:startDate>{{ job.PERIOD_START_DATE.strftime('%d-%m-%Y') }}</v3:startDate>
+        {%- if job.PERIOD_END_DATE %}
+        <v3:endDate>{{ job.PERIOD_END_DATE.strftime('%d-%m-%Y') }}</v3:endDate>
         {%- endif %}
       </period>
-      <staffType>{{ job.staff_type }}</staffType>
-      <jobDescription><v3:text lang="en">{{ job.job_description }}</v3:text></jobDescription>
+      <staffType>{{ job.STAFF_TYPE }}</staffType>
+      <jobDescription><v3:text lang="en">{{ job.JOB_DESCRIPTION }}</v3:text></jobDescription>
     </staffOrganisationAssociation>
     {%- endfor %}
     {%- for program in programs %}
-    <studentOrganisationAssociation id="{{ program.student_org_association_id }}" managedInPure="false">
-      <affiliationId>{{ program.affiliation_id }}</affiliationId>
-      {%- if program.email_address %}
+    <studentOrganisationAssociation id="{{ program.STUDENT_ORG_ASSOCIATION_ID }}" managedInPure="false">
+      <affiliationId>{{ program.AFFILIATION_ID }}</affiliationId>
+      {%- if program.EMAIL_ADDRESS %}
       <emails>
         <v3:classifiedEmail id="personStudentAssocEmail1">
           <v3:classification>email</v3:classification>
-          <v3:value>{{ program.email_address }}</v3:value>
+          <v3:value>{{ program.EMAIL_ADDRESS }}</v3:value>
         </v3:classifiedEmail>
       </emails>
       {%- endif %}
-      <employmentType>{{ program.affiliation_id }}</employmentType>
+      <employmentType>{{ program.AFFILIATION_ID }}</employmentType>
       <primaryAssociation>false</primaryAssociation>
       <organisation>
-        <v3:source_id>{{ program.org_id }}</v3:source_id>
+        <v3:source_id>{{ program.ORG_ID }}</v3:source_id>
       </organisation>
       <period>
-        <v3:startDate>{{ program.period_start_date.strftime('%d-%m-%Y') }}</v3:startDate>
-        {%- if program.period_end_date %}
-        <v3:endDate>{{ program.period_end_date.strftime('%d-%m-%Y') }}</v3:endDate>
+        <v3:startDate>{{ program.PERIOD_START_DATE.strftime('%d-%m-%Y') }}</v3:startDate>
+        {%- if program.PERIOD_END_DATE %}
+        <v3:endDate>{{ program.PERIOD_END_DATE.strftime('%d-%m-%Y') }}</v3:endDate>
         {%- endif %}
       </period>
       <keywords>
         <v3:logicalGroup logicalName="/dk/atira/pure/person/studentregistrationstatus">
       	  <v3:structuredKeywords>
-      	    <v3:structuredKeyword classification="{{ program.status }}" />
+      	    <v3:structuredKeyword classification="{{ program.STATUS }}" />
       	  </v3:structuredKeywords>
         </v3:logicalGroup>
       </keywords>
     </studentOrganisationAssociation>
     {%- endfor %}
   </organisationAssociations>
-  {%- if internet_id %}
-  <user id="{{ person_id }}">
-    <userName>{{ internet_id }}@umn.edu</userName>
-    <email>{{ internet_id }}@umn.edu</email>
+  {%- if INTERNET_ID %}
+  <user id="{{ PERSON_ID }}">
+    <userName>{{ INTERNET_ID }}@umn.edu</userName>
+    <email>{{ INTERNET_ID }}@umn.edu</email>
   </user>
   {%- endif %}
   <personIds>
-    <v3:id type="employee" id="autoid:{{ person_id }}-employee-{{ emplid }}">{{ emplid }}</v3:id>
-    {%- if internet_id %}
-    <v3:id type="umn" id="autoid:{{ person_id }}-umn-{{ internet_id }}">{{ internet_id }}</v3:id>
+    <v3:id type="employee" id="autoid:{{ PERSON_ID }}-employee-{{ EMPLID }}">{{ EMPLID }}</v3:id>
+    {%- if INTERNET_ID %}
+    <v3:id type="umn" id="autoid:{{ PERSON_ID }}-umn-{{ INTERNET_ID }}">{{ INTERNET_ID }}</v3:id>
     {%- endif %}
   </personIds>
-  <visibility>{{ visibility }}</visibility>
-  <profiled>{% if profiled %}true{% else %}false{% endif %}</profiled>
+  <visibility>{{ VISIBILITY }}</visibility>
+  <profiled>{% if PROFILED %}true{% else %}false{% endif %}</profiled>
 </person>
 {% endautoescape %}
