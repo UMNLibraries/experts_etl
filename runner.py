@@ -12,31 +12,6 @@ from experts_etl.pure_to_edw import changes, collection
 experts_etl_logger = loggers.experts_etl_logger()
 default_interval = 14400 # 4 hours, in seconds
 
-extractor_loaders = list(map(
-    lambda x: 'experts_etl.extractor_loaders.' + x,
-    [
-        'pure_api_changes',
-        'pure_api_external_organisations',
-        # Some orgs new have multiple parents, which may cause breakage:
-        #'pure_api_organisational_units',
-        'pure_api_external_persons',
-        'pure_api_persons',
-        'pure_api_research_outputs',
-    ]
-))
-
-transformer_loaders = list(map(
-    lambda x: 'experts_etl.transformer_loaders.' + x,
-    [
-        'pure_api_external_org',
-        # Some orgs new have multiple parents, which may cause breakage:
-        #'pure_api_internal_org',
-        'pure_api_external_person',
-        'pure_api_internal_person',
-        'pure_api_pub',
-    ]
-))
-
 syncers = list(map(
     lambda x: 'experts_etl.' + x,
     [
@@ -99,23 +74,6 @@ def run():
         }
     )
 
-    for module_name in extractor_loaders + transformer_loaders + syncers:
-        try:
-            # Must include a comma after a single arg, or multiprocessing seems to
-            # get confused and think we're passing multiple arguments:
-            p = mp.Process(target=subprocess, args=(module_name,))
-            p.start()
-            p.join()
-        except Exception as e:
-            formatted_exception = loggers.format_exception(e)
-            experts_etl_logger.error(
-                f'attempt to execute {module_name} in a new process failed: {formatted_exception}',
-                extra={
-                    'pid': str(os.getpid()),
-                    'ppid': str(os.getppid()),
-                }
-            )
-
     api_version_collections_map = {}
     with db.cx_oracle_connection() as connection:
         cursor = connection.cursor()
@@ -163,6 +121,23 @@ def run():
                     )
         for result in results:
             result.get()
+
+    for module_name in syncers:
+        try:
+            # Must include a comma after a single arg, because multiprocessing 
+            # requires args to be a tuple:
+            p = mp.Process(target=subprocess, args=(module_name,))
+            p.start()
+            p.join()
+        except Exception as e:
+            formatted_exception = loggers.format_exception(e)
+            experts_etl_logger.error(
+                f'attempt to execute {module_name} in a new process failed: {formatted_exception}',
+                extra={
+                    'pid': str(os.getpid()),
+                    'ppid': str(os.getppid()),
+                }
+            )
 
     experts_etl_logger.info(
         'ending: experts etl',
