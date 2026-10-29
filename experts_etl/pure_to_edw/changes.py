@@ -83,7 +83,7 @@ def run(
                     'change_type': api_document.changeType,
                     'family_system_name': api_document.familySystemName,
                     'inserted': datetime.now(),
-                    'json_document': json.dumps(api_document),
+                    'json_document': bytes(json.dumps(api_document), 'utf-8'),
                 }
 
                 if len(documents_to_insert) % transaction_record_limit == 0:
